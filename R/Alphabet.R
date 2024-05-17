@@ -14,11 +14,8 @@ Alphabet <- R6Class(
     },
     print = function(...) {
       cat("Alphabet:\n")
-      if (self$length <= 4) {
-        for (i in seq_len(self$length)) {
-          cat(paste0(i, " -> ", self$symbols[i], "\n"))
-        }
-      } else {
+      for (i in seq_len(self$length)) {
+        cat(paste0(i, " -> ", self$symbols[i], "\n"))
       }
     }
   ))
