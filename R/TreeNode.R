@@ -22,7 +22,7 @@ TreeNode <- R6Class(
     isActive = function() {private$active},
     getDepth = function() {private$depth},
     getPath = function() {private$path},
-    getParentPath = function() {private$parentPath}
+    getParentPath = function() {private$parentPath},
     validatePath = function(Alphabet) {
       s <- str_split_1(private$path, "\\.")[-1]
       return(all(s %in% Alphabet$symbols))
