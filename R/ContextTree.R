@@ -41,7 +41,7 @@ ContextTree <- R6Class(
         children_paths <- glue("{path}.{self$Alphabet$symbols}")
         if(self$nodes[[path]]$isLeaf)
           for(child_path in children_paths){
-            self$nodes[[child_path]] <- TreeNode$new(path = child_path)
+            private$addNode(child_path)
           }
         self$nodes[[path]]$isLeaf <- FALSE
       } else {
