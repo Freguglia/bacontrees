@@ -7,9 +7,16 @@ Sequence <- R6Class(
     n = 0,
     Alphabet = NULL,
     initialize = function(x) {
-      self$Alphabet <- Alphabet$new(sort(unique(x)))
-      self$n <- length(x)
-      self$data <- x
+      self$Alphabet <- Alphabet$new(sort(unique(unlist(x))))
+      if(is.list(x)){
+        self$n <- sapply(x, length)
+        self$data <- x
+      } else if(is.character(x)){
+        self$n <- length(x)
+        self$data <- list(x)
+      } else {
+        stop("'x' must be either a list or a character vector.")
+      }
     },
     print = function(...) {
       cat("Alphabet:", self$Alphabet$symbols, "\n")
