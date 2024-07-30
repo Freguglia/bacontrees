@@ -5,34 +5,22 @@ ContextTree <- R6Class(
     nodes = list(),
     Alphabet = NULL,
     root = NULL,
+    m = 0,
     initialize = function(Alphabet = NULL) {
       self$Alphabet <- Alphabet
       root <- TreeNode$new(path = "*")
       self$nodes[[root$getPath()]] <- root
       self$root <- root
-    },
-
-    addNode = function(path) {
-      symbols <- str_split_1(path, "\\.")[-1]
-      if (any(!symbols %in% self$Alphabet$symbols)) {
-        stop("Error: Path contains symbols not in the alphabet.")
-      }
-      if (!self$nodeExists(path)) {
-        node <- TreeNode$new(path)
-        self$nodes[[path]] <- node
-        return(node)
-      }
-      return(NULL)
+      self$m <- length(self$Alphabet$symbols)
     },
 
     validate = function() {
-      m <- length(self$Alphabet$symbols)
       for (path in names(self$nodes)) {
         children_paths <- names(self$nodes)[startsWith(names(self$nodes), paste0(path, "."))]
         children_depths <- sapply(children_paths, function(p) length(str_split_1(p, "\\.")))
         expected_depth <- length(str_split_1(path, "\\.")) + 1
         children_paths <- children_paths[children_depths == expected_depth]
-        if (length(children_paths) != m) {
+        if (length(children_paths) != self$m) {
           return(FALSE)
         }
       }
@@ -48,11 +36,43 @@ ContextTree <- R6Class(
 
     nodeExists = function(path) { path %in% names(self$nodes) },
 
+    addChildren = function(path) {
+      if(self$nodeExists(path)){
+        children_paths <- glue("{path}.{self$Alphabet$symbols}")
+        if(self$nodes[[path]]$isLeaf)
+          for(child_path in children_paths){
+            self$nodes[[child_path]] <- TreeNode$new(path = child_path)
+          }
+        self$nodes[[path]]$isLeaf <- FALSE
+      } else {
+        stop(glue("Cannot add children to {path} because it is not a node."))
+      }
+    },
+
+    fillByDepth = function(depth) {
+      for(i in seq_len(depth)){
+      }
+    },
+
     print = function() {
-      for (path in names(self$nodes)) {
+      for (path in sort(names(self$nodes))) {
         self$nodes[[path]]$print()
         cat("\n")
       }
+    }
+  ),
+  private = list(
+    addNode = function(path) {
+      symbols <- str_split_1(path, "\\.")[-1]
+      if (any(!symbols %in% self$Alphabet$symbols)) {
+        stop("Error: Path contains symbols not in the alphabet.")
+      }
+      if (!self$nodeExists(path)) {
+        node <- TreeNode$new(path)
+        self$nodes[[path]] <- node
+        return(node)
+      }
+      return(NULL)
     }
   )
 )
