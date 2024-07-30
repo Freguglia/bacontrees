@@ -15,7 +15,7 @@ TreeNode <- R6Class(
     counts = numeric(0),
 
     #' @field isLeaf Logical value indicating if the node is a leaf.
-    isLeaf = NA,
+    isLeaf = TRUE,
 
     #' @field extra List to hold extra information.
     extra = list(),
