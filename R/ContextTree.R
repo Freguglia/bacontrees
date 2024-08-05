@@ -16,12 +16,15 @@ ContextTree <- R6Class(
 
     validate = function() {
       for (path in names(self$nodes)) {
-        children_paths <- names(self$nodes)[startsWith(names(self$nodes), paste0(path, "."))]
-        children_depths <- sapply(children_paths, function(p) length(str_split_1(p, "\\.")))
-        expected_depth <- length(str_split_1(path, "\\.")) + 1
-        children_paths <- children_paths[children_depths == expected_depth]
-        if (length(children_paths) != self$m) {
-          return(FALSE)
+        node <- self$nodes[[path]]
+        if (!node$isLeaf) {
+          children_paths <- names(self$nodes)[startsWith(names(self$nodes), paste0(path, "."))]
+          children_depths <- sapply(children_paths, function(p) length(str_split_1(p, "\\.")))
+          expected_depth <- length(str_split_1(path, "\\.")) + 1
+          children_paths <- children_paths[children_depths == expected_depth]
+          if (length(children_paths) != self$m) {
+            return(FALSE)
+          }
         }
       }
       return(TRUE)
@@ -73,9 +76,6 @@ ContextTree <- R6Class(
   private = list(
     addNode = function(path) {
       symbols <- str_split_1(path, "\\.")[-1]
-      if (any(!symbols %in% self$Alphabet$symbols)) {
-        stop("Error: Path contains symbols not in the alphabet.")
-      }
       if (!self$nodeExists(path)) {
         node <- TreeNode$new(path)
         self$nodes[[path]] <- node
