@@ -34,13 +34,17 @@ ContextTree <- R6Class(
       return(NULL)
     },
 
-    nodeExists = function(path) { path %in% names(self$nodes) },
+    getLeaves = function() {
+      return(names(self$nodes)[sapply(self$nodes, function(x) x$isLeaf)])
+    },
+
+    nodeExists = function(path) path %in% names(self$nodes),
 
     addChildren = function(path) {
-      if(self$nodeExists(path)){
+      if (self$nodeExists(path)) {
         children_paths <- glue("{path}.{self$Alphabet$symbols}")
-        if(self$nodes[[path]]$isLeaf)
-          for(child_path in children_paths){
+        if (self$nodes[[path]]$isLeaf)
+          for (child_path in children_paths) {
             private$addNode(child_path)
           }
         self$nodes[[path]]$isLeaf <- FALSE
@@ -50,13 +54,18 @@ ContextTree <- R6Class(
     },
 
     fillByDepth = function(depth) {
-      for(i in seq_len(depth)){
+      for (i in seq_len(depth)) {
+        leaves <- self$getLeaves()
+        for(leaf in leaves){
+          self$addChildren(leaf)
+        }
       }
     },
 
     print = function() {
-      for (path in sort(names(self$nodes))) {
-        self$nodes[[path]]$print()
+      print("Context Tree:")
+      for (path in sort(self$getLeaves())) {
+        print(self$nodes[[path]])
         cat("\n")
       }
     }
