@@ -5,6 +5,7 @@ ContextTree <- R6Class(
     nodes = list(),
     Alphabet = NULL,
     root = NULL,
+    data = NULL,
     m = 0,
     initialize = function(Alphabet = NULL) {
       self$Alphabet <- Alphabet
@@ -12,6 +13,7 @@ ContextTree <- R6Class(
       self$nodes[[root$getPath()]] <- root
       self$root <- root
       self$m <- length(self$Alphabet$symbols)
+      root$counts <- rep(0, self$m)
     },
 
     validate = function() {
@@ -49,10 +51,20 @@ ContextTree <- R6Class(
         if (self$nodes[[path]]$isLeaf)
           for (child_path in children_paths) {
             private$addNode(child_path)
+            self$nodes[[path]]$childrenIndex <- c(self$nodes[[path]]$childrenIndex,
+                                                  length(self$nodes))
+            self$nodes[[child_path]]$counts <- rep(0, self$m)
           }
         self$nodes[[path]]$isLeaf <- FALSE
       } else {
         stop(glue("Cannot add children to {path} because it is not a node."))
+      }
+    },
+
+    setData = function(Sequence) {
+      self$data <- Sequence
+      for(sequence_vec in Sequence$data){
+        private$fillData(sequence_vec)
       }
     },
 
@@ -82,6 +94,19 @@ ContextTree <- R6Class(
         return(node)
       }
       return(NULL)
+    },
+
+    fillData = function(sequence_vector) {
+      for(t in seq_along(sequence_vector)){
+        current_symbol <- sequence_vector[t]
+        node <- self$root
+        dt <- 1
+        while(!is.null(node) & (t-dt) > 0){
+          node$counts[current_symbol] <- node$counts[current_symbol] + 1
+          node <- self$nodes[[node$childrenIndex[sequence_vector[t-dt]]]]
+          dt <- dt + 1
+        }
+      }
     }
   )
 )

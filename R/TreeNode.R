@@ -9,10 +9,10 @@ TreeNode <- R6Class(
   "TreeNode",
   public = list(
     #' @field childrenIndex Character vector to hold indices of child nodes.
-    childrenIndex = character(0),
+    childrenIndex = integer(0),
 
     #' @field counts Numeric vector to hold counts.
-    counts = numeric(0),
+    counts = integer(0),
 
     #' @field isLeaf Logical value indicating if the node is a leaf.
     isLeaf = TRUE,
