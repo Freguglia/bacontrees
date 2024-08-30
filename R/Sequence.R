@@ -10,21 +10,25 @@ Sequence <- R6Class(
       self$Alphabet <- Alphabet$new(sort(unique(unlist(x))))
       if(is.list(x)){
         self$n <- sapply(x, length)
-        self$data <- x
+        self$data <- lapply(x, function(s) as.numeric(factor(s, levels = self$Alphabet$symbols)))
       } else if(is.character(x)){
         self$n <- length(x)
-        self$data <- list(x)
+        self$data <- list(as.numeric(factor(x, levels = self$Alphabet)))
       } else {
         stop("'x' must be either a list or a character vector.")
       }
     },
     print = function(...) {
       cat("Alphabet:", self$Alphabet$symbols, "\n")
-      cat(glue("Sequence (n = {self$n}):"), "\n")
-      if (self$n < 15){
-        cat(self$data)
-      } else {
-        cat(self$data[1:14], "...")
+      n_seqs <- length(self$data)
+      N <- sum(self$n)
+      cat(glue("{n_seqs} Sequence(s) (Total observations = {N}):"), "\n")
+      for(seq_index in seq_len(min(2, n_seqs))){
+        cat(glue("Sequence {seq_index} (n = {self$n[seq_index]}):"))
+        cat("\n")
+      }
+      if(n_seqs > 2){
+        cat(glue("... and {n_seqs - 2} more sequence(s)."))
       }
     }
   ))
