@@ -3,6 +3,7 @@
 export(ContextTree)
 export(Sequence)
 export(TreeNode)
+export(baConTree)
 importFrom(R6,R6Class)
 importFrom(glue,glue)
 importFrom(stringr,str_length)
