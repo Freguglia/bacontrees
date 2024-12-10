@@ -19,23 +19,19 @@ library(bacontrees)
 ```
 
 ```{r}
-alphabet <- Alphabet$new(LETTERS[1:3])
-ct <- ContextTree$new(alphabet)
-ct$fillByDepth(2)
-ct
-```
-
-```{r}
 set.seed(8)
-sequences <- lapply(1:3, function(x) sample(LETTERS[1:3], 1000, replace = TRUE))
-d <- Sequence$new(sequences)
+d <- map(1:3, function(x) ibfvlmc::rvlmc_cpp(1000, list(0, c(1,0), c(1,1), c(1,2)),
+                                             list(c(0.1,0.2,0.7),
+                                                  c(0.3, 0.3, 0.4),
+                                                  c(0.8, 0.1, 0.1),
+                                                  c(0.2, 0.5, 0.3))))
 ```
 
 ```{r}
-ct$setData(d)
-ct$activateLeaves()
-ct$getActiveNodes()
+bt <- baConTree$new(d, maximal_depth = 3)
+bt$setAllDirichletPars(0.01)
 ```
 
-
-
+```{r}
+bt$nodes[[1]]$extra
+```

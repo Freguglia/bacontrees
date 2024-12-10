@@ -1,4 +1,4 @@
-#' @importFrom purrr walk
+#' @importFrom purrr walk map_dbl
 #' @export
 baConTree <- R6Class(
   "baConTree",
@@ -19,8 +19,10 @@ baConTree <- R6Class(
       for(node in self$nodes) {
         node$extra$dirichletAlpha <- rep(alpha, self$m)
       }
-    },
-
+      private$computeIntegratedDirichlet()
+    }
+  ),
+  private = list(
     computeIntegratedDirichlet = function(){
       for(node in self$nodes) {
         result <- lgamma(sum(node$extra$dirichletAlpha)) -
@@ -29,7 +31,7 @@ baConTree <- R6Class(
           lgamma(sum(node$extra$dirichletAlpha + node$counts))
         node$extra$integratedDirichletLog <- result
       }
-      
+
       for(node in self$nodes) {
         if(!node$isLeaf){
           childrenIntegratedSum <- sum(map_dbl(self$nodes[node$childrenIndex],
@@ -40,7 +42,7 @@ baConTree <- R6Class(
         }
         node$extra$logIntegratedRatio <- node$extra$integratedDirichletLog -
           node$extra$childrenIntegratedDirichletLog
-        
+
       }
     }
   )
