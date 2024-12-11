@@ -20,7 +20,7 @@ library(bacontrees)
 
 ```{r}
 set.seed(8)
-d <- map(1:3, function(x) ibfvlmc::rvlmc_cpp(1000, list(0, c(1,0), c(1,1), c(1,2)),
+d <- lapply(1:3, function(x) ibfvlmc::rvlmc_cpp(1000, list(0, c(1,0), c(1,1), c(1,2)),
                                              list(c(0.1,0.2,0.7),
                                                   c(0.3, 0.3, 0.4),
                                                   c(0.8, 0.1, 0.1),
@@ -30,8 +30,13 @@ d <- map(1:3, function(x) ibfvlmc::rvlmc_cpp(1000, list(0, c(1,0), c(1,1), c(1,2
 ```{r}
 bt <- baConTree$new(d, maximal_depth = 3)
 bt$setAllDirichletPars(0.01)
+bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
 ```
 
 ```{r}
-bt$nodes[[1]]$extra
+#bt$nodes[[3]]$extra
+bt$activateMaximal()
+bt$getActiveNodes()
+bt$activateRoot()
+bt$getActiveNodes()
 ```

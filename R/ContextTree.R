@@ -32,11 +32,28 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
-    getNode = function(path) {
-      if (self$nodeExists(path)) {
-        return(self$nodes[[path]])
+    getActiveNodes = function() {
+      unname(map_chr(bt$nodes[map_lgl(bt$nodes, ~.x$isActive())], ~.x$getPath()))
+    },
+
+    activateRoot = function() {
+      for(node in self$nodes) {
+        if(node$getPath() == "*") {
+          node$activate()
+        } else {
+          node$deactivate()
+        }
       }
-      return(NULL)
+    },
+
+    activateMaximal = function() {
+      for(node in self$nodes) {
+        if(node$isLeaf) {
+          node$activate()
+        } else {
+          node$deactivate()
+        }
+      }
     },
 
     getLeaves = function() {

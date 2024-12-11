@@ -20,6 +20,20 @@ baConTree <- R6Class(
         node$extra$dirichletAlpha <- rep(alpha, self$m)
       }
       private$computeIntegratedDirichlet()
+    },
+
+    setContextPriorWeights = function(fn){
+      for(node in self$nodes) {
+        node$extra$priorWeight <- fn(node)
+      }
+
+      for(node in self$nodes) {
+        node$extra$childrenPriorWeight <- 0
+        for(child in self$nodes[node$childrenIndex]){
+          node$extra$childrenPriorWeight <- node$extra$childrenPriorWeight +
+            child$extra$priorWeight
+        }
+      }
     }
   ),
   private = list(
@@ -42,7 +56,6 @@ baConTree <- R6Class(
         }
         node$extra$logIntegratedRatio <- node$extra$integratedDirichletLog -
           node$extra$childrenIntegratedDirichletLog
-
       }
     }
   )
