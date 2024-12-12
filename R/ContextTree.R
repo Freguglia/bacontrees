@@ -1,3 +1,4 @@
+#' @importFrom purrr map_chr map_lgl
 #' @export
 ContextTree <- R6Class(
   "ContextTree",
