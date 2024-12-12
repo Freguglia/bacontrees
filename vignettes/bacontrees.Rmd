@@ -29,6 +29,7 @@ d <- lapply(1:3, function(x) ibfvlmc::rvlmc_cpp(1000, list(0, c(1,0), c(1,1), c(
 
 ```{r}
 bt <- baConTree$new(d, maximal_depth = 3)
+bt$getActiveNodes()
 bt$setAllDirichletPars(0.01)
 bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
 ```
@@ -37,6 +38,9 @@ bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
 #bt$nodes[[3]]$extra
 bt$activateMaximal()
 bt$getActiveNodes()
-bt$activateRoot()
-bt$getActiveNodes()
 ```
+
+```{r}
+
+```
+

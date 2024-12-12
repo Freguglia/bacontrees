@@ -5,13 +5,19 @@ baConTree <- R6Class(
   inherit = ContextTree,
   public = list(
 
-    initialize = function(data, maximal_depth = 5) {
+    initialize = function(data, maximal_depth = 5, active = "root") {
       Alphabet <- Alphabet$new(sort(unique(unlist(data))))
       super$initialize(Alphabet)
       self$fillByDepth(maximal_depth)
       self$setData(Sequence$new(data))
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
+      }
+
+      if(active == "root"){
+        self$activateRoot()
+      } else {
+        self$activateMaximal()
       }
     },
 
@@ -33,6 +39,17 @@ baConTree <- R6Class(
           node$extra$childrenPriorWeight <- node$extra$childrenPriorWeight +
             child$extra$priorWeight
         }
+      }
+    },
+    growActive = function(nodePath){
+      node <- self$nodes[[nodePath]]
+      if(node$isActive() & !node$isLeaf){
+        node$deactivate()
+        for(child in self$nodes[node$childrenIndex]){
+          child$activate()
+        }
+      } else {
+        stop("Cannot grow a node that is not active or is a leaf node.")
       }
     }
   ),
