@@ -1,4 +1,5 @@
 #' @importFrom purrr map_chr map_lgl
+#' @importFrom glue glue
 #' @export
 ContextTree <- R6Class(
   "ContextTree",
@@ -109,10 +110,19 @@ ContextTree <- R6Class(
     },
 
     print = function() {
-      print("Context Tree:")
-      for (path in sort(self$getLeaves())) {
-        print(self$nodes[[path]])
+      cat("Active Context Tree:\n")
+      to_print <- list(self$root)
+      while(length(to_print) > 0){
+        node <- to_print[[1]]
+        nodePath <- node$getPath()
+        output_string <- gsub(".", " ", substr(nodePath, 1, nchar(nodePath) - 2))
+        output_string <- paste0(output_string, substr(nodePath, nchar(nodePath) - 1, nchar(nodePath)))
+        cat(glue("{output_string}: {paste0(node$counts, collapse = ' ')}"))
         cat("\n")
+        to_print <- to_print[-1]
+        if(!node$isActive()){
+          to_print <- c(self$nodes[node$childrenIndex],to_print)
+        }
       }
     }
   ),
