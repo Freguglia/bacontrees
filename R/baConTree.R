@@ -19,6 +19,9 @@ baConTree <- R6Class(
       } else {
         self$activateMaximal()
       }
+
+      private$growableNodes <- self$nodes[map_lgl(self$nodes,
+                                                  function(node) node$isActive() & !node$isLeaf)]
     },
 
     setAllDirichletPars = function(alpha){
@@ -41,6 +44,7 @@ baConTree <- R6Class(
         }
       }
     },
+
     growActive = function(nodePath){
       node <- self$nodes[[nodePath]]
       if(node$isActive() & !node$isLeaf){
@@ -50,6 +54,14 @@ baConTree <- R6Class(
         }
       } else {
         stop("Cannot grow a node that is not active or is a leaf node.")
+      }
+    },
+
+    getGrowableNodes = function(idx = TRUE){
+      if(idx){
+        names(private$growableNodes)
+      } else {
+        private$growableNodes
       }
     }
   ),
@@ -74,6 +86,8 @@ baConTree <- R6Class(
         node$extra$logIntegratedRatio <- node$extra$integratedDirichletLog -
           node$extra$childrenIntegratedDirichletLog
       }
-    }
+    },
+
+    growableNodes = list()
   )
 )
