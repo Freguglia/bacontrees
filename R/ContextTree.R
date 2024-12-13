@@ -71,6 +71,27 @@ ContextTree <- R6Class(
 
     nodeExists = function(path) path %in% names(self$nodes),
 
+    getParentNode = function(path, idx = TRUE){
+      if(idx){
+        self$nodes[[path]]$getParentPath()
+      } else {
+        self$nodes[[self$nodes[[path]]$getParentPath()]]
+      }
+    },
+
+    getSiblingNodes = function(path, idx = TRUE){
+      if(path == "*"){
+        if(idx) return(path)
+        else return(self$root)
+      }
+
+      if(idx){
+        names(self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$childrenIndex])
+      } else {
+        self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$childrenIndex]
+      }
+    },
+
     setData = function(Sequence) {
       self$data <- Sequence
       for(sequence_vec in Sequence$data){
