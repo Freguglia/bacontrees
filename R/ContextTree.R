@@ -33,8 +33,12 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
-    getActiveNodes = function() {
-      unname(map_chr(bt$nodes[map_lgl(bt$nodes, ~.x$isActive())], ~.x$getPath()))
+    getActiveNodes = function(idx = TRUE) {
+      if(idx){
+        names(self$nodes)[map_lgl(self$nodes, function(x) x$isActive())]
+      } else {
+        self$nodes[map_lgl(self$nodes, function(x) x$isActive())]
+      }
     },
 
     activateRoot = function() {
@@ -57,27 +61,15 @@ ContextTree <- R6Class(
       }
     },
 
-    getLeaves = function() {
-      return(names(self$nodes)[sapply(self$nodes, function(x) x$isLeaf)])
+    getLeaves = function(idx = TRUE) {
+      if(idx){
+        names(self$nodes)[map_lgl(self$nodes, function(x) x$isLeaf)]
+      } else {
+        self$nodes[map_lgl(self$nodes, function(x) x$isLeaf)]
+      }
     },
 
     nodeExists = function(path) path %in% names(self$nodes),
-
-    addChildren = function(path) {
-      if (self$nodeExists(path)) {
-        children_paths <- glue("{path}.{self$Alphabet$symbols}")
-        if (self$nodes[[path]]$isLeaf)
-          for (child_path in children_paths) {
-            private$addNode(child_path)
-            self$nodes[[path]]$childrenIndex <- c(self$nodes[[path]]$childrenIndex,
-                                                  length(self$nodes))
-            self$nodes[[child_path]]$counts <- rep(0, self$m)
-          }
-        self$nodes[[path]]$isLeaf <- FALSE
-      } else {
-        stop(glue("Cannot add children to {path} because it is not a node."))
-      }
-    },
 
     setData = function(Sequence) {
       self$data <- Sequence
@@ -88,9 +80,9 @@ ContextTree <- R6Class(
 
     fillByDepth = function(depth) {
       for (i in seq_len(depth)) {
-        leaves <- self$getLeaves()
+        leaves <- self$getLeaves(TRUE)
         for(leaf in leaves){
-          self$addChildren(leaf)
+          private$addChildren(leaf)
         }
       }
     },
@@ -112,6 +104,22 @@ ContextTree <- R6Class(
         return(node)
       }
       return(NULL)
+    },
+
+    addChildren = function(path) {
+      if (self$nodeExists(path)) {
+        children_paths <- glue("{path}.{self$Alphabet$symbols}")
+        if (self$nodes[[path]]$isLeaf)
+          for (child_path in children_paths) {
+            private$addNode(child_path)
+            self$nodes[[path]]$childrenIndex <- c(self$nodes[[path]]$childrenIndex,
+                                                  length(self$nodes))
+            self$nodes[[child_path]]$counts <- rep(0, self$m)
+          }
+        self$nodes[[path]]$isLeaf <- FALSE
+      } else {
+        stop(glue("Cannot add children to {path} because it is not a node."))
+      }
     },
 
     fillData = function(sequence_vector) {
