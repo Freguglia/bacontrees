@@ -1,6 +1,6 @@
 test_that("Initialization works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
+  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 3)
 
   expect_equal(tree$Alphabet, alphabet)
   expect_equal(tree$m, length(alphabet$symbols))
@@ -10,22 +10,20 @@ test_that("Initialization works correctly", {
 
 test_that("Adding and retrieving nodes works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
+  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 1)
 
-  tree$addChildren("*")
   expect_true(tree$nodeExists("*.A"))
   expect_true(tree$nodeExists("*.B"))
   expect_true(tree$nodeExists("*.C"))
 
-  node <- tree$getNode("*.A")
+  node <- tree$nodes[["*.A"]]
   expect_equal(node$getPath(), "*.A")
 })
 
 test_that("Validation function works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
+  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 1)
 
-  tree$addChildren("*")
   expect_true(tree$validate())
 
   # Manually add an invalid node
@@ -33,32 +31,25 @@ test_that("Validation function works correctly", {
   expect_false(tree$validate())
 })
 
-test_that("Leaf nodes are correctly identified", {
+test_that("Active nodes are correctly identified", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
+  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 2)
+  tree$activateRoot()
 
-  expect_equal(tree$getLeaves(), "*")
+  expect_equal(tree$getActiveNodes(), "*")
 
-  tree$addChildren("*")
-  expect_equal(tree$getLeaves(), c("*.A", "*.B", "*.C"))
+  tree$growActive("*")
+  expect_equal(tree$getActiveNodes(), c("*.A", "*.B", "*.C"))
 
-  tree$addChildren("*.A")
-  expect_equal(sort(tree$getLeaves()),
+  tree$growActive("*.A")
+  expect_equal(sort(tree$getActiveNodes()),
                sort(c("*.A.A","*.A.B", "*.A.C", "*.B", "*.C")))
-})
-
-test_that("Errors are handled correctly", {
-  alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
-
-  expect_error(tree$addChildren("*.D"), "Cannot add children to \\*\\.D because it is not a node.")
 })
 
 test_that("Fill by depth works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet)
+  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 2)
 
-  tree$fillByDepth(2)
   leaves <- tree$getLeaves()
   expected_leaves <- c(
     "*.A.A", "*.A.B", "*.A.C",

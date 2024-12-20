@@ -9,13 +9,27 @@ ContextTree <- R6Class(
     root = NULL,
     data = NULL,
     m = 0,
-    initialize = function(Alphabet = NULL) {
-      self$Alphabet <- Alphabet
+    initialize = function(Alphabet = NULL, maximalDepth = 3, active = "root") {
+      if("Alphabet" %in% class(Alphabet)){
+        self$Alphabet <- Alphabet
+      } else if(class(Alphabet) == "character"){
+        self$Alphabet <- bacontrees:::Alphabet$new(Alphabet)
+      }
       root <- TreeNode$new(path = "*")
       self$nodes[[root$getPath()]] <- root
       self$root <- root
       self$m <- length(self$Alphabet$symbols)
       root$counts <- rep(0, self$m)
+      private$buildByDepth(maximalDepth)
+
+      if(active == "root"){
+        self$activateRoot()
+      } else {
+        self$activateMaximal()
+      }
+
+      private$growableNodes <- self$nodes[map_lgl(self$nodes,
+                                                  function(node) node$isActive() & !node$isLeaf)]
     },
 
     validate = function() {
@@ -93,20 +107,35 @@ ContextTree <- R6Class(
       }
     },
 
+    growActive = function(nodePath){
+      node <- self$nodes[[nodePath]]
+      if(node$isActive() & !node$isLeaf){
+        node$deactivate()
+        for(child in self$nodes[node$childrenIndex]){
+          child$activate()
+        }
+      } else {
+        stop("Cannot grow a node that is not active or is a leaf node.")
+      }
+    },
+
+    getGrowableNodes = function(idx = TRUE){
+      if(idx){
+        names(private$growableNodes)
+      } else {
+        private$growableNodes
+      }
+    },
+
     setData = function(Sequence) {
+      if(private$hasData){
+        warning("This Context Tree already had data. Overwriting previous data with the new one.")
+      }
       self$data <- Sequence
       for(sequence_vec in Sequence$data){
         private$fillData(sequence_vec)
       }
-    },
-
-    fillByDepth = function(depth) {
-      for (i in seq_len(depth)) {
-        leaves <- self$getLeaves(TRUE)
-        for(leaf in leaves){
-          private$addChildren(leaf)
-        }
-      }
+      private$hasData <- TRUE
     },
 
     print = function() {
@@ -127,6 +156,16 @@ ContextTree <- R6Class(
     }
   ),
   private = list(
+
+    buildByDepth = function(depth) {
+      for (i in seq_len(depth)) {
+        leaves <- self$getLeaves(TRUE)
+        for(leaf in leaves){
+          private$addChildren(leaf)
+        }
+      }
+    },
+
     addNode = function(path) {
       symbols <- str_split_1(path, "\\.")[-1]
       if (!self$nodeExists(path)) {
@@ -152,7 +191,7 @@ ContextTree <- R6Class(
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
     },
-
+    hasData = FALSE,
     fillData = function(sequence_vector) {
       for(t in seq_along(sequence_vector)){
         current_symbol <- sequence_vector[t]
@@ -164,6 +203,8 @@ ContextTree <- R6Class(
           dt <- dt + 1
         }
       }
-    }
+    },
+
+    growableNodes = list()
   )
 )
