@@ -9,11 +9,11 @@ ContextTree <- R6Class(
     root = NULL,
     data = NULL,
     m = 0,
-    initialize = function(Alphabet = NULL, maximalDepth = 3, active = "root") {
-      if("Alphabet" %in% class(Alphabet)){
-        self$Alphabet <- Alphabet
-      } else if(class(Alphabet) == "character"){
-        self$Alphabet <- bacontrees:::Alphabet$new(Alphabet)
+    initialize = function(alphabet = NULL, maximalDepth = 3, active = "root") {
+      if("Alphabet" %in% class(alphabet)){
+        self$Alphabet <- alphabet
+      } else if(class(alphabet) == "character"){
+        self$Alphabet <- Alphabet$new(alphabet)
       }
       root <- TreeNode$new(path = "*")
       self$nodes[[root$getPath()]] <- root

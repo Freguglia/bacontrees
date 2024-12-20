@@ -1,6 +1,6 @@
 test_that("Initialization works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 3)
+  tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 3)
 
   expect_equal(tree$Alphabet, alphabet)
   expect_equal(tree$m, length(alphabet$symbols))
@@ -10,7 +10,7 @@ test_that("Initialization works correctly", {
 
 test_that("Adding and retrieving nodes works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 1)
+  tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 1)
 
   expect_true(tree$nodeExists("*.A"))
   expect_true(tree$nodeExists("*.B"))
@@ -22,7 +22,7 @@ test_that("Adding and retrieving nodes works correctly", {
 
 test_that("Validation function works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 1)
+  tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 1)
 
   expect_true(tree$validate())
 
@@ -33,7 +33,7 @@ test_that("Validation function works correctly", {
 
 test_that("Active nodes are correctly identified", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 2)
+  tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 2)
   tree$activateRoot()
 
   expect_equal(tree$getActiveNodes(), "*")
@@ -48,7 +48,7 @@ test_that("Active nodes are correctly identified", {
 
 test_that("Fill by depth works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
-  tree <- ContextTree$new(Alphabet = alphabet, maximalDepth = 2)
+  tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 2)
 
   leaves <- tree$getLeaves()
   expected_leaves <- c(
