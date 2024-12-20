@@ -16,7 +16,8 @@ Config/testthat/edition: 3
 Imports: 
     R6,
     stringr,
-    glue
+    glue,
+    purrr
 Depends: 
     R (>= 2.10)
 LazyData: true
