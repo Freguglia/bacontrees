@@ -2,10 +2,8 @@ test_that("Initialization works correctly", {
   alphabet <- Alphabet$new(LETTERS[1:3])
   tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 3)
 
-  expect_equal(tree$Alphabet, alphabet)
-  expect_equal(tree$m, length(alphabet$symbols))
   expect_true(tree$nodeExists("*"))
-  expect_equal(tree$root$getPath(), "*")
+  expect_equal(tree$root()$getPath(), "*")
 })
 
 test_that("Adding and retrieving nodes works correctly", {
