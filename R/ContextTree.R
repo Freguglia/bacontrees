@@ -127,7 +127,7 @@ ContextTree <- R6Class(
     getSiblingNodes = function(path, idx = TRUE){
       if(path == "*"){
         if(idx) return(path)
-        else return(self$root)
+        else return(self$root())
       }
 
       if(idx){
@@ -181,7 +181,7 @@ ContextTree <- R6Class(
         #' each context.
     print = function() {
       cat("Active Context Tree:\n")
-      to_print <- list(self$root)
+      to_print <- list(self$root())
       while(length(to_print) > 0){
         node <- to_print[[1]]
         nodePath <- node$getPath()
