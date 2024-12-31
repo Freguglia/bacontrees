@@ -4,7 +4,6 @@
 #' for managing its state and validating its path.
 #'
 #' @importFrom stringr str_length str_sub str_split_1
-#' @export
 TreeNode <- R6Class(
   "TreeNode",
   public = list(

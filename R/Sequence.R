@@ -1,5 +1,4 @@
 #' @importFrom glue glue
-#' @export
 Sequence <- R6Class(
   "Sequence",
   public = list(
@@ -11,11 +10,11 @@ Sequence <- R6Class(
       if(is.list(x)){
         self$n <- sapply(x, length)
         self$data <- lapply(x, function(s) as.numeric(factor(s, levels = self$Alphabet$symbols)))
-      } else if(is.character(x)){
+      } else if(is.character(x) | is.numeric(x)){
         self$n <- length(x)
-        self$data <- list(as.numeric(factor(x, levels = self$Alphabet)))
+        self$data <- list(as.numeric(factor(x, levels = self$Alphabet$symbols)))
       } else {
-        stop("'x' must be either a list or a character vector.")
+        stop("'x' must be either a list, a character vector or a numeric vector.")
       }
     },
     print = function(...) {
