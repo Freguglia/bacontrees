@@ -56,3 +56,14 @@ test_that("Fill by depth works correctly", {
   )
   expect_equal(sort(leaves), sort(expected_leaves))
 })
+
+test_that("Growable Nodes are correctly identified", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+
+  expect_setequal(tree$getGrowableNodes(), "*")
+  tree$growActive("*")
+  tree$growActive("*.A")
+  expect_setequal(tree$getGrowableNodes(), c("*.B", "*.C"))
+
+
+})

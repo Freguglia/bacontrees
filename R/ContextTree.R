@@ -41,8 +41,8 @@ ContextTree <- R6Class(
         self$activateMaximal()
       }
 
-      private$growableNodes <- self$nodes[map_lgl(self$nodes,
-                                                  function(node) node$isActive() & !node$isLeaf)]
+      private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
+                                                  function(node) node$isActive() & !node$isLeaf)])
     },
 
     #' @return Returns the Context Tree root node.
@@ -143,22 +143,22 @@ ContextTree <- R6Class(
       node <- self$nodes[[path]]
       if(node$isActive() & !node$isLeaf){
         node$deactivate()
+        private$growableNodes <- setdiff(private$growableNodes, node$getPath())
         for(child in self$nodes[node$childrenIndex]){
           child$activate()
+          if(!child$isLeaf){
+            private$growableNodes <- c(private$growableNodes, child$getPath())
+          }
         }
       } else {
         stop("Cannot grow a node that is not active or is a leaf node.")
       }
     },
 
-    #' @return Returns a list of active nodes that have
+    #' @return Returns a list of paths for active nodes that have
     #' children that can be activated.
-    getGrowableNodes = function(idx = TRUE){
-      if(idx){
-        names(private$growableNodes)
-      } else {
-        private$growableNodes
-      }
+    getGrowableNodes = function(){
+      private$growableNodes
     },
 
     #' @description
