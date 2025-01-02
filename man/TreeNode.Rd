@@ -4,7 +4,8 @@
 \alias{TreeNode}
 \title{TreeNode Class}
 \description{
-This class represents a tree node with a path, depth, and various methods
+This class represents a tree node with a path, depth,
+and various methods
 for managing its state and validating its path.
 }
 \section{Public fields}{

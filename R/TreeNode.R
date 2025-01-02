@@ -1,6 +1,7 @@
-#' TreeNode Class
+#' @title TreeNode Class
 #'
-#' This class represents a tree node with a path, depth, and various methods
+#' @description This class represents a tree node with a path, depth,
+#' and various methods
 #' for managing its state and validating its path.
 #'
 #' @importFrom stringr str_length str_sub str_split_1
