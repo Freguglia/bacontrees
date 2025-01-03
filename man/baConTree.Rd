@@ -25,6 +25,7 @@ Bayesian Context Tree R6 class
 <ul>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateMaximal"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateMaximal'><code>bacontrees::ContextTree$activateMaximal()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateRoot"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateRoot'><code>bacontrees::ContextTree$activateRoot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activeTreeCode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activeTreeCode'><code>bacontrees::ContextTree$activeTreeCode()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getActiveNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getActiveNodes'><code>bacontrees::ContextTree$getActiveNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getAlphabet"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getAlphabet'><code>bacontrees::ContextTree$getAlphabet()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getGrowableNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getGrowableNodes'><code>bacontrees::ContextTree$getGrowableNodes()</code></a></span></li>

@@ -25,6 +25,7 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-validate}{\code{ContextTree$validate()}}
 \item \href{#method-ContextTree-getAlphabet}{\code{ContextTree$getAlphabet()}}
 \item \href{#method-ContextTree-getActiveNodes}{\code{ContextTree$getActiveNodes()}}
+\item \href{#method-ContextTree-activeTreeCode}{\code{ContextTree$activeTreeCode()}}
 \item \href{#method-ContextTree-activateRoot}{\code{ContextTree$activateRoot()}}
 \item \href{#method-ContextTree-activateMaximal}{\code{ContextTree$activateMaximal()}}
 \item \href{#method-ContextTree-getLeaves}{\code{ContextTree$getLeaves()}}
@@ -118,6 +119,18 @@ a list of nodes.}
 }
 \subsection{Returns}{
 Returns a list of active nodes (leaf nodes of the active tree).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-activeTreeCode"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-activeTreeCode}{}}}
+\subsection{Method \code{activeTreeCode()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$activeTreeCode()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Returns a numeric value representing the active tree.
 }
 }
 \if{html}{\out{<hr>}}
