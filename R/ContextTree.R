@@ -68,6 +68,11 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
+    #' @return Returns the alphabet related to the Context Tree.
+    getAlphabet = function(){
+      private$Alphabet
+    },
+
     #' @return Returns a list of active nodes (leaf nodes of the active tree).
     getActiveNodes = function(idx = TRUE) {
       if(idx){

@@ -23,6 +23,7 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-new}{\code{ContextTree$new()}}
 \item \href{#method-ContextTree-root}{\code{ContextTree$root()}}
 \item \href{#method-ContextTree-validate}{\code{ContextTree$validate()}}
+\item \href{#method-ContextTree-getAlphabet}{\code{ContextTree$getAlphabet()}}
 \item \href{#method-ContextTree-getActiveNodes}{\code{ContextTree$getActiveNodes()}}
 \item \href{#method-ContextTree-activateRoot}{\code{ContextTree$activateRoot()}}
 \item \href{#method-ContextTree-activateMaximal}{\code{ContextTree$activateMaximal()}}
@@ -84,6 +85,18 @@ Returns the Context Tree root node.
 \subsection{Returns}{
 Returns a logical value incating whether the Context Tree is
 valid.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getAlphabet"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getAlphabet}{}}}
+\subsection{Method \code{getAlphabet()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getAlphabet()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Returns the alphabet related to the Context Tree.
 }
 }
 \if{html}{\out{<hr>}}
