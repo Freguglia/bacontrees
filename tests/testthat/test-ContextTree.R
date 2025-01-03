@@ -65,5 +65,32 @@ test_that("Growable Nodes are correctly identified", {
   tree$growActive("*.A")
   expect_setequal(tree$getGrowableNodes(), c("*.B", "*.C"))
 
+  tree$pruneActive("*.A.A")
+  expect_setequal(tree$getGrowableNodes(), c("*.A", "*.B", "*.C"))
 
+  tree$growActive("*.A")
+  tree$growActive("*.B")
+  tree$growActive("*.C")
+  expect_length(tree$getGrowableNodes(), 0)
+})
+
+test_that("Prunable Nodes are correctly identified", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+
+  expect_length(tree$getPrunableNodes(), 0)
+  tree$growActive("*")
+
+  expect_setequal(tree$getPrunableNodes(), c("*.A", "*.B", "*.C"))
+  tree$growActive("*.A")
+
+  expect_setequal(tree$getPrunableNodes(), c("*.A.A", "*.A.B", "*.A.C"))
+  expect_error(tree$pruneActive("*.B"))
+  tree$pruneActive("*.A.B")
+
+  expect_setequal(tree$getPrunableNodes(), c("*.A", "*.B", "*.C"))
+  tree$pruneActive("*.A")
+
+  expect_error(tree$pruneActive("*"))
+  tree$growActive("*")
+  expect_setequal(tree$getPrunableNodes(), c("*.A", "*.B", "*.C"))
 })

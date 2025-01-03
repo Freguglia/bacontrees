@@ -31,7 +31,9 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-getParentNode}{\code{ContextTree$getParentNode()}}
 \item \href{#method-ContextTree-getSiblingNodes}{\code{ContextTree$getSiblingNodes()}}
 \item \href{#method-ContextTree-growActive}{\code{ContextTree$growActive()}}
+\item \href{#method-ContextTree-pruneActive}{\code{ContextTree$pruneActive()}}
 \item \href{#method-ContextTree-getGrowableNodes}{\code{ContextTree$getGrowableNodes()}}
+\item \href{#method-ContextTree-getPrunableNodes}{\code{ContextTree$getPrunableNodes()}}
 \item \href{#method-ContextTree-setData}{\code{ContextTree$setData()}}
 \item \href{#method-ContextTree-print}{\code{ContextTree$print()}}
 \item \href{#method-ContextTree-clone}{\code{ContextTree$clone()}}
@@ -230,25 +232,47 @@ Replaces the node of a given path by its children in the active tree.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ContextTree-getGrowableNodes"></a>}}
-\if{latex}{\out{\hypertarget{method-ContextTree-getGrowableNodes}{}}}
-\subsection{Method \code{getGrowableNodes()}}{
+\if{html}{\out{<a id="method-ContextTree-pruneActive"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-pruneActive}{}}}
+\subsection{Method \code{pruneActive()}}{
+Replaces the node of a given path and its siblings by the parent node
+in the active tree.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getGrowableNodes(idx = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$pruneActive(path)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{path}}{A string representing the path of a node.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getGrowableNodes"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getGrowableNodes}{}}}
+\subsection{Method \code{getGrowableNodes()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getGrowableNodes()}\if{html}{\out{</div>}}
+}
+
 \subsection{Returns}{
-Returns a list of active nodes that have
+Returns a list of paths of active nodes that have
 children that can be activated.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getPrunableNodes"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getPrunableNodes}{}}}
+\subsection{Method \code{getPrunableNodes()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getPrunableNodes()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Returns a list of paths of active nodes that have
+all siblings active.
 }
 }
 \if{html}{\out{<hr>}}
@@ -273,8 +297,7 @@ of each symbol of the alphabet within each context (node) of the tree.
 \if{html}{\out{<a id="method-ContextTree-print"></a>}}
 \if{latex}{\out{\hypertarget{method-ContextTree-print}{}}}
 \subsection{Method \code{print()}}{
-Prints the current active Context Tree and the counts for
-each context.
+Prints the current active Context Tree and the counts for each context.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$print()}\if{html}{\out{</div>}}
 }

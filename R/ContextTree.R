@@ -78,7 +78,7 @@ ContextTree <- R6Class(
     },
 
     #' @description
-        #' Sets the active tree to be the one containing only the root node.
+    #' Sets the active tree to be the one containing only the root node.
     activateRoot = function() {
       for(node in self$nodes) {
         if(node$getPath() == "*") {
@@ -90,7 +90,7 @@ ContextTree <- R6Class(
     },
 
     #' @description
-        #' Activates the leaf nodes of the maximal Context Tree.
+    #' Activates the leaf nodes of the maximal Context Tree.
     activateMaximal = function() {
       for(node in self$nodes) {
         if(node$isLeaf) {
@@ -127,7 +127,7 @@ ContextTree <- R6Class(
     getSiblingNodes = function(path, idx = TRUE){
       if(path == "*"){
         if(idx) return(path)
-        else return(self$root())
+        else return(list(self$root()))
       }
 
       if(idx){
@@ -138,32 +138,66 @@ ContextTree <- R6Class(
     },
 
     #' @description
-        #' Replaces the node of a given path by its children in the active tree.
+    #' Replaces the node of a given path by its children in the active tree.
     growActive = function(path){
       node <- self$nodes[[path]]
+      siblings <- self$getSiblingNodes(path)
       if(node$isActive() & !node$isLeaf){
         node$deactivate()
         private$growableNodes <- setdiff(private$growableNodes, node$getPath())
+        private$prunableNodes <- setdiff(private$prunableNodes, siblings)
         for(child in self$nodes[node$childrenIndex]){
           child$activate()
           if(!child$isLeaf){
             private$growableNodes <- c(private$growableNodes, child$getPath())
           }
+          private$prunableNodes <- c(private$prunableNodes, child$getPath())
         }
       } else {
         stop("Cannot grow a node that is not active or is a leaf node.")
       }
     },
 
-    #' @return Returns a list of paths for active nodes that have
+    #' @description
+    #' Replaces the node of a given path and its siblings by the parent node
+    #' in the active tree.
+    pruneActive = function(path){
+      if(path %in% private$prunableNodes){
+        siblings <- self$getSiblingNodes(path, idx = TRUE)
+        private$growableNodes <- setdiff(private$growableNodes, siblings)
+        private$prunableNodes <- setdiff(private$prunableNodes, siblings)
+        parent <- self$getParentNode(path, idx = TRUE)
+        private$growableNodes <- c(private$growableNodes, parent)
+        for(sibling in siblings){
+          self$nodes[[sibling]]$deactivate()
+        }
+        self$nodes[[parent]]$activate()
+        active_parent_siblings <- map_lgl(self$getSiblingNodes(parent, idx = FALSE), function(x) x$isActive())
+        if(length(active_parent_siblings) == 1){
+          private$prunableNodes <- character(0)
+        } else if(all(active_parent_siblings)){
+          private$prunableNodes <- c(private$prunableNodes, self$getSiblingNodes(parent))
+        }
+      } else {
+        stop("Specified node is not prunable within the active context tree.")
+      }
+    },
+
+    #' @return Returns a list of paths of active nodes that have
     #' children that can be activated.
     getGrowableNodes = function(){
       private$growableNodes
     },
 
+    #' @return Returns a list of paths of active nodes that have
+    #' all siblings active.
+    getPrunableNodes = function(){
+      private$prunableNodes
+    },
+
     #' @description
-        #' Sets data for the Context Tree by setting the counts of occurrences
-        #' of each symbol of the alphabet within each context (node) of the tree.
+    #' Sets data for the Context Tree by setting the counts of occurrences
+    #' of each symbol of the alphabet within each context (node) of the tree.
     #' @param Sequence A "Sequence" object to be set as data for the context tree.
     setData = function(Sequence) {
       if(private$hasData){
@@ -177,8 +211,7 @@ ContextTree <- R6Class(
     },
 
     #' @description
-        #' Prints the current active Context Tree and the counts for
-        #' each context.
+    #' Prints the current active Context Tree and the counts for each context.
     print = function() {
       cat("Active Context Tree:\n")
       to_print <- list(self$root())
@@ -247,6 +280,7 @@ ContextTree <- R6Class(
       }
     },
 
-    growableNodes = list()
+    growableNodes = character(0),
+    prunableNodes = character(0)
   )
 )
