@@ -27,6 +27,7 @@ baConTree <- R6Class(
         node$extra$dirichletAlpha <- rep(alpha, private$m)
       }
       private$computeIntegratedDirichlet()
+      private$hasAlpha <- TRUE
     },
 
     #' @param fn A function to be evaluated at each node that returns
@@ -43,9 +44,43 @@ baConTree <- R6Class(
             child$extra$priorWeight
         }
       }
+      private$hasContextPrior <- TRUE
+    },
+
+    #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
+    runMetropolisHastings = function(steps){
+      if(!(private$hasAlpha & private$hasContextPrior)){
+        stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
+      }
+      if(!private$hasPrecomputedRatios){
+        private$preComputeRatios()
+      }
+      chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
+      chain$tree[1] <- self$activeTreeCode()
+      for(t in seq_len(steps)){
+        prune <- sample(0:1, 1)
+        if(prune){
+          if(length(private$prunableNodes) > 1){
+            node_to_prune <- sample(self$getPrunableNodes(), 1)
+            if(log(runif(1)) < self$nodes[[node_to_prune]]$extra$pruneLogPosteriorRatio)
+            self$pruneActive(node_to_prune)
+          }
+        } else {
+          if(length(private$growableNodes) > 0){
+            node_to_grow <- sample(self$getGrowableNodes(), 1)
+            if(log(runif(1)) < self$nodes[[node_to_grow]]$extra$growLogPosteriorRatio)
+            self$growActive(node_to_grow)
+          }
+        }
+        chain$tree[t+1] <- self$activeTreeCode()
+      }
+      return(chain)
     }
   ),
   private = list(
+    hasAlpha = FALSE,
+    hasContextPrior = FALSE,
+    hasPrecomputedRatios = FALSE,
     computeIntegratedDirichlet = function(){
       for(node in self$nodes) {
         result <- lgamma(sum(node$extra$dirichletAlpha)) -
@@ -63,8 +98,21 @@ baConTree <- R6Class(
         } else {
           node$extra$childrenIntegratedDirichletLog <- NA
         }
-        node$extra$logIntegratedRatio <- node$extra$integratedDirichletLog -
-          node$extra$childrenIntegratedDirichletLog
+        node$extra$growLogPosteriorRatio <-
+          node$extra$childrenIntegratedDirichletLog -
+          node$extra$integratedDirichletLog
+      }
+
+    },
+
+    preComputeRatios = function(){
+      for(node in self$nodes) {
+        if(!node$getPath() == "*"){
+          parent <- self$nodes[[node$getParentPath()]]
+          node$extra$pruneLogPosteriorRatio <- -parent$extra$growLogPosteriorRatio
+        } else {
+          node$extra$pruneLogPosteriorRatio <- NA
+        }
       }
     }
   )

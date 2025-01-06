@@ -17,12 +17,14 @@ Bayesian Context Tree R6 class
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
 \item \href{#method-baConTree-setAllDirichletPars}{\code{baConTree$setAllDirichletPars()}}
 \item \href{#method-baConTree-setContextPriorWeights}{\code{baConTree$setContextPriorWeights()}}
+\item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
 }
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateByCode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateByCode'><code>bacontrees::ContextTree$activateByCode()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateMaximal"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateMaximal'><code>bacontrees::ContextTree$activateMaximal()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateRoot"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateRoot'><code>bacontrees::ContextTree$activateRoot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activeTreeCode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activeTreeCode'><code>bacontrees::ContextTree$activeTreeCode()</code></a></span></li>
@@ -94,6 +96,22 @@ of probabilities.}
 \describe{
 \item{\code{fn}}{A function to be evaluated at each node that returns
 its weight in the prior distribution.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-runMetropolisHastings"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-runMetropolisHastings}{}}}
+\subsection{Method \code{runMetropolisHastings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$runMetropolisHastings(steps)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{steps}}{Number of steps to run the Metropolis Hastings algorithm for.}
 }
 \if{html}{\out{</div>}}
 }
