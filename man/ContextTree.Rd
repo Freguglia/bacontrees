@@ -28,6 +28,7 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-activeTreeCode}{\code{ContextTree$activeTreeCode()}}
 \item \href{#method-ContextTree-activateRoot}{\code{ContextTree$activateRoot()}}
 \item \href{#method-ContextTree-activateMaximal}{\code{ContextTree$activateMaximal()}}
+\item \href{#method-ContextTree-activateByCode}{\code{ContextTree$activateByCode()}}
 \item \href{#method-ContextTree-getLeaves}{\code{ContextTree$getLeaves()}}
 \item \href{#method-ContextTree-nodeExists}{\code{ContextTree$nodeExists()}}
 \item \href{#method-ContextTree-getParentNode}{\code{ContextTree$getParentNode()}}
@@ -130,7 +131,7 @@ Returns a list of active nodes (leaf nodes of the active tree).
 }
 
 \subsection{Returns}{
-Returns a numeric value representing the active tree.
+Returns a character value representing the active tree.
 }
 }
 \if{html}{\out{<hr>}}
@@ -152,6 +153,24 @@ Activates the leaf nodes of the maximal Context Tree.
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$activateMaximal()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-activateByCode"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-activateByCode}{}}}
+\subsection{Method \code{activateByCode()}}{
+Sets the active tree to be the one corresponding to a tree code obtained
+from the \code{activeTreeCode} method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$activateByCode(code)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{code}}{The tree code for the tree to be activated.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getLeaves"></a>}}

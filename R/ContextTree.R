@@ -111,6 +111,25 @@ ContextTree <- R6Class(
       }
     },
 
+    #' @description
+    #' Sets the active tree to be the one corresponding to a tree code obtained
+    #' from the `activeTreeCode` method.
+    #'
+    #' @param code The tree code for the tree to be activated.
+    activateByCode = function(code) {
+      n_nodes <- length(self$nodes)
+      active_nodes <- decompress_logical(code, n_nodes)
+      for(i in seq_len(n_nodes)){
+        if(active_nodes[i]){
+          self$nodes[[i]]$activate()
+        } else {
+          self$nodes[[i]]$deactivate()
+        }
+      }
+      # This still needs some checking to make sure the active tree is
+      # a valid one.
+    },
+
     #' @return Returns the leaf nodes of the maximal Context Tree (regardless of
     #' the current active tree).
     getLeaves = function(idx = TRUE) {

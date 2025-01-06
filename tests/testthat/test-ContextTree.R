@@ -94,3 +94,24 @@ test_that("Prunable Nodes are correctly identified", {
   tree$growActive("*")
   expect_setequal(tree$getPrunableNodes(), c("*.A", "*.B", "*.C"))
 })
+
+test_that("Tree Compression works as expected", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 4, active = "root")
+  code_root <- tree$activeTreeCode()
+  tree$growActive("*")
+  tree$growActive("*.A")
+  tree$growActive("*.A.C")
+
+  code <- tree$activeTreeCode()
+  active_node_vector <- unname(map_lgl(tree$nodes, ~.x$isActive()))
+  expect_setequal(map_chr(tree$nodes[active_node_vector], ~.x$getPath()),
+                  tree$getActiveNodes())
+  expect_equal(active_node_vector, decompress_logical(code, length(tree$nodes)))
+
+  tree$activateRoot()
+  expect_equal(tree$activeTreeCode(), code_root)
+
+  tree$activateByCode(code)
+  expect_setequal(tree$getActiveNodes(), c("*.A.C.A", "*.A.C.B", "*.A.C.C",
+                                           "*.A.B", "*.A.A", "*.B", "*.C"))
+})
