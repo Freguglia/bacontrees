@@ -112,6 +112,7 @@ ContextTree <- R6Class(
           node$deactivate()
         }
       }
+      private$prunableNodes <- self$getActiveNodes()
     },
 
     #' @description
