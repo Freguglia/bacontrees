@@ -250,7 +250,7 @@ ContextTree <- R6Class(
       if("Sequence" %in% class(data)){
         self$data <- data
       } else {
-        self$data <- Sequence$new(data)
+        self$data <- Sequence$new(data, alphabet = private$Alphabet)
       }
       for(sequence_vec in self$data$data){
         private$fillData(sequence_vec)

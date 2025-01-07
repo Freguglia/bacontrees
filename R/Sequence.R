@@ -5,8 +5,12 @@ Sequence <- R6Class(
     data = character(0),
     n = 0,
     Alphabet = NULL,
-    initialize = function(x) {
-      self$Alphabet <- Alphabet$new(sort(unique(unlist(x))))
+    initialize = function(x, alphabet = NULL) {
+      if(is.null(alphabet)){
+        self$Alphabet <- Alphabet$new(unique(unlist(x)))
+      } else {
+        self$Alphabet <- alphabet
+      }
       if(is.list(x)){
         self$n <- sapply(x, length)
         self$data <- lapply(x, function(s) as.numeric(factor(s, levels = self$Alphabet$symbols)))
