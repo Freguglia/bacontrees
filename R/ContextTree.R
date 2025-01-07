@@ -159,9 +159,9 @@ ContextTree <- R6Class(
     #' @return Returns the parent node of the node in a given path.
     getChildrenNodes = function(path, idx = TRUE){
       if(idx){
-        self$nodes[[path]]$getParentPath()
+        self$nodes[[path]]$getChildrenPaths()
       } else {
-        self$nodes[[self$nodes[[path]]$getParentPath()]]
+        self$nodes[self$nodes[[path]]$getChildrenPaths()]
       }
     },
 
