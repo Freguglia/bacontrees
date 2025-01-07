@@ -8,9 +8,6 @@
 TreeNode <- R6Class(
   "TreeNode",
   public = list(
-    #' @field childrenIndex Character vector to hold indices of child nodes.
-    childrenIndex = integer(0),
-
     #' @field counts Numeric vector to hold counts.
     counts = integer(0),
 
@@ -87,6 +84,21 @@ TreeNode <- R6Class(
     #' @return Character string representing the parent path of the node.
     getParentPath = function() {private$parentPath},
 
+    #' @return Character string representing the paths for the children
+    #' of a node.
+    getChildrenPaths = function() {private$childrenPaths},
+
+    #' @description
+    #' Sets the paths for children of a node.
+    #' @param childrenPaths vector of paths for the children of the node.
+    setChildrenPaths = function(childrenPaths) {
+      if(length(private$childrenPaths) == 0){
+        private$childrenPaths <- childrenPaths
+      } else {
+        stop("Attempting to set children node paths multiple times.")
+      }
+    },
+
     #' Validate the node path against an alphabet
     #'
     #' This method validates the node's path by checking if all elements of the path
@@ -103,5 +115,6 @@ TreeNode <- R6Class(
     path = character(0),
     parentPath = NULL,
     active = FALSE,
-    depth = numeric(0)
+    depth = numeric(0),
+    childrenPaths = character(0)
   ))

@@ -28,9 +28,12 @@ ContextTree <- R6Class(
         private$Alphabet <- alphabet
       } else if("character" %in% class(alphabet)){
         private$Alphabet <- Alphabet$new(alphabet)
+      } else {
+        stop("alphabet must be either a character vector or an Alphabet object.")
       }
       root <- TreeNode$new(path = "*")
       self$nodes[["*"]] <- root
+      root$setChildrenPaths(glue("*.{private$Alphabet$symbols}"))
       private$m <- length(private$Alphabet$symbols)
       root$counts <- rep(0, private$m)
       private$buildByDepth(maximalDepth)
@@ -152,6 +155,15 @@ ContextTree <- R6Class(
       }
     },
 
+    #' @return Returns the parent node of the node in a given path.
+    getChildrenNodes = function(path, idx = TRUE){
+      if(idx){
+        self$nodes[[path]]$getParentPath()
+      } else {
+        self$nodes[[self$nodes[[path]]$getParentPath()]]
+      }
+    },
+
     #' @return Returns the sibling nodes of the node in a given path.
     getSiblingNodes = function(path, idx = TRUE){
       if(path == "*"){
@@ -160,9 +172,9 @@ ContextTree <- R6Class(
       }
 
       if(idx){
-        names(self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$childrenIndex])
+        names(self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$getChildrenPaths()])
       } else {
-        self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$childrenIndex]
+        self$nodes[self$nodes[[self$nodes[[path]]$getParentPath()]]$getChildrenPaths()]
       }
     },
 
@@ -175,7 +187,7 @@ ContextTree <- R6Class(
         node$deactivate()
         private$growableNodes <- setdiff(private$growableNodes, node$getPath())
         private$prunableNodes <- setdiff(private$prunableNodes, siblings)
-        for(child in self$nodes[node$childrenIndex]){
+        for(child in self$nodes[node$getChildrenPaths()]){
           child$activate()
           if(!child$isLeaf){
             private$growableNodes <- c(private$growableNodes, child$getPath())
@@ -227,13 +239,19 @@ ContextTree <- R6Class(
     #' @description
     #' Sets data for the Context Tree by setting the counts of occurrences
     #' of each symbol of the alphabet within each context (node) of the tree.
-    #' @param Sequence A "Sequence" object to be set as data for the context tree.
-    setData = function(Sequence) {
+    #' @param data A `Sequence` object, a character vector with a single
+    #' observed chain or a list of vectors of observed chains
+    #' to be set as data for the context tree.
+    setData = function(data) {
       if(private$hasData){
         warning("This Context Tree already had data. Overwriting previous data with the new one.")
       }
-      self$data <- Sequence
-      for(sequence_vec in Sequence$data){
+      if("Sequence" %in% class(data)){
+        self$data <- data
+      } else {
+        self$data <- Sequence$new(data)
+      }
+      for(sequence_vec in self$data$data){
         private$fillData(sequence_vec)
       }
       private$hasData <- TRUE
@@ -253,7 +271,7 @@ ContextTree <- R6Class(
         cat("\n")
         to_print <- to_print[-1]
         if(!node$isActive()){
-          to_print <- c(self$nodes[node$childrenIndex],to_print)
+          to_print <- c(self$nodes[node$getChildrenPaths()],to_print)
         }
       }
     }
@@ -272,8 +290,10 @@ ContextTree <- R6Class(
 
     addNode = function(path) {
       symbols <- str_split_1(path, "\\.")[-1]
+      children_paths <- glue("{path}.{private$Alphabet$symbols}")
       if (!self$nodeExists(path)) {
         node <- TreeNode$new(path)
+        node$setChildrenPaths(children_paths)
         self$nodes[[path]] <- node
         return(node)
       }
@@ -286,8 +306,6 @@ ContextTree <- R6Class(
         if (self$nodes[[path]]$isLeaf)
           for (child_path in children_paths) {
             private$addNode(child_path)
-            self$nodes[[path]]$childrenIndex <- c(self$nodes[[path]]$childrenIndex,
-                                                  length(self$nodes))
             self$nodes[[child_path]]$counts <- rep(0, private$m)
           }
         self$nodes[[path]]$isLeaf <- FALSE
@@ -303,7 +321,7 @@ ContextTree <- R6Class(
         dt <- 1
         while(!is.null(node) & (t-dt) > 0){
           node$counts[current_symbol] <- node$counts[current_symbol] + 1
-          node <- self$nodes[[node$childrenIndex[sequence_vector[t-dt]]]]
+          node <- self$nodes[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
           dt <- dt + 1
         }
       }

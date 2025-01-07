@@ -11,8 +11,6 @@ for managing its state and validating its path.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{childrenIndex}}{Character vector to hold indices of child nodes.}
-
 \item{\code{counts}}{Numeric vector to hold counts.}
 
 \item{\code{isLeaf}}{Logical value indicating if the node is a leaf.}
@@ -36,6 +34,8 @@ and sets the parent path if applicable.}
 \item \href{#method-TreeNode-getDepth}{\code{TreeNode$getDepth()}}
 \item \href{#method-TreeNode-getPath}{\code{TreeNode$getPath()}}
 \item \href{#method-TreeNode-getParentPath}{\code{TreeNode$getParentPath()}}
+\item \href{#method-TreeNode-getChildrenPaths}{\code{TreeNode$getChildrenPaths()}}
+\item \href{#method-TreeNode-setChildrenPaths}{\code{TreeNode$setChildrenPaths()}}
 \item \href{#method-TreeNode-validatePath}{\code{TreeNode$validatePath()}}
 \item \href{#method-TreeNode-clone}{\code{TreeNode$clone()}}
 }
@@ -169,10 +169,40 @@ This method returns the parent path of the node.
 
 \subsection{Returns}{
 Character string representing the parent path of the node.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeNode-getChildrenPaths"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeNode-getChildrenPaths}{}}}
+\subsection{Method \code{getChildrenPaths()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeNode$getChildrenPaths()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Character string representing the paths for the children
+of a node.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeNode-setChildrenPaths"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeNode-setChildrenPaths}{}}}
+\subsection{Method \code{setChildrenPaths()}}{
+Sets the paths for children of a node.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeNode$setChildrenPaths(childrenPaths)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{childrenPaths}}{vector of paths for the children of the node.
 Validate the node path against an alphabet
 
 This method validates the node's path by checking if all elements of the path
-(excluding the first element) are in the provided alphabet.
+(excluding the first element) are in the provided alphabet.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

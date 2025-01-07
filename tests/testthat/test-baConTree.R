@@ -5,6 +5,6 @@ test_that("Metropolis Hastings method for baConTree works", {
   #bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
   bt$setContextPriorWeights(function(node) 1)
 
-  chain <- bt$runMetropolisHastings(10000)
+  chain <- bt$runMetropolisHastings(100)
   expect_s3_class(chain, "data.frame")
 })

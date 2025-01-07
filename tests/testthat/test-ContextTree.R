@@ -1,5 +1,5 @@
 test_that("Initialization works correctly", {
-  alphabet <- Alphabet$new(LETTERS[1:3])
+  alphabet <- LETTERS[1:3]
   tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 3)
 
   expect_true(tree$nodeExists("*"))
@@ -29,8 +29,8 @@ test_that("Validation function works correctly", {
   expect_false(tree$validate())
 })
 
-test_that("Active nodes are correctly identified", {
-  alphabet <- Alphabet$new(LETTERS[1:3])
+test_that("Active nodes are correctly identified when growing or pruning", {
+  alphabet <- LETTERS[1:3]
   tree <- ContextTree$new(alphabet = alphabet, maximalDepth = 2)
   tree$activateRoot()
 

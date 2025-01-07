@@ -32,6 +32,7 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-getLeaves}{\code{ContextTree$getLeaves()}}
 \item \href{#method-ContextTree-nodeExists}{\code{ContextTree$nodeExists()}}
 \item \href{#method-ContextTree-getParentNode}{\code{ContextTree$getParentNode()}}
+\item \href{#method-ContextTree-getChildrenNodes}{\code{ContextTree$getChildrenNodes()}}
 \item \href{#method-ContextTree-getSiblingNodes}{\code{ContextTree$getSiblingNodes()}}
 \item \href{#method-ContextTree-growActive}{\code{ContextTree$growActive()}}
 \item \href{#method-ContextTree-pruneActive}{\code{ContextTree$pruneActive()}}
@@ -237,6 +238,29 @@ Returns the parent node of the node in a given path.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getChildrenNodes"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getChildrenNodes}{}}}
+\subsection{Method \code{getChildrenNodes()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getChildrenNodes(path, idx = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{A string representing the path of a node.}
+
+\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
+the index (path) of the node as a string. If \code{FALSE}, returns
+a list of nodes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns the parent node of the node in a given path.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getSiblingNodes"></a>}}
 \if{latex}{\out{\hypertarget{method-ContextTree-getSiblingNodes}{}}}
 \subsection{Method \code{getSiblingNodes()}}{
@@ -327,13 +351,15 @@ all siblings active.
 Sets data for the Context Tree by setting the counts of occurrences
 of each symbol of the alphabet within each context (node) of the tree.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTree$setData(Sequence)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$setData(data)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{Sequence}}{A "Sequence" object to be set as data for the context tree.}
+\item{\code{data}}{A \code{Sequence} object, a character vector with a single
+observed chain or a list of vectors of observed chains
+to be set as data for the context tree.}
 }
 \if{html}{\out{</div>}}
 }

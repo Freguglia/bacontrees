@@ -39,7 +39,7 @@ baConTree <- R6Class(
 
       for(node in self$nodes) {
         node$extra$childrenPriorWeight <- 0
-        for(child in self$nodes[node$childrenIndex]){
+        for(child in self$nodes[node$getChildrenPaths()]){
           node$extra$childrenPriorWeight <- node$extra$childrenPriorWeight +
             child$extra$priorWeight
         }
@@ -92,7 +92,7 @@ baConTree <- R6Class(
 
       for(node in self$nodes) {
         if(!node$isLeaf){
-          childrenIntegratedSum <- sum(map_dbl(self$nodes[node$childrenIndex],
+          childrenIntegratedSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
                                                ~.x$extra$integratedDirichletLog))
           node$extra$childrenIntegratedDirichletLog <- childrenIntegratedSum
         } else {
