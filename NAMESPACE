@@ -2,6 +2,7 @@
 
 export(ContextTree)
 export(baConTree)
+export(fit_vlmc)
 export(rvlmc)
 importFrom(R6,R6Class)
 importFrom(glue,glue)
