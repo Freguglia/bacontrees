@@ -17,4 +17,11 @@ test_that("vlmc generator works", {
              context_list = context_list, context_probs = context_probs)
   expect_length(s, 1000)
   expect_setequal(alph, unique(s))
+
+  n_vec <- c(1000, 999, 200)
+  s_list <- rvlmc(n = n_vec, alphabet = alph,
+                  context_list = context_list, context_probs = context_probs)
+  expect_length(s_list, 3)
+  expect_length(s_list[[1]], 1000)
+  expect_length(s_list[[3]], 200)
 })

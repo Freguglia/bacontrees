@@ -2,12 +2,13 @@
 #'
 #' @description This function simulates a sequence using a Variable Length Markov Chain (VLMC) model.
 #'
-#' @param n An integer specifying the length of the sequence to generate.
+#' @param n An integer specifying the length of the sequence to generate, or a vector of lengths for multiple sequences.
 #' @param alphabet A character vector representing the set of symbols used in the sequence.
 #' @param context_list A character vector specifying the list of contexts in the VLMC. Each context should be a string where symbols are separated by dots (e.g., `"a.b.c"`).
 #' @param context_probs A list of probability vectors corresponding to each context in `context_list`. Each vector specifies the probabilities of sampling each symbol in `alphabet` given the context.
 #'
 #' @return A character vector of length `n` representing the generated sequence.
+#' If `n` is a vector, a list with multiple sequences is returned.
 #'
 #' @examples
 #' # Define parameters for the VLMC
@@ -29,6 +30,16 @@
 #' @importFrom stringr str_count str_starts fixed
 #' @export
 rvlmc <- function(n, alphabet, context_list, context_probs){
+  if(length(n) == 1){
+    rvlmc_single(n, alphabet, context_list, context_probs)
+  } else if(length(n) > 1){
+    lapply(n, function(x) rvlmc_single(x, alphabet, context_list, context_probs))
+  } else {
+    stop("'n' must have length at least 1.")
+  }
+}
+
+rvlmc_single <- function(n, alphabet, context_list, context_probs){
   H <- max(str_count(context_list, "\\."))
   out <- sample(alphabet, size = n, replace = T)
   t <- H + 1

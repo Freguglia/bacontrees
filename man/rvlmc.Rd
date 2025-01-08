@@ -7,7 +7,7 @@
 rvlmc(n, alphabet, context_list, context_probs)
 }
 \arguments{
-\item{n}{An integer specifying the length of the sequence to generate.}
+\item{n}{An integer specifying the length of the sequence to generate, or a vector of lengths for multiple sequences.}
 
 \item{alphabet}{A character vector representing the set of symbols used in the sequence.}
 
@@ -17,6 +17,7 @@ rvlmc(n, alphabet, context_list, context_probs)
 }
 \value{
 A character vector of length \code{n} representing the generated sequence.
+If \code{n} is a vector, a list with multiple sequences is returned.
 }
 \description{
 This function simulates a sequence using a Variable Length Markov Chain (VLMC) model.
