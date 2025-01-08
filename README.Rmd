@@ -19,7 +19,13 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/Freguglia/bacontrees/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Freguglia/bacontrees/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of bacontrees is to ...
+`bacontrees` is an R package that provides tools to create algorithms involving
+**Ba**yesian **Con**text **Trees**.
+The package uses the `R6` OOP (Object-Oriented Programming) paradigm to define
+classes for the main structures involved when constructing Bayesian Context Trees,
+making it a highly extensible framework to develop new algorithms within this
+field,
+as well as define functions that work out of the box for the main methods available.
 
 ## Installation
 
@@ -30,23 +36,4 @@ You can install the development version of bacontrees from [GitHub](https://gith
 devtools::install_github("Freguglia/bacontrees")
 ```
 
-## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(bacontrees)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
