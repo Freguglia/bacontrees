@@ -20,6 +20,7 @@ Imports:
     stringr,
     glue,
     purrr,
+    dplyr,
     progress
 Depends: 
     R (>= 2.10)
