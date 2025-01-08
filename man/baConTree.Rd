@@ -3,6 +3,9 @@
 \name{baConTree}
 \alias{baConTree}
 \title{Bayesian Context Tree R6 class}
+\value{
+Gets the sampled chain stored.
+}
 \description{
 Bayesian Context Tree R6 class
 
@@ -18,6 +21,7 @@ Bayesian Context Tree R6 class
 \item \href{#method-baConTree-setAllDirichletPars}{\code{baConTree$setAllDirichletPars()}}
 \item \href{#method-baConTree-setContextPriorWeights}{\code{baConTree$setContextPriorWeights()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
+\item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
 }
@@ -116,6 +120,16 @@ its weight in the prior distribution.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-getChain"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-getChain}{}}}
+\subsection{Method \code{getChain()}}{
+Chain generated via Metropolis Hastings algorithm.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$getChain()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-baConTree-clone"></a>}}

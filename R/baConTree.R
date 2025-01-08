@@ -96,6 +96,7 @@ baConTree <- R6Class(
       }
     },
 
+    #' @description Chain generated via Metropolis Hastings algorithm.
     #' @returns Gets the sampled chain stored.
     getChain = function(){
       private$chain
