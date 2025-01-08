@@ -52,8 +52,14 @@ baConTree <- R6Class(
 
       pb <- progress_bar$new(total = steps,
                              format = "Running Metropolis step :current/:total [:bar] :percent | rate: :tick_rate/s | eta: :eta")
-      chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
-      chain$tree[1] <- self$activeTreeCode()
+      if(is.null(private$chain)){
+        private$chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
+        private$chain$tree[1] <- self$activeTreeCode()
+      } else {
+        private$chain <- rbind(private$chain, data.frame(t = seq(from = private$iterations + 1,
+                                                                 private$iterations + steps, 1),
+                                                         tree = character(steps)))
+      }
       m <- length(private$Alphabet$symbols)
       for(t in seq_len(steps)){
         prune <- sample(0:1, 1)
@@ -84,16 +90,23 @@ baConTree <- R6Class(
               self$growActive(node_to_grow)
           }
         }
-        chain$tree[t+1] <- self$activeTreeCode()
+        private$iterations <- private$iterations + 1
+        private$chain$tree[private$iterations + 1] <- self$activeTreeCode()
         pb$tick()
       }
-      return(chain)
+    },
+
+    #' @returns Gets the sampled chain stored.
+    getChain = function(){
+      private$chain
     }
   ),
   private = list(
     hasAlpha = FALSE,
     hasContextPrior = FALSE,
     hasPrecomputedRatios = FALSE,
+    iterations = 0,
+    chain = NULL,
     computeIntegratedDirichlet = function(){
       for(node in self$nodes) {
         result <- lgamma(sum(node$extra$dirichletAlpha)) -
