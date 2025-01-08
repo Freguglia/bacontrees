@@ -68,7 +68,7 @@ baConTree <- R6Class(
             node_to_prune <- sample(private$prunableNodes, 1)
             pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf
             n_prunable <- length(private$prunableNodes)
-            n_growable_after <- length(private$growableNodes) + 1 -(m*pruning_leaf)
+            n_growable_after <- length(private$growableNodes) + 1 -(m*(!pruning_leaf))
             log_accept_ratio <-
               self$nodes[[node_to_prune]]$extra$prunePosteriorRatio +
               log(1/n_growable_after) -
