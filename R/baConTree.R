@@ -1,6 +1,7 @@
 #' @title Bayesian Context Tree R6 class
 #'
 #' @importFrom purrr walk map_dbl
+#' @importFrom progress progress_bar
 #' @export
 baConTree <- R6Class(
   "baConTree",
@@ -14,7 +15,7 @@ baConTree <- R6Class(
     initialize = function(data, maximalDepth = 5, active = "root") {
       Alphabet <- Alphabet$new(sort(unique(unlist(data))))
       super$initialize(Alphabet, maximalDepth, active)
-      self$setData(Sequence$new(data))
+      self$setData(Sequence$new(data, Alphabet))
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
       }
@@ -37,14 +38,10 @@ baConTree <- R6Class(
         node$extra$priorWeight <- fn(node)
       }
 
-      for(node in self$nodes) {
-        node$extra$childrenPriorWeight <- 0
-        for(child in self$nodes[node$getChildrenPaths()]){
-          node$extra$childrenPriorWeight <- node$extra$childrenPriorWeight +
-            child$extra$priorWeight
-        }
-      }
       private$hasContextPrior <- TRUE
+      if(private$hasAlpha){
+        private$preComputeRatios()
+      }
     },
 
     #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
@@ -52,27 +49,43 @@ baConTree <- R6Class(
       if(!(private$hasAlpha & private$hasContextPrior)){
         stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
       }
-      if(!private$hasPrecomputedRatios){
-        private$preComputeRatios()
-      }
+
+      pb <- progress_bar$new(total = steps,
+                             format = "Running Metropolis step :current/:total [:bar] :percent | rate: :tick_rate/s | eta: :eta")
       chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
       chain$tree[1] <- self$activeTreeCode()
+      m <- length(private$Alphabet$symbols)
       for(t in seq_len(steps)){
         prune <- sample(0:1, 1)
         if(prune){
           if(length(private$prunableNodes) > 1){
-            node_to_prune <- sample(self$getPrunableNodes(), 1)
-            if(log(runif(1)) < self$nodes[[node_to_prune]]$extra$pruneLogPosteriorRatio)
-            self$pruneActive(node_to_prune)
+            node_to_prune <- sample(private$prunableNodes, 1)
+            pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf
+            n_prunable <- length(private$prunableNodes)
+            n_growable_after <- length(private$growableNodes) + 1 -(m*pruning_leaf)
+            log_accept_ratio <-
+              self$nodes[[node_to_prune]]$extra$prunePosteriorRatio +
+              log(1/n_growable_after) -
+              log(m/n_prunable)
+            if(log(runif(1)) < log_accept_ratio)
+              self$pruneActive(node_to_prune)
           }
         } else {
           if(length(private$growableNodes) > 0){
             node_to_grow <- sample(self$getGrowableNodes(), 1)
-            if(log(runif(1)) < self$nodes[[node_to_grow]]$extra$growLogPosteriorRatio)
-            self$growActive(node_to_grow)
+            n_growable <- length(private$growableNodes)
+            growing_prunable <- node_to_grow %in% private$prunableNodes
+            n_prunable_after <- length(private$prunableNodes) + m*(!growing_prunable)
+            log_accept_ratio <-
+              self$nodes[[node_to_grow]]$extra$growPosteriorRatio +
+              log(m/n_prunable_after) -
+              log(1/n_growable)
+            if(log(runif(1)) < log_accept_ratio)
+              self$growActive(node_to_grow)
           }
         }
         chain$tree[t+1] <- self$activeTreeCode()
+        pb$tick()
       }
       return(chain)
     }
@@ -90,30 +103,38 @@ baConTree <- R6Class(
         node$extra$integratedDirichletLog <- result
       }
 
-      for(node in self$nodes) {
-        if(!node$isLeaf){
-          childrenIntegratedSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
-                                               ~.x$extra$integratedDirichletLog))
-          node$extra$childrenIntegratedDirichletLog <- childrenIntegratedSum
-        } else {
-          node$extra$childrenIntegratedDirichletLog <- NA
-        }
-        node$extra$growLogPosteriorRatio <-
-          node$extra$childrenIntegratedDirichletLog -
-          node$extra$integratedDirichletLog
+      if(private$hasContextPrior){
+        private$preComputeRatios()
       }
-
     },
 
     preComputeRatios = function(){
       for(node in self$nodes) {
+        node$extra$posteriorWeight <- node$extra$priorWeight +
+          node$extra$integratedDirichletLog
+      }
+
+      for(node in self$nodes){
+        if(!node$isLeaf){
+          childrenPosteriorSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
+                                              ~.x$extra$posteriorWeight))
+          node$extra$childrenPosteriorWeight <- childrenPosteriorSum
+        } else {
+          node$extra$childrenPosteriorWeight <- NA
+        }
+        node$extra$growPosteriorRatio <- node$extra$childrenPosteriorWeight -
+          node$extra$posteriorWeight
+      }
+
+      for(node in self$nodes){
         if(!node$getPath() == "*"){
           parent <- self$nodes[[node$getParentPath()]]
-          node$extra$pruneLogPosteriorRatio <- -parent$extra$growLogPosteriorRatio
+          node$extra$prunePosteriorRatio <- -parent$extra$growPosteriorRatio
         } else {
-          node$extra$pruneLogPosteriorRatio <- NA
+          node$extra$prunePosteriorRatio <- NA
         }
       }
+
     }
   )
 )
