@@ -45,7 +45,7 @@ ContextTree <- R6Class(
       }
 
       private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
-                                                  function(node) node$isActive() & !node$isLeaf)])
+                                                        function(node) node$isActive() & !node$isLeaf)])
     },
 
     #' @return Returns the Context Tree root node.
@@ -263,12 +263,29 @@ ContextTree <- R6Class(
     print = function() {
       cat("Active Context Tree:\n")
       to_print <- list(self$root())
+      first_symbol <- private$Alphabet$symbols[1]
+      last_symbol <- private$Alphabet$symbols[private$m]
       while(length(to_print) > 0){
         node <- to_print[[1]]
         nodePath <- node$getPath()
-        output_string <- gsub(".", " ", substr(nodePath, 1, nchar(nodePath) - 2))
-        output_string <- paste0(output_string, substr(nodePath, nchar(nodePath) - 1, nchar(nodePath)))
-        cat(glue("{output_string}: {paste0(node$counts, collapse = ' ')}"))
+        nodePath <- str_split(nodePath, "\\.")[[1]]
+        output_string <- nodePath
+        if(length(nodePath) > 1){
+          output_string[length(nodePath) - 1] <- ifelse(nodePath[length(nodePath) ] == last_symbol,
+                                                     "`-", "|-")
+         if(length(nodePath) > 2){
+           output_string[1:(length(nodePath) - 2)] <- ifelse(nodePath[2:(length(nodePath) - 1)] == last_symbol,
+                                                         "  ", "| ")
+         }
+          output_string <- paste0(output_string, collapse = "")
+        } else {
+          output_string <- "*"
+        }
+        if(private$hasData){
+          cat(glue("{output_string}: {paste0(node$counts, collapse = ' ')}"))
+        } else {
+          cat(glue("{output_string}"))
+        }
         cat("\n")
         to_print <- to_print[-1]
         if(!node$isActive()){
