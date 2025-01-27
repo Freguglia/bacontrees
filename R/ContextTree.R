@@ -87,7 +87,7 @@ ContextTree <- R6Class(
 
     #' @return Returns a character value representing the active tree.
     activeTreeCode = function(){
-      compress_logical(map_lgl(self$nodes, ~.x$isActive()))
+      compress_logical(sapply(self$nodes, function(x) x$isActive()))
     },
 
     #' @description
