@@ -120,6 +120,16 @@ its weight in the prior distribution.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+This method supports progress monitoring via the \strong{progressr} package.
+Users can wrap the function call in \code{with_progress()} to display a progress
+bar while the function executes. If no progress handler is registered, the
+function will run without showing progress.
+
+To enable progress, register a handler and wrap the function call in
+\code{with_progress()}.
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-baConTree-getChain"></a>}}

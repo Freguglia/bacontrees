@@ -45,13 +45,20 @@ baConTree <- R6Class(
     },
 
     #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
+    #' @details
+    #' This method supports progress monitoring via the **progressr** package.
+    #' Users can wrap the function call in `with_progress()` to display a progress
+    #' bar while the function executes. If no progress handler is registered, the
+    #' function will run without showing progress.
+    #'
+    #' To enable progress, register a handler and wrap the function call in
+    #' `with_progress()`.
     runMetropolisHastings = function(steps){
       if(!(private$hasAlpha & private$hasContextPrior)){
         stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
       }
 
-      pb <- progress_bar$new(total = steps,
-                             format = "Running Metropolis step :current/:total [:bar] :percent | rate: :tick_rate/s | eta: :eta")
+      pb <- progressor(steps/10)
       if(is.null(private$chain)){
         private$chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
         private$chain$tree[1] <- self$activeTreeCode()
@@ -92,7 +99,7 @@ baConTree <- R6Class(
         }
         private$iterations <- private$iterations + 1
         private$chain$tree[private$iterations + 1] <- self$activeTreeCode()
-        pb$tick()
+        pb()
       }
     },
 

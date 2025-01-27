@@ -21,6 +21,15 @@
 #' should contain only the root node. If set to `FALSE`, the maximal tree
 #' of the specified depth is used.
 #'
+#' @details
+#' This function supports progress monitoring via the **progressr** package.
+#' Users can wrap the function call in `with_progress()` to display a progress
+#' bar while the function executes. If no progress handler is registered, the
+#' function will run without showing progress.
+#'
+#' To enable progress, register a handler and wrap the function call in
+#' `with_progress()`.
+#'
 #' @return A `metropolis_vlmc` object containing attributes:
 #'
 #'  * `df`: A table containing the set of contexts, tree code, counts and posterior probabilities
