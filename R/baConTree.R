@@ -1,7 +1,7 @@
 #' @title Bayesian Context Tree R6 class
 #'
 #' @importFrom purrr walk map_dbl
-#' @importFrom progress progress_bar
+#' @importFrom progressr progressor
 #' @export
 baConTree <- R6Class(
   "baConTree",
