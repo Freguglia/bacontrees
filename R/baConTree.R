@@ -99,7 +99,7 @@ baConTree <- R6Class(
         }
         private$iterations <- private$iterations + 1
         private$chain$tree[private$iterations + 1] <- self$activeTreeCode()
-        pb()
+        if(t%%10 == 0) pb()
       }
     },
 
