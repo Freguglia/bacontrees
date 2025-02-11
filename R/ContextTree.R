@@ -78,16 +78,17 @@ ContextTree <- R6Class(
 
     #' @return Returns a list of active nodes (leaf nodes of the active tree).
     getActiveNodes = function(idx = TRUE) {
+      vec <- check_active(self$nodes)
       if(idx){
-        names(self$nodes)[map_lgl(self$nodes, function(x) x$isActive())]
+        names(self$nodes)[vec]
       } else {
-        self$nodes[map_lgl(self$nodes, function(x) x$isActive())]
+        self$nodes[vec]
       }
     },
 
     #' @return Returns a character value representing the active tree.
     activeTreeCode = function(){
-      compress_logical(sapply(self$nodes, function(x) x$isActive()))
+      compress_logical(check_active(self$nodes))
     },
 
     #' @description

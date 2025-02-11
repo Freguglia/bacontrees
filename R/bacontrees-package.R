@@ -2,6 +2,8 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib bacontrees, .registration = TRUE
 ## usethis namespace: end
 NULL
 
