@@ -1,4 +1,3 @@
-#' @importFrom glue glue
 Sequence <- R6Class(
   "Sequence",
   public = list(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/metropolis_vlmc.R
 \name{metropolis_vlmc}
 \alias{metropolis_vlmc}
-\title{Metropolis-Hastings for Context Trees}
+\title{Metropolis-Hastings Posterior Sampling for Context Trees}
 \usage{
 metropolis_vlmc(
   data,
@@ -16,49 +16,39 @@ metropolis_vlmc(
 )
 }
 \arguments{
-\item{data}{Either a vector with discrete data or a lista of vectors.}
+\item{data}{Either a character vector (single sequence) or a list of character vectors (multiple sequences).}
 
-\item{n_steps}{Number of steps to run the Metropolis-Hastings algorithm for.}
+\item{n_steps}{Integer. Number of MCMC steps to run.}
 
-\item{max_depth}{Maximum depth considered for the context tree (using high
-values may demand too much memory).}
+\item{max_depth}{Integer. Maximum depth for the context tree.}
 
-\item{alpha}{Hyper parameters for the Dirichlet prior distribution used
-for transition probabilities.}
+\item{alpha}{Numeric. Dirichlet prior parameter for transition probabilities.}
 
-\item{context_weights}{A function of a TreeNode that returns the contribution
-of a given context in the tree prior distribution (in log scale).
-See \link[bacontrees]{TreeNode} for details.}
+\item{context_weights}{Function. Returns the log prior weight for a given node.}
 
-\item{burnin}{Number of initial iterations to exclude from posterior
-summarization results.}
+\item{burnin}{Integer. Number of initial iterations to discard from posterior summaries.}
 
-\item{thin}{Number of iterations between observations used in the
-posterior distribution summarization.}
+\item{thin}{Integer. Thinning interval for posterior summaries.}
 
-\item{initial_root}{Logical value indicating whether the initial tree
-should contain only the root node. If set to \code{FALSE}, the maximal tree
-of the specified depth is used.}
+\item{initial_root}{Logical. If TRUE, start with root-only tree; if FALSE, start with maximal tree.}
 }
 \value{
-A \code{metropolis_vlmc} object containing attributes:
+An object of class \code{metropolis_vlmc} with elements:
 \itemize{
-\item \code{df}: A table containing the set of contexts, tree code, counts and posterior probabilities
-considering the specified burnin and thin values.
-\item \code{codes}: A list containing the contexts for the trees corresponding to each tree code.
-\item \code{chain}: The complete chain generated, represented by tree codes.
+\item \code{df}: Data frame of context sets, tree codes, counts, and posterior probabilities.
+\item \code{codes}: List of context sets for each tree code.
+\item \code{chain}: The full chain of tree codes sampled.
 }
 }
 \description{
-Generates a Markov Chain of Context Trees using the Metropolis-Hastings
-algorithm given some sequence data set.
+Runs the Metropolis-Hastings algorithm to sample from the posterior distribution of context trees given sequence data, Dirichlet priors, and context prior weights.
 }
 \details{
-This function supports progress monitoring via the \strong{progressr} package.
-Users can wrap the function call in \code{with_progress()} to display a progress
-bar while the function executes. If no progress handler is registered, the
-function will run without showing progress.
+This function supports progress monitoring via the \strong{progressr} package. Wrap the call in \code{with_progress()} to display a progress bar.
+}
+\examples{
+data(abc_list)
+result <- metropolis_vlmc(abc_list, n_steps = 1000, max_depth = 3)
+print(result)
 
-To enable progress, register a handler and wrap the function call in
-\code{with_progress()}.
 }

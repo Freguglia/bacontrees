@@ -1,4 +1,18 @@
-#' @title Bayesian Context Tree R6 class
+#' @importFrom R6 R6Class
+#' @title Bayesian Context Tree R6 Class
+#'
+#' @description
+#' The `baConTree` class extends `ContextTree` to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
+#'
+#' @details
+#' This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+#'
+#' @examples
+#' bt <- baConTree$new(abc_list, maximalDepth = 3)
+#' bt$setAllDirichletPars(0.01)
+#' bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+#' bt$runMetropolisHastings(300)
+#' chain <- bt$getChain()
 #'
 #' @importFrom purrr walk map_dbl
 #' @importFrom progressr progressor

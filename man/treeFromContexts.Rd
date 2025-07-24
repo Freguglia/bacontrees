@@ -2,25 +2,21 @@
 % Please edit documentation in R/treeFromContexts.R
 \name{treeFromContexts}
 \alias{treeFromContexts}
-\title{Create ContextTree object from a vector of contexts}
+\title{Create ContextTree from Context Vector}
 \usage{
 treeFromContexts(contexts)
 }
 \arguments{
-\item{contexts}{Either a string with contexts separated by \code{','} or
-a vector of strings representing contexts.}
+\item{contexts}{Character vector or string. Contexts separated by commas, or a vector of context strings (e.g., "\emph{.a", "}.b", ...).}
 }
 \value{
-A \code{ContextTree} object with maximal length equal to the largest
-depth among specified contexts and active tree equal to the Context Tree
-specified by the contexts.
+A \code{ContextTree} object with maximal length equal to the largest depth among specified contexts and active tree equal to the specified contexts.
 }
 \description{
-Create ContextTree object from a vector of contexts
+Constructs a \code{ContextTree} object from a vector or string of context paths, initializing the tree to match the specified contexts.
 }
 \examples{
 treeFromContexts(c("*.0", "*.1.0", "*.1.1"))
 treeFromContexts("{*.a, *.b, *.c.a, *.c.b, *.c.c}")
-
 
 }

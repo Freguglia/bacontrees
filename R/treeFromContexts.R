@@ -1,18 +1,17 @@
-#' @importFrom stringr str_split str_replace_all str_count
+#' @title Create ContextTree from Context Vector
 #'
-#' @title Create ContextTree object from a vector of contexts
+#' @description
+#' Constructs a `ContextTree` object from a vector or string of context paths, initializing the tree to match the specified contexts.
 #'
-#' @param contexts Either a string with contexts separated by `','` or
-#' a vector of strings representing contexts.
+#' @param contexts Character vector or string. Contexts separated by commas, or a vector of context strings (e.g., "*.a", "*.b", ...).
+#'
+#' @return A `ContextTree` object with maximal length equal to the largest depth among specified contexts and active tree equal to the specified contexts.
 #'
 #' @examples
 #' treeFromContexts(c("*.0", "*.1.0", "*.1.1"))
 #' treeFromContexts("{*.a, *.b, *.c.a, *.c.b, *.c.c}")
 #'
-#'
-#' @return A `ContextTree` object with maximal length equal to the largest
-#' depth among specified contexts and active tree equal to the Context Tree
-#' specified by the contexts.
+#' @importFrom stringr str_split str_replace_all str_count
 #' @export
 treeFromContexts <- function(contexts){
   if(length(contexts) == 1){

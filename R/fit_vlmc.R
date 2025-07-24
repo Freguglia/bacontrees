@@ -1,8 +1,21 @@
-#' @title Fit a VLMC model via Context Algorithm
+#' @title Fit a Variable Length Markov Chain (VLMC) via Context Algorithm
 #'
-#' @param data Either a vector with discrete data or a lista of vectors.
-#' @param max_length Depth of the maximal tree considered.
-#' @param cutoff Cutoff value for the (log) likelihood ratio test statistic.
+#' @description
+#' Fits a VLMC model to discrete sequence data using the context algorithm, performing likelihood ratio tests to prune the context tree.
+#'
+#' @param data Either a character vector (single sequence) or a list of character vectors (multiple sequences).
+#' @param cutoff Numeric. Cutoff value for the (log) likelihood ratio test statistic used for pruning.
+#' @param max_length Integer. Depth of the maximal tree considered.
+#'
+#' @return A `ContextTree` object representing the fitted VLMC.
+#'
+#' @details
+#' The function builds a maximal context tree, computes log-likelihoods for each node, and prunes nodes whose likelihood ratio test statistic is below the cutoff. The result is a pruned context tree representing the fitted VLMC.
+#'
+#' @examples
+#' data(abc_list)
+#' fit <- fit_vlmc(abc_list, cutoff = 20, max_length = 4)
+#' print(fit$getActiveNodes())
 #'
 #' @export
 fit_vlmc <- function(data, cutoff = 10, max_length = 6){

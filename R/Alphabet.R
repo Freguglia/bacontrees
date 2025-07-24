@@ -1,4 +1,3 @@
-#' @importFrom R6 R6Class
 Alphabet <- R6Class(
   "Alphabet",
   public = list(

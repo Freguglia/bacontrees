@@ -2,14 +2,23 @@
 % Please edit documentation in R/baConTree.R
 \name{baConTree}
 \alias{baConTree}
-\title{Bayesian Context Tree R6 class}
+\title{Bayesian Context Tree R6 Class}
 \value{
 Gets the sampled chain stored.
 }
 \description{
-Bayesian Context Tree R6 class
+The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
+}
+\details{
+This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+}
+\examples{
+bt <- baConTree$new(abc_list, maximalDepth = 3)
+bt$setAllDirichletPars(0.01)
+bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+bt$runMetropolisHastings(300)
+chain <- bt$getChain()
 
-Bayesian Context Tree R6 class
 }
 \section{Super class}{
 \code{\link[bacontrees:ContextTree]{bacontrees::ContextTree}} -> \code{baConTree}
