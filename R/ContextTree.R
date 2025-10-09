@@ -1,12 +1,22 @@
-#' @title Context Tree R6 Class
-#' @rdname ContextTree
+#' @title ContextTree R6 Class
 #'
-#' @param alphabet Either an object of class Alphabet or a character
-#' vector with the symbols for the alphabet considered in the context tree.
+#' @description
+#' The `ContextTree` class represents a variable-length Markov context tree, supporting construction, manipulation, and data assignment for context tree models. It manages nodes, active/inactive states, and provides methods for growing, pruning, and validating the tree.
+#'
+#' @details
+#' This class is the core data structure for context tree modeling, supporting both root and maximal initialization, and efficient management of tree structure and data.
+#'
+#' @param alphabet Either an object of class Alphabet or a character vector with the symbols for the alphabet considered in the context tree.
 #' @param path A string representing the path of a node.
-#' @param idx A logical value. If \code{TRUE}, the function will return
-#' the index (path) of the node as a string. If \code{FALSE}, returns
-#' a list of nodes.
+#' @param idx A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.
+#' @param code The tree code for the tree to be activated.
+#' @param data A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
+#'
+#' @examples
+#' tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
+#' tree$activateMaximal()
+#' tree$setData(list(rep("a", 10), rep("b", 10)))
+#' print(tree)
 #'
 #' @importFrom purrr map_chr map_lgl
 #' @importFrom glue glue
@@ -78,16 +88,17 @@ ContextTree <- R6Class(
 
     #' @return Returns a list of active nodes (leaf nodes of the active tree).
     getActiveNodes = function(idx = TRUE) {
+      vec <- check_active(self$nodes)
       if(idx){
-        names(self$nodes)[map_lgl(self$nodes, function(x) x$isActive())]
+        names(self$nodes)[vec]
       } else {
-        self$nodes[map_lgl(self$nodes, function(x) x$isActive())]
+        self$nodes[vec]
       }
     },
 
     #' @return Returns a character value representing the active tree.
     activeTreeCode = function(){
-      compress_logical(map_lgl(self$nodes, ~.x$isActive()))
+      compress_logical(check_active(self$nodes))
     },
 
     #' @description

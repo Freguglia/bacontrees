@@ -2,11 +2,19 @@
 % Please edit documentation in R/ContextTree.R
 \name{ContextTree}
 \alias{ContextTree}
-\title{Context Tree R6 Class}
+\title{ContextTree R6 Class}
 \description{
-Context Tree R6 Class
+The \code{ContextTree} class represents a variable-length Markov context tree, supporting construction, manipulation, and data assignment for context tree models. It manages nodes, active/inactive states, and provides methods for growing, pruning, and validating the tree.
+}
+\details{
+This class is the core data structure for context tree modeling, supporting both root and maximal initialization, and efficient management of tree structure and data.
+}
+\examples{
+tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
+tree$activateMaximal()
+tree$setData(list(rep("a", 10), rep("b", 10)))
+print(tree)
 
-Context Tree R6 Class
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -55,8 +63,7 @@ Context Tree R6 Class
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{alphabet}}{Either an object of class Alphabet or a character
-vector with the symbols for the alphabet considered in the context tree.}
+\item{\code{alphabet}}{Either an object of class Alphabet or a character vector with the symbols for the alphabet considered in the context tree.}
 
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
@@ -114,9 +121,7 @@ Returns the alphabet related to the Context Tree.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -185,9 +190,7 @@ from the \code{activeTreeCode} method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -251,9 +254,7 @@ TRUE if a node with a given path exists in the Context Tree.
 \describe{
 \item{\code{path}}{A string representing the path of a node.}
 
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -274,9 +275,7 @@ Returns the parent node of the node in a given path.
 \describe{
 \item{\code{path}}{A string representing the path of a node.}
 
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }
@@ -297,9 +296,7 @@ Returns the parent node of the node in a given path.
 \describe{
 \item{\code{path}}{A string representing the path of a node.}
 
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }

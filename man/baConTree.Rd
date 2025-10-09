@@ -2,14 +2,23 @@
 % Please edit documentation in R/baConTree.R
 \name{baConTree}
 \alias{baConTree}
-\title{Bayesian Context Tree R6 class}
+\title{Bayesian Context Tree R6 Class}
 \value{
 Gets the sampled chain stored.
 }
 \description{
-Bayesian Context Tree R6 class
+The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
+}
+\details{
+This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+}
+\examples{
+bt <- baConTree$new(abc_list, maximalDepth = 3)
+bt$setAllDirichletPars(0.01)
+bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+bt$runMetropolisHastings(300)
+chain <- bt$getChain()
 
-Bayesian Context Tree R6 class
 }
 \section{Super class}{
 \code{\link[bacontrees:ContextTree]{bacontrees::ContextTree}} -> \code{baConTree}
@@ -121,6 +130,16 @@ its weight in the prior distribution.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Details}{
+This method supports progress monitoring via the \strong{progressr} package.
+Users can wrap the function call in \code{with_progress()} to display a progress
+bar while the function executes. If no progress handler is registered, the
+function will run without showing progress.
+
+To enable progress, register a handler and wrap the function call in
+\code{with_progress()}.
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-baConTree-getChain"></a>}}

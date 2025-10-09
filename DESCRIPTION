@@ -21,9 +21,12 @@ Imports:
     glue,
     purrr,
     dplyr,
-    progress
+    progressr,
+    Rcpp
 Depends: 
     R (>= 2.10)
 LazyData: true
 VignetteBuilder:
     knitr
+LinkingTo: 
+    Rcpp
