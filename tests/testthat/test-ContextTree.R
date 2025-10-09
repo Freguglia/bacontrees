@@ -115,3 +115,14 @@ test_that("Tree Compression works as expected", {
   expect_setequal(tree$getActiveNodes(), c("*.A.C.A", "*.A.C.B", "*.A.C.C",
                                            "*.A.B", "*.A.A", "*.B", "*.C"))
 })
+
+test_that("Inner nodes are correctly obtained", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 4, active = "root")
+  expect_length(tree$getInnerNodes(), 0)
+  tree$growActive("*")
+  expect_length(tree$getInnerNodes(), 1)
+  expect_setequal(tree$getInnerNodes(), "*")
+  tree$growActive("*.A")
+  expect_length(tree$getInnerNodes(), 2)
+  expect_setequal(tree$getInnerNodes(), c("*", "*.A"))
+})

@@ -113,7 +113,7 @@ TreeNode <- R6Class(
   ),
   private = list(
     path = character(0),
-    parentPath = NULL,
+    parentPath = NA_character_,
     active = FALSE,
     depth = numeric(0),
     childrenPaths = character(0)

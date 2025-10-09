@@ -38,7 +38,7 @@ test_that("TreeNode handles root path correctly", {
   node <- TreeNode$new(path = "*")
   expect_equal(node$getPath(), "*")
   expect_equal(node$getDepth(), 0)
-  expect_null(node$getParentPath())
+  expect_true(is.na(node$getParentPath()))
 })
 
 test_that("TreeNode handles multiple levels correctly", {

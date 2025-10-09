@@ -30,6 +30,7 @@ Context Tree R6 Class
 \item \href{#method-ContextTree-activateMaximal}{\code{ContextTree$activateMaximal()}}
 \item \href{#method-ContextTree-activateByCode}{\code{ContextTree$activateByCode()}}
 \item \href{#method-ContextTree-getLeaves}{\code{ContextTree$getLeaves()}}
+\item \href{#method-ContextTree-getInnerNodes}{\code{ContextTree$getInnerNodes()}}
 \item \href{#method-ContextTree-nodeExists}{\code{ContextTree$nodeExists()}}
 \item \href{#method-ContextTree-getParentNode}{\code{ContextTree$getParentNode()}}
 \item \href{#method-ContextTree-getChildrenNodes}{\code{ContextTree$getChildrenNodes()}}
@@ -193,6 +194,29 @@ a list of nodes.}
 \subsection{Returns}{
 Returns the leaf nodes of the maximal Context Tree (regardless of
 the current active tree).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getInnerNodes"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getInnerNodes}{}}}
+\subsection{Method \code{getInnerNodes()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getInnerNodes(idx = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
+the index (path) of the node as a string. If \code{FALSE}, returns
+a list of nodes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns the inner nodes nodes of the active Context Tree.
+Inner nodes are nodes that are in the path between the root (including)
+and active nodes.
 }
 }
 \if{html}{\out{<hr>}}

@@ -144,6 +144,23 @@ ContextTree <- R6Class(
       }
     },
 
+    #' @return Returns the inner nodes nodes of the active Context Tree.
+    #' Inner nodes are nodes that are in the path between the root (including)
+    #' and active nodes.
+    getInnerNodes = function(idx = TRUE) {
+      innerNodes <- character(0)
+      currentNodes <- self$getActiveNodes(idx = FALSE)
+      parentNodes <- unique(map_chr(currentNodes, function(node) node$getParentPath()))
+      currentNodes <- parentNodes[!is.na(parentNodes)]
+      innerNodes <- c(innerNodes, currentNodes)
+      while(length(currentNodes) > 0){
+        parentNodes <- unique(map_chr(currentNodes, function(node) self$nodes[[node]]$getParentPath()))
+        currentNodes <- parentNodes[!is.na(parentNodes)]
+        innerNodes <- unique(c(innerNodes, currentNodes))
+      }
+      return(innerNodes)
+    },
+
     #' @return TRUE if a node with a given path exists in the Context Tree.
     nodeExists = function(path) path %in% names(self$nodes),
 
