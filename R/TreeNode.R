@@ -118,3 +118,31 @@ TreeNode <- R6Class(
     depth = numeric(0),
     childrenPaths = character(0)
   ))
+
+
+#' @export
+TreeNode2 <- R6::R6Class(
+  "TreeNode2",
+  public = list(
+    initialize = function(path) {
+      private$ptr <- new(TreeNodeCpp, path)
+    },
+
+    activate = function() private$ptr$activate(),
+    deactivate = function() private$ptr$deactivate(),
+    isActive = function() private$ptr$isActive(),
+    isLeaf = function() private$isLeaf_,
+    getDepth = function() private$ptr$getDepth(),
+    getPath = function() private$ptr$getPath(),
+    getParentPath = function() private$ptr$getParentPath(),
+    getChildrenPaths = function() private$ptr$getChildrenPaths(),
+    setChildrenPaths = function(paths) {
+      private$isLeaf <- FALSE
+      private$ptr$setChildrenPaths(paths)
+    }
+  ),
+  private = list(
+    ptr = NULL,
+    isLeaf_ = TRUE
+  )
+)

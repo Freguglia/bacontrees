@@ -34,9 +34,12 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP _rcpp_module_boot_TreeNodeCpp_module();
+
 static const R_CallMethodDef CallEntries[] = {
     {"_bacontrees_compress_logical_cpp", (DL_FUNC) &_bacontrees_compress_logical_cpp, 2},
     {"_bacontrees_check_active", (DL_FUNC) &_bacontrees_check_active, 1},
+    {"_rcpp_module_boot_TreeNodeCpp_module", (DL_FUNC) &_rcpp_module_boot_TreeNodeCpp_module, 0},
     {NULL, NULL, 0}
 };
 
