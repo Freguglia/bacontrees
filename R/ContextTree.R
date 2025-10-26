@@ -377,3 +377,22 @@ ContextTree <- R6Class(
     prunableNodes = character(0)
   )
 )
+
+#' @export
+ContextTree2 <- R6::R6Class(
+  "ContextTree2",
+  public = list(
+    initialize = function(alphabet, depth) {
+      private$ptr <- new(ContextTreeCpp, alphabet, depth)
+    },
+
+    getDepth = function() { private$ptr$getDepth() },
+    getRoot = function() { private$ptr$getRoot() },
+    addNode = function(path) { private$ptr$addNode(path) },
+    getNode = function(path) { private$ptr$getNode(path) }
+  ),
+  private = list(
+    ptr = NULL
+  )
+)
+

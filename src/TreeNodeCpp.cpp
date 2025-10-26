@@ -1,51 +1,38 @@
+#include "TreeNode.h"
+
 #include <Rcpp.h>
 #include <algorithm>
 using namespace Rcpp;
 
-class TreeNodeCpp {
-private:
-  String path;
-  String parentPath;
-  bool active;
-  int depth;
-  CharacterVector childrenPaths;
-  std::vector<int> counts;
-  bool isLeaf;
-  List extra;
+TreeNodeCpp::TreeNodeCpp(const std::string& path_) : path(path_), active(false), isLeaf(true) {
 
-public:
-  TreeNodeCpp(String path_)
-    : path(path_), active(false), isLeaf(true) {
+  std::string spath = path_;
+  int n_dots = std::count(spath.begin(), spath.end(), '.');
+  depth = n_dots;
 
-    std::string spath = path_;
-    int n_dots = std::count(spath.begin(), spath.end(), '.');
-    depth = n_dots;
-
-    // compute parentPath
-    if (n_dots > 0) {
-      auto pos = spath.find_last_of('.');
-      parentPath = spath.substr(0, pos);
-    } else {
-      parentPath = NA_STRING;  // now safe with Rcpp::String
-    }
+  // compute parentPath
+  if (n_dots > 0) {
+    auto pos = spath.find_last_of('.');
+    parentPath = spath.substr(0, pos);
+  } else {
+    parentPath = NA_STRING;
   }
+}
 
-  void activate() { active = true; }
-  void deactivate() { active = false; }
-  bool isActive() const { return active; }
-  int getDepth() const { return depth; }
+void TreeNodeCpp::activate() { active = true; }
+void TreeNodeCpp::deactivate() { active = false; }
+bool TreeNodeCpp::isActive() const { return active; }
+int TreeNodeCpp::getDepth() const { return depth; }
 
-  String getPath() const { return path; }
-  String getParentPath() const { return parentPath; }
+List TreeNodeCpp::getExtra() const { return extra; }
+void TreeNodeCpp::setExtra(Rcpp::String name, SEXP value) { extra[name] = value; }
 
-  CharacterVector getChildrenPaths() const { return childrenPaths; }
+String TreeNodeCpp::getPath() const { return path; }
+String TreeNodeCpp::getParentPath() const { return parentPath; }
 
-  void setChildrenPaths(CharacterVector childrenPaths_) {
-    if (childrenPaths.size() != 0)
-      stop("Attempting to set children node paths multiple times.");
-    childrenPaths = childrenPaths_;
-  }
-};
+CharacterVector TreeNodeCpp::getChildrenPaths() const { return childrenPaths; }
+
+RCPP_EXPOSED_CLASS(TreeNodeCpp)
 
 RCPP_MODULE(TreeNodeCpp_module) {
   class_<TreeNodeCpp>("TreeNodeCpp")
@@ -53,9 +40,10 @@ RCPP_MODULE(TreeNodeCpp_module) {
   .method("activate", &TreeNodeCpp::activate)
   .method("deactivate", &TreeNodeCpp::deactivate)
   .method("isActive", &TreeNodeCpp::isActive)
+  .method("getExtra", &TreeNodeCpp::getExtra)
+  .method("setExtra", &TreeNodeCpp::setExtra)
   .method("getDepth", &TreeNodeCpp::getDepth)
   .method("getPath", &TreeNodeCpp::getPath)
   .method("getParentPath", &TreeNodeCpp::getParentPath)
-  .method("getChildrenPaths", &TreeNodeCpp::getChildrenPaths)
-  .method("setChildrenPaths", &TreeNodeCpp::setChildrenPaths);
+  .method("getChildrenPaths", &TreeNodeCpp::getChildrenPaths);
 }

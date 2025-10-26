@@ -2,7 +2,7 @@
 
 S3method(print,metropolis_vlmc)
 export(ContextTree)
-export(TreeNode2)
+export(ContextTree2)
 export(baConTree)
 export(fit_vlmc)
 export(metropolis_vlmc)
