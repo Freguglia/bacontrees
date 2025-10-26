@@ -42,11 +42,13 @@ ContextTree <- R6Class(
         stop("alphabet must be either a character vector or an Alphabet object.")
       }
       root <- TreeNode$new(path = "*")
-      self$nodes[["*"]] <- root
-      root$setChildrenPaths(glue("*.{private$Alphabet$symbols}"))
+      root$setChildrenPaths(paste0("*.", private$Alphabet$symbols))
+      private$nodesEnv <- new.env(hash = TRUE, parent = emptyenv())
+      private$nodesEnv[["*"]] <- root
       private$m <- length(private$Alphabet$symbols)
       root$counts <- rep(0, private$m)
       private$buildByDepth(maximalDepth)
+      self$nodes <- as.list(private$nodesEnv)
 
       if(active == "root"){
         self$activateRoot()
@@ -300,11 +302,11 @@ ContextTree <- R6Class(
         output_string <- nodePath
         if(length(nodePath) > 1){
           output_string[length(nodePath) - 1] <- ifelse(nodePath[length(nodePath) ] == last_symbol,
-                                                     "`-", "|-")
-         if(length(nodePath) > 2){
-           output_string[1:(length(nodePath) - 2)] <- ifelse(nodePath[2:(length(nodePath) - 1)] == last_symbol,
-                                                         "  ", "| ")
-         }
+                                                        "`-", "|-")
+          if(length(nodePath) > 2){
+            output_string[1:(length(nodePath) - 2)] <- ifelse(nodePath[2:(length(nodePath) - 1)] == last_symbol,
+                                                              "  ", "| ")
+          }
           output_string <- paste0(output_string, collapse = "")
         } else {
           output_string <- "*"
@@ -327,7 +329,7 @@ ContextTree <- R6Class(
     Alphabet = NULL,
     buildByDepth = function(depth) {
       for (i in seq_len(depth)) {
-        leaves <- self$getLeaves(TRUE)
+        leaves <- private$getLeavesEnv()
         for(leaf in leaves){
           private$addChildren(leaf)
         }
@@ -336,25 +338,22 @@ ContextTree <- R6Class(
 
     addNode = function(path) {
       symbols <- str_split_1(path, "\\.")[-1]
-      children_paths <- glue("{path}.{private$Alphabet$symbols}")
-      if (!self$nodeExists(path)) {
-        node <- TreeNode$new(path)
-        node$setChildrenPaths(children_paths)
-        self$nodes[[path]] <- node
-        return(node)
-      }
-      return(NULL)
+      children_paths <- paste0(path, ".", private$Alphabet$symbols)
+      node <- TreeNode$new(path)
+      node$setChildrenPaths(children_paths)
+      private$nodesEnv[[path]] <- node
+      return(node)
     },
 
     addChildren = function(path) {
-      if (self$nodeExists(path)) {
-        children_paths <- glue("{path}.{private$Alphabet$symbols}")
-        if (self$nodes[[path]]$isLeaf)
+      if (!is.null(private$nodesEnv[[path]])) {
+        children_paths <- paste0(path, ".", private$Alphabet$symbols)
+        if (private$nodesEnv[[path]]$isLeaf)
           for (child_path in children_paths) {
             private$addNode(child_path)
-            self$nodes[[child_path]]$counts <- rep(0, private$m)
+            private$nodesEnv[[child_path]]$counts <- rep(0, private$m)
           }
-        self$nodes[[path]]$isLeaf <- FALSE
+        private$nodesEnv[[path]]$isLeaf <- FALSE
       } else {
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
@@ -367,13 +366,21 @@ ContextTree <- R6Class(
         dt <- 1
         while(!is.null(node) & (t-dt) > 0){
           node$counts[current_symbol] <- node$counts[current_symbol] + 1
-          node <- self$nodes[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
+          node <- private$nodesEnv[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
           dt <- dt + 1
         }
       }
+      nodes <- as.list(private$nodesEnv)
+    },
+
+    getLeavesEnv = function() {
+      paths <- names(private$nodesEnv)
+      leaves <- map_lgl(paths, function(path) private$nodesEnv[[path]]$isLeaf)
+      paths[leaves]
     },
 
     growableNodes = character(0),
-    prunableNodes = character(0)
+    prunableNodes = character(0),
+    nodesEnv = NULL
   )
 )

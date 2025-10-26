@@ -210,9 +210,7 @@ the current active tree).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{idx}}{A logical value. If \code{TRUE}, the function will return
-the index (path) of the node as a string. If \code{FALSE}, returns
-a list of nodes.}
+\item{\code{idx}}{A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.}
 }
 \if{html}{\out{</div>}}
 }
