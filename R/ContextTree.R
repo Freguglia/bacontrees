@@ -118,6 +118,8 @@ ContextTree <- R6Class(
           node$deactivate()
         }
       }
+      private$growableNodes <- "*"
+      private$prunableNodes <- character(0)
     },
 
     #' @description
@@ -131,6 +133,7 @@ ContextTree <- R6Class(
         }
       }
       private$prunableNodes <- self$getActiveNodes()
+      private$growableNodes <- character(0)
     },
 
     #' @description
