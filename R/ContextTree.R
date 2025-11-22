@@ -38,6 +38,11 @@ ContextTree <- R6Class(
         private$Alphabet <- alphabet
       } else if("character" %in% class(alphabet)){
         private$Alphabet <- Alphabet$new(alphabet)
+      } else if(is.numeric(alphabet)) {
+        if(length(alphabet) > 8){
+          warning("Alphabet was specified by a numeric variable and has too many values. Memory problems may arise.")
+        }
+        private$Alphabet <- Alphabet$new(as.character(alphabet))
       } else {
         stop("alphabet must be either a character vector or an Alphabet object.")
       }
@@ -286,6 +291,22 @@ ContextTree <- R6Class(
         private$fillData(sequence_vec)
       }
       private$hasData <- TRUE
+    },
+
+    igraph = function(activeOnly = TRUE){
+      df_tree <- map(self$nodes, function(x) {
+        if(!x$isLeaf){
+          data.frame(from = x$getPath(), to = x$getChildrenPaths())
+        } else {
+          NULL
+        }
+      }) |> dplyr::bind_rows()
+      df_nodes <- map(self$nodes, function(x) data.frame(
+        vertices = x$getPath(),
+        nodeLabel = stringr::str_replace(x$getPath(), ".*\\.", ""),
+        counts = sum(x$counts)
+      )) |> dplyr::bind_rows()
+      igraph::graph_from_data_frame(df_tree, vertices = df_nodes)
     },
 
     #' @description

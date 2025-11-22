@@ -48,6 +48,7 @@ print(tree)
 \item \href{#method-ContextTree-getGrowableNodes}{\code{ContextTree$getGrowableNodes()}}
 \item \href{#method-ContextTree-getPrunableNodes}{\code{ContextTree$getPrunableNodes()}}
 \item \href{#method-ContextTree-setData}{\code{ContextTree$setData()}}
+\item \href{#method-ContextTree-igraph}{\code{ContextTree$igraph()}}
 \item \href{#method-ContextTree-print}{\code{ContextTree$print()}}
 \item \href{#method-ContextTree-clone}{\code{ContextTree$clone()}}
 }
@@ -382,6 +383,15 @@ to be set as data for the context tree.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-igraph"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-igraph}{}}}
+\subsection{Method \code{igraph()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$igraph(activeOnly = TRUE)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-print"></a>}}
