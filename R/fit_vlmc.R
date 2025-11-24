@@ -19,9 +19,7 @@
 #'
 #' @export
 fit_vlmc <- function(data, cutoff = 10, max_length = 6){
-  alphabet <- Alphabet$new(sort(unique(unlist(data))))
-  ct <- ContextTree$new(alphabet, maximalDepth = max_length, active = "maximal")
-  ct$setData(data)
+  ct <- ContextTree$new(data = data, maximalDepth = max_length, active = "maximal")
 
   # Set likelihood contribution of each node.
   for(node in ct$nodes){

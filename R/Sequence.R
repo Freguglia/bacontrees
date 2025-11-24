@@ -6,7 +6,7 @@ Sequence <- R6Class(
     Alphabet = NULL,
     initialize = function(x, alphabet = NULL) {
       if(is.null(alphabet)){
-        self$Alphabet <- Alphabet$new(unique(unlist(x)))
+        self$Alphabet <- infer_alphabet(x)
       } else {
         self$Alphabet <- alphabet
       }

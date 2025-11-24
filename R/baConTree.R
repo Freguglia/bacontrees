@@ -27,9 +27,7 @@ baConTree <- R6Class(
     #' @param active Either "root" or "maximal" to indicate which nodes
     #' should be initialized as active.
     initialize = function(data, maximalDepth = 5, active = "root") {
-      Alphabet <- Alphabet$new(sort(unique(unlist(data))))
-      super$initialize(Alphabet, maximalDepth, active)
-      self$setData(Sequence$new(data, Alphabet))
+      super$initialize(data, maximalDepth, active)
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
       }

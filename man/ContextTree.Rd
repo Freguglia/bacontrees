@@ -58,18 +58,23 @@ print(tree)
 \if{latex}{\out{\hypertarget{method-ContextTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTree$new(alphabet = NULL, maximalDepth = 3, active = "root")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$new(
+  dataset = NULL,
+  maximalDepth = 3,
+  active = "root",
+  alphabet = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{alphabet}}{Either an object of class Alphabet or a character vector with the symbols for the alphabet considered in the context tree.}
-
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
 \item{\code{active}}{Either "root" or "maximal" to indicate which nodes
 should be initialized as active.}
+
+\item{\code{alphabet}}{Either an object of class Alphabet or a character vector with the symbols for the alphabet considered in the context tree.}
 }
 \if{html}{\out{</div>}}
 }

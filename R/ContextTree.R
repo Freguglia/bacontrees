@@ -33,19 +33,36 @@ ContextTree <- R6Class(
     #' @param maximalDepth Depth of the maximal tree considered.
     #' @param active Either "root" or "maximal" to indicate which nodes
     #' should be initialized as active.
-    initialize = function(alphabet = NULL, maximalDepth = 3, active = "root") {
-      if("Alphabet" %in% class(alphabet)){
-        private$Alphabet <- alphabet
-      } else if("character" %in% class(alphabet)){
-        private$Alphabet <- Alphabet$new(alphabet)
-      } else if(is.numeric(alphabet)) {
-        if(length(alphabet) > 8){
-          warning("Alphabet was specified by a numeric variable and has too many values. Memory problems may arise.")
-        }
-        private$Alphabet <- Alphabet$new(as.character(alphabet))
-      } else {
-        stop("alphabet must be either a character vector or an Alphabet object.")
+    initialize = function(dataset = NULL, maximalDepth = 3, active = "root", alphabet = NULL) {
+      if(is.null(dataset) & is.null(alphabet)){
+        stop("Either 'data' or 'alphabet' must be provided.")
       }
+
+      if(!is.null(dataset)){
+        alphabet_data <- infer_alphabet(dataset)
+        private$Alphabet <- alphabet_data
+      }
+
+      if(!is.null(alphabet)){
+        if("character" %in% class(alphabet)){
+          alphabet <- Alphabet$new(alphabet)
+        } else if(is.numeric(alphabet)) {
+          if(length(alphabet) > 8){
+            warning("Alphabet was specified by a numeric variable and has too many values. Memory problems may arise.")
+          }
+          alphabet <- Alphabet$new(as.character(alphabet))
+        } else if(!is(alphabet, "Alphabet")) {
+          stop("alphabet must be either a character vector or an Alphabet object.")
+        }
+        private$Alphabet <- alphabet
+      }
+
+      if(!is.null(dataset) & !is.null(alphabet)) {
+        if(!alphabet_equal(alphabet, alphabet_data)) {
+          stop("The 'alphabet' passed is incompatible with the data provided.")
+        }
+      }
+
       root <- TreeNode$new(path = "*")
       root$setChildrenPaths(paste0("*.", private$Alphabet$symbols))
       private$nodesEnv <- new.env(hash = TRUE, parent = emptyenv())
@@ -63,6 +80,9 @@ ContextTree <- R6Class(
 
       private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
                                                         function(node) node$isActive() & !node$isLeaf)])
+      if(!is.null(dataset)){
+        self$setData(dataset)
+      }
     },
 
     #' @return Returns the Context Tree root node.
@@ -283,7 +303,7 @@ ContextTree <- R6Class(
     #' to be set as data for the context tree.
     setData = function(data) {
       if(private$hasData){
-        warning("This Context Tree already had data. Overwriting previous data with the new one.")
+        stop("This Context Tree already has data. Cannot overwrite it.")
       }
       if("Sequence" %in% class(data)){
         self$data <- data
