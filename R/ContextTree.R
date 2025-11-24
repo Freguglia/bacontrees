@@ -113,6 +113,10 @@ ContextTree <- R6Class(
       private$Alphabet
     },
 
+    getMaximalDepth = function(){
+      private$maximalDepth
+    },
+
     #' @return Returns a list of active nodes (leaf nodes of the active tree).
     getActiveNodes = function(idx = TRUE) {
       vec <- check_active(self$nodes)
@@ -371,6 +375,7 @@ ContextTree <- R6Class(
   private = list(
     m = 0,
     Alphabet = NULL,
+    maximalDepth = integer(0),
     buildByDepth = function(depth) {
       for (i in seq_len(depth)) {
         leaves <- private$getLeavesEnv()
@@ -378,6 +383,7 @@ ContextTree <- R6Class(
           private$addChildren(leaf)
         }
       }
+      private$maximalDepth <- depth
     },
 
     addNode = function(path) {
