@@ -8,4 +8,9 @@ test_that("Alphabet class object creation works", {
   expect_equal(b$length, 20)
   expect_identical(b$symbols, LETTERS[1:20])
   expect_identical(names(b$labels), as.character(1:20))
+
+  out <- testthat::capture_output(b$print())
+  expect_true(grepl("->", out))
+
+
 })
