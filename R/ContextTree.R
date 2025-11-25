@@ -466,7 +466,15 @@ plot.ContextTree = function(x, activeOnly = TRUE){
   igraph::vertex_attr(gr, "counts") <- all_counts
   for(attr in attr_names){
     attr_values <- map(ct$nodes[nodes_order], function(x) x$extra[[attr]])
-    igraph::vertex_attr(gr, attr) <- attr_values
+    igraph::vertex_attr(gr, attr) <- flatten_if_scalar(attr_values)
   }
   gr
+}
+
+flatten_if_scalar <- function(x) {
+  if (all(vapply(x, length, integer(1)) == 1L)) {
+    unlist(x, recursive = FALSE, use.names = FALSE)
+  } else {
+    x
+  }
 }
