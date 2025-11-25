@@ -34,17 +34,12 @@ test_that("treeFromContexts handles whitespace and varying spacing robustly", {
   expect_setequal(tree$getAlphabet()$symbols, c("x", "y", "z"))
   expect_equal(tree$getMaximalDepth(), 1)
 
-  expect_setequal(
-    tree$getActiveNodes(idx = TRUE),
-    c("*.x", "*.y", "*.z")
-  )
+  expect_setequal(tree$getActiveNodes(idx = TRUE), c("*.x", "*.y", "*.z"))
 })
 
 test_that("invalid trees fail", {
   contexts <- c("*.0", "*.1.0", "*.1.1", "*.2.0.1")
-
   expect_error(tree <- treeFromContexts(contexts), regexp = "full")
-
 })
 
 test_that("treeFromContexts returns identical output for equivalent inputs", {

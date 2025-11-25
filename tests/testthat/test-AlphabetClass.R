@@ -11,6 +11,4 @@ test_that("Alphabet class object creation works", {
 
   out <- testthat::capture_output(b$print())
   expect_true(grepl("->", out))
-
-
 })
