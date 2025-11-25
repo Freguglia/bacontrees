@@ -26,18 +26,25 @@ baConTree <- R6Class(
     #' @param maximalDepth Depth of the maximal tree considered.
     #' @param active Either "root" or "maximal" to indicate which nodes
     #' should be initialized as active.
-    initialize = function(data, maximalDepth = 5, active = "root") {
+    initialize = function(data, maximalDepth = 5, alpha = NULL, active = "root") {
       super$initialize(data, maximalDepth, active)
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
+      }
+      if(!is.null(alpha)){
+        self$setAlpha(alpha)
       }
     },
 
     #' @param alpha Hyperparameter considered for the Dirichlet prior distribution
     #' of probabilities.
-    setAllDirichletPars = function(alpha){
+    setAlpha = function(alpha){
+      if(private$hasAlpha){
+        stop(paste0("alpha is already specified as ", private$alpha))
+      }
+      private$alpha <- alpha
       for(node in self$nodes) {
-        node$extra$dirichletAlpha <- rep(alpha, private$m)
+        node$extra$alpha <- rep(alpha, private$m)
       }
       private$computeIntegratedDirichlet()
       private$hasAlpha <- TRUE
@@ -123,17 +130,18 @@ baConTree <- R6Class(
   ),
   private = list(
     hasAlpha = FALSE,
+    alpha = numeric(0),
     hasContextPrior = FALSE,
     hasPrecomputedRatios = FALSE,
     iterations = 0,
     chain = NULL,
     computeIntegratedDirichlet = function(){
       for(node in self$nodes) {
-        result <- lgamma(sum(node$extra$dirichletAlpha)) -
-          sum(lgamma(node$extra$dirichletAlpha)) +
-          sum(lgamma(node$extra$dirichletAlpha + node$counts)) -
-          lgamma(sum(node$extra$dirichletAlpha + node$counts))
-        node$extra$integratedDirichletLog <- result
+        result <- lgamma(sum(node$extra$alpha)) -
+          sum(lgamma(node$extra$alpha)) +
+          sum(lgamma(node$extra$alpha + node$counts)) -
+          lgamma(sum(node$extra$alpha + node$counts))
+        node$extra$marginalNodeLL <- result
       }
 
       if(private$hasContextPrior){
@@ -144,7 +152,7 @@ baConTree <- R6Class(
     preComputeRatios = function(){
       for(node in self$nodes) {
         node$extra$posteriorWeight <- node$extra$priorWeight +
-          node$extra$integratedDirichletLog
+          node$extra$marginalNodeLL
       }
 
       for(node in self$nodes){

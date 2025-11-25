@@ -38,8 +38,7 @@ metropolis_vlmc <- function(data, n_steps, max_depth = 6,
   } else {
     init <- "maximal"
   }
-  bt <- baConTree$new(data, maximalDepth = max_depth, active = init)
-  bt$setAllDirichletPars(alpha)
+  bt <- baConTree$new(data, maximalDepth = max_depth, alpha = alpha, active = init)
   bt$setContextPriorWeights(context_weights)
 
   bt$runMetropolisHastings(n_steps)

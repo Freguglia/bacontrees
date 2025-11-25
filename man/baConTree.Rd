@@ -27,7 +27,7 @@ chain <- bt$getChain()
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
-\item \href{#method-baConTree-setAllDirichletPars}{\code{baConTree$setAllDirichletPars()}}
+\item \href{#method-baConTree-setAlpha}{\code{baConTree$setAlpha()}}
 \item \href{#method-baConTree-setContextPriorWeights}{\code{baConTree$setContextPriorWeights()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
@@ -68,7 +68,7 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, active = "root")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha = NULL, active = "root")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -85,11 +85,11 @@ should be initialized as active.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-setAllDirichletPars"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-setAllDirichletPars}{}}}
-\subsection{Method \code{setAllDirichletPars()}}{
+\if{html}{\out{<a id="method-baConTree-setAlpha"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-setAlpha}{}}}
+\subsection{Method \code{setAlpha()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$setAllDirichletPars(alpha)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$setAlpha(alpha)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
