@@ -3,6 +3,7 @@
 S3method(plot,ContextTree)
 S3method(print,metropolis_vlmc)
 export(ContextTree)
+export(Sequence)
 export(baConTree)
 export(fit_vlmc)
 export(metropolis_vlmc)
