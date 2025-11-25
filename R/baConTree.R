@@ -175,7 +175,21 @@ baConTree <- R6Class(
           node$extra$prunePosteriorRatio <- NA
         }
       }
-
     }
   )
 )
+
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom igraph V edge_attr ends
+#' @export
+plot.baConTree = function(x, activeOnly = TRUE){
+  ig <- x$igraph(activeOnly)
+  if(length(V(ig)) == 1)
+  ends_mat <- ends(ig, E(ig))
+  values <- V(ig)[ends_mat[, 2]]$prunePosteriorRatio
+  edge_attr(ig, "prunePosteriorRatio") <- values
+  ggraph(ig, layout = "tree") +
+    geom_edge_diagonal0() +
+    geom_node_label(aes(label = nodeLabel, fill = prunePosteriorRatio)) +
+    scale_fill_gradient2(low = "red", high = "blue", midpoint = 0)
+}
