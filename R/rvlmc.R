@@ -47,6 +47,16 @@ rvlmc <- function(n, alphabet, context_list, context_probs){
 }
 
 rvlmc_single <- function(n, alphabet, context_list, context_probs){
+  if(!validate_tree_string(context_list)){
+    stop("'context_list' is incompatible with a full tree.")
+  }
+  if(length(context_list) != length(context_probs)){
+    stop("List of probability vectors incompatible with the 'context_tree' specified.")
+
+  }
+  if(any(map_int(context_probs, length) != length(alphabet))){
+    stop("Probabilities vectors must have length compatible with the alphabet.")
+  }
   H <- max(str_count(context_list, "\\."))
   out <- sample(alphabet, size = n, replace = T)
   t <- H + 1
