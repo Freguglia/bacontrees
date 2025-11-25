@@ -20,8 +20,6 @@ print(tree)
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{nodes}}{List of nodes from a context tree (both active and non-active).}
-
-\item{\code{data}}{A list of observed sequences of data.}
 }
 \if{html}{\out{</div>}}
 }
@@ -31,6 +29,7 @@ print(tree)
 \item \href{#method-ContextTree-new}{\code{ContextTree$new()}}
 \item \href{#method-ContextTree-root}{\code{ContextTree$root()}}
 \item \href{#method-ContextTree-validate}{\code{ContextTree$validate()}}
+\item \href{#method-ContextTree-getDataset}{\code{ContextTree$getDataset()}}
 \item \href{#method-ContextTree-getAlphabet}{\code{ContextTree$getAlphabet()}}
 \item \href{#method-ContextTree-getMaximalDepth}{\code{ContextTree$getMaximalDepth()}}
 \item \href{#method-ContextTree-getActiveNodes}{\code{ContextTree$getActiveNodes()}}
@@ -70,6 +69,8 @@ print(tree)
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{dataset}}{A \code{Sequence} object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.}
+
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
 \item{\code{active}}{Either "root" or "maximal" to indicate which nodes
@@ -104,6 +105,15 @@ Returns the Context Tree root node.
 Returns a logical value incating whether the Context Tree is
 valid.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getDataset"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getDataset}{}}}
+\subsection{Method \code{getDataset()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getDataset()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getAlphabet"></a>}}
@@ -386,12 +396,14 @@ all siblings active.
 Sets data for the Context Tree by setting the counts of occurrences
 of each symbol of the alphabet within each context (node) of the tree.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTree$setData(data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$setData(dataset)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{dataset}}{A \code{Sequence} object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.}
+
 \item{\code{data}}{A \code{Sequence} object, a character vector with a single
 observed chain or a list of vectors of observed chains
 to be set as data for the context tree.}
