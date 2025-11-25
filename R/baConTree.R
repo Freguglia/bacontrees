@@ -181,7 +181,7 @@ baConTree <- R6Class(
 #' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom igraph V edge_attr ends
 #' @export
-plot.baConTree = function(x, activeOnly = TRUE){
+plot.baConTree = function(x, ..., activeOnly = TRUE){
   ig <- x$igraph(activeOnly)
   if(length(V(ig)) == 1)
   ends_mat <- ends(ig, E(ig))

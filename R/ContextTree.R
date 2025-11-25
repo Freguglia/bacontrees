@@ -431,7 +431,7 @@ ContextTree <- R6Class(
 #' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label
 #' @importFrom ggplot2 aes
 #' @export
-plot.ContextTree = function(x, activeOnly = TRUE){
+plot.ContextTree = function(x, ..., activeOnly = TRUE){
   ggraph(x$igraph(activeOnly), layout = "tree") +
     geom_edge_diagonal0(aes(width = n)) +
     geom_node_label(aes(label = nodeLabel))
