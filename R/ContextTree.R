@@ -18,7 +18,7 @@
 #' tree$setData(list(rep("a", 10), rep("b", 10)))
 #' print(tree)
 #'
-#' @importFrom purrr map_chr map_lgl
+#' @importFrom purrr map_chr map_lgl map map_int
 #' @importFrom glue glue
 #' @export
 ContextTree <- R6Class(
@@ -317,22 +317,45 @@ ContextTree <- R6Class(
         private$fillData(sequence_vec)
       }
       private$hasData <- TRUE
+
+      for(node in self$nodes){
+        node$extra$n <- sum(node$counts)
+        node$extra$p <- node$counts/node$extra$n
+      }
     },
 
     igraph = function(activeOnly = TRUE){
       df_tree <- map(self$nodes, function(x) {
         if(!x$isLeaf()){
-          data.frame(from = x$getPath(), to = x$getChildrenPaths())
+          count <- map_int(self$nodes[self$nodes[[x$getPath()]]$getChildrenPaths()],
+                           function(y) sum(y$counts))
+          data.frame(from = x$getPath(), to = x$getChildrenPaths(),
+                     n = count)
         } else {
           NULL
         }
       }) |> dplyr::bind_rows()
       df_nodes <- map(self$nodes, function(x) data.frame(
         vertices = x$getPath(),
-        nodeLabel = stringr::str_replace(x$getPath(), ".*\\.", ""),
-        counts = sum(x$counts)
+        nodeLabel = stringr::str_replace(x$getPath(), ".*\\.", "")
       )) |> dplyr::bind_rows()
-      igraph::graph_from_data_frame(df_tree, vertices = df_nodes)
+
+      if(activeOnly){
+        inc_nodes <- c(self$getActiveNodes(), self$getInnerNodes())
+        df_tree <- df_tree |> filter(from %in% inc_nodes, to %in% inc_nodes)
+        df_nodes <- df_nodes |> filter(vertices %in% inc_nodes)
+      }
+
+      gr <- igraph::graph_from_data_frame(df_tree, vertices = df_nodes)
+      attr_names <- names(self$nodes[[1]]$extra)
+      nodes_order <- names(igraph::V(gr))
+      all_counts <- map(self$nodes[nodes_order], function(x) x$counts)
+      igraph::vertex_attr(gr, "counts") <- all_counts
+      for(attr in attr_names){
+        attr_values <- map(self$nodes[nodes_order], function(x) x$extra[[attr]])
+        igraph::vertex_attr(gr, attr) <- attr_values
+      }
+      gr
     },
 
     #' @description
@@ -430,3 +453,11 @@ ContextTree <- R6Class(
     nodesEnv = NULL
   )
 )
+
+#' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label aes
+#' @export
+plot.ContextTree = function(x, activeOnly = TRUE){
+  ggraph(x$igraph(activeOnly)) +
+    geom_edge_diagonal0(aes(width = n)) +
+    geom_node_label(aes(label = nodeLabel))
+}
