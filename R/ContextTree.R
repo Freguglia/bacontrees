@@ -10,7 +10,7 @@
 #' @param path A string representing the path of a node.
 #' @param idx A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.
 #' @param code The tree code for the tree to be activated.
-#' @param data A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
+#' @param dataset A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
 #'
 #' @examples
 #' tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
@@ -26,9 +26,6 @@ ContextTree <- R6Class(
   public = list(
     #' @field nodes List of nodes from a context tree (both active and non-active).
     nodes = list(),
-
-    #' @field data A list of observed sequences of data.
-    data = NULL,
 
     #' @param maximalDepth Depth of the maximal tree considered.
     #' @param active Either "root" or "maximal" to indicate which nodes
@@ -107,10 +104,10 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
+    getDataset = function() private$dataset,
+
     #' @return Returns the alphabet related to the Context Tree.
-    getAlphabet = function(){
-      private$Alphabet
-    },
+    getAlphabet = function() private$Alphabet,
 
     getMaximalDepth = function(){
       private$maximalDepth
@@ -304,16 +301,16 @@ ContextTree <- R6Class(
     #' @param data A `Sequence` object, a character vector with a single
     #' observed chain or a list of vectors of observed chains
     #' to be set as data for the context tree.
-    setData = function(data) {
+    setData = function(dataset) {
       if(private$hasData){
         stop("This Context Tree already has data. Cannot overwrite it.")
       }
-      if("Sequence" %in% class(data)){
-        self$data <- data
+      if("Sequence" %in% class(dataset)){
+        private$dataset <- dataset
       } else {
-        self$data <- Sequence$new(data, alphabet = private$Alphabet)
+        private$dataset <- Sequence$new(dataset, alphabet = private$Alphabet)
       }
-      for(sequence_vec in self$data$data){
+      for(sequence_vec in private$dataset$data){
         private$fillData(sequence_vec)
       }
       private$hasData <- TRUE
@@ -321,6 +318,12 @@ ContextTree <- R6Class(
       for(node in self$nodes){
         node$extra$n <- sum(node$counts)
         node$extra$p <- node$counts/node$extra$n
+        nodeLL <- node$counts*log(node$extra$p)
+        if(node$extra$n == 0){
+          node$extra$nodeLL <- -Inf
+        } else {
+          node$extra$nodeLL <- sum(nodeLL[is.finite(nodeLL)])
+        }
       }
     },
 
@@ -368,6 +371,8 @@ ContextTree <- R6Class(
     m = 0,
     Alphabet = NULL,
     maximalDepth = integer(0),
+    dataset = NULL,
+    hasData = FALSE,
     buildByDepth = function(depth) {
       for (i in seq_len(depth)) {
         leaves <- private$getLeavesEnv()
@@ -397,7 +402,6 @@ ContextTree <- R6Class(
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
     },
-    hasData = FALSE,
     fillData = function(sequence_vector) {
       for(t in seq_along(sequence_vector)){
         current_symbol <- sequence_vector[t]
