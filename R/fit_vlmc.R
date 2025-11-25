@@ -7,7 +7,7 @@
 #' @param cutoff Numeric. Cutoff value for the (log) likelihood ratio test statistic used for pruning.
 #' @param max_length Integer. Depth of the maximal tree considered.
 #'
-#' @return A `ContextTree` object representing the fitted VLMC.
+#' @return A `ContextTree` object representing the fitted VLMC as the active tree.
 #'
 #' @details
 #' The function builds a maximal context tree, computes log-likelihoods for each node, and prunes nodes whose likelihood ratio test statistic is below the cutoff. The result is a pruned context tree representing the fitted VLMC.
@@ -21,25 +21,17 @@
 fit_vlmc <- function(data, cutoff = 10, max_length = 6){
   ct <- ContextTree$new(data = data, maximalDepth = max_length, active = "maximal")
 
-  # Set likelihood contribution of each node.
-  for(node in ct$nodes){
-    p <- node$counts/sum(node$counts)
-    logLikelihood <- sum(node$counts*log(p))
-    node$extra$logLikelihood <- ifelse(is.na(logLikelihood), 0, logLikelihood)
-  }
-
   # Compute the sum of log-likelihood for the children of each node and
   # test statistics for the prunning of the children nodes.
   for(node in ct$nodes){
     children_paths <- node$getChildrenPaths()
     if(!node$isLeaf()){
       children_nodes <- ct$getChildrenNodes(node$getPath(), idx = FALSE)
-      children_likelihood_sum <-
-        sum(map_dbl(children_nodes, ~.x$extra$logLikelihood))
-      node$extra$childrenLogLikelihood <- children_likelihood_sum
+      children_likelihood_sum <- sum(map_dbl(children_nodes, ~.x$extra$nodeLL))
+      node$extra$childrenLL <- children_likelihood_sum
       for(child in children_nodes){
         child$extra$pruneTestStatistic <-
-          node$extra$childrenLogLikelihood - node$extra$logLikelihood
+          node$extra$childrenLL - node$extra$nodeLL
       }
     }
   }

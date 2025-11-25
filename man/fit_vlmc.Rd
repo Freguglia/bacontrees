@@ -14,7 +14,7 @@ fit_vlmc(data, cutoff = 10, max_length = 6)
 \item{max_length}{Integer. Depth of the maximal tree considered.}
 }
 \value{
-A \code{ContextTree} object representing the fitted VLMC.
+A \code{ContextTree} object representing the fitted VLMC as the active tree.
 }
 \description{
 Fits a VLMC model to discrete sequence data using the context algorithm, performing likelihood ratio tests to prune the context tree.
