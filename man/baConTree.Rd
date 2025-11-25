@@ -13,8 +13,7 @@ The \code{baConTree} class extends \code{ContextTree} to support Bayesian infere
 This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
 }
 \examples{
-bt <- baConTree$new(abc_list, maximalDepth = 3)
-bt$setAllDirichletPars(0.01)
+bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01)
 bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
 bt$runMetropolisHastings(300)
 chain <- bt$getChain()
