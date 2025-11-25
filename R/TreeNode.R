@@ -11,9 +11,6 @@ TreeNode <- R6Class(
     #' @field counts Numeric vector to hold counts.
     counts = integer(0),
 
-    #' @field isLeaf Logical value indicating if the node is a leaf.
-    isLeaf = TRUE,
-
     #' @field extra List to hold extra information.
     extra = list(),
 
@@ -70,6 +67,8 @@ TreeNode <- R6Class(
     #' @return Numeric value representing the depth of the node.
     getDepth = function() {private$depth},
 
+    isLeaf = function() {private$isLeaf_},
+
     #' Get the path of the node
     #'
     #' This method returns the path of the node.
@@ -94,6 +93,7 @@ TreeNode <- R6Class(
     setChildrenPaths = function(childrenPaths) {
       if(length(private$childrenPaths) == 0){
         private$childrenPaths <- childrenPaths
+        private$isLeaf_ <- FALSE
       } else {
         stop("Attempting to set children node paths multiple times.")
       }
@@ -116,5 +116,6 @@ TreeNode <- R6Class(
     parentPath = NA_character_,
     active = FALSE,
     depth = numeric(0),
-    childrenPaths = character(0)
+    childrenPaths = character(0),
+    isLeaf_ = TRUE
   ))

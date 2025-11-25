@@ -85,7 +85,7 @@ baConTree <- R6Class(
         if(prune){
           if(length(private$prunableNodes) > 1){
             node_to_prune <- sample(private$prunableNodes, 1)
-            pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf
+            pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf()
             n_prunable <- length(private$prunableNodes)
             n_growable_after <- length(private$growableNodes) + 1 -(m*(!pruning_leaf))
             log_accept_ratio <-
@@ -148,7 +148,7 @@ baConTree <- R6Class(
       }
 
       for(node in self$nodes){
-        if(!node$isLeaf){
+        if(!node$isLeaf()){
           childrenPosteriorSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
                                               ~.x$extra$posteriorWeight))
           node$extra$childrenPosteriorWeight <- childrenPosteriorSum

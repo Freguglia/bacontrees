@@ -32,7 +32,7 @@ fit_vlmc <- function(data, cutoff = 10, max_length = 6){
   # test statistics for the prunning of the children nodes.
   for(node in ct$nodes){
     children_paths <- node$getChildrenPaths()
-    if(!node$isLeaf){
+    if(!node$isLeaf()){
       children_nodes <- ct$getChildrenNodes(node$getPath(), idx = FALSE)
       children_likelihood_sum <-
         sum(map_dbl(children_nodes, ~.x$extra$logLikelihood))

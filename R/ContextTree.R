@@ -64,7 +64,6 @@ ContextTree <- R6Class(
       }
 
       root <- TreeNode$new(path = "*")
-      root$setChildrenPaths(paste0("*.", private$Alphabet$symbols))
       private$nodesEnv <- new.env(hash = TRUE, parent = emptyenv())
       private$nodesEnv[["*"]] <- root
       private$m <- length(private$Alphabet$symbols)
@@ -79,7 +78,7 @@ ContextTree <- R6Class(
       }
 
       private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
-                                                        function(node) node$isActive() & !node$isLeaf)])
+                                                        function(node) node$isActive() & !node$isLeaf())])
       if(!is.null(dataset)){
         self$setData(dataset)
       }
@@ -95,7 +94,7 @@ ContextTree <- R6Class(
     validate = function() {
       for (path in names(self$nodes)) {
         node <- self$nodes[[path]]
-        if (!node$isLeaf) {
+        if (!node$isLeaf()) {
           children_paths <- names(self$nodes)[startsWith(names(self$nodes), paste0(path, "."))]
           children_depths <- sapply(children_paths, function(p) length(str_split_1(p, "\\.")))
           expected_depth <- length(str_split_1(path, "\\.")) + 1
@@ -150,7 +149,7 @@ ContextTree <- R6Class(
     #' Activates the leaf nodes of the maximal Context Tree.
     activateMaximal = function() {
       for(node in self$nodes) {
-        if(node$isLeaf) {
+        if(node$isLeaf()) {
           node$activate()
         } else {
           node$deactivate()
@@ -183,9 +182,9 @@ ContextTree <- R6Class(
     #' the current active tree).
     getLeaves = function(idx = TRUE) {
       if(idx){
-        names(self$nodes)[map_lgl(self$nodes, function(x) x$isLeaf)]
+        names(self$nodes)[map_lgl(self$nodes, function(x) x$isLeaf())]
       } else {
-        self$nodes[map_lgl(self$nodes, function(x) x$isLeaf)]
+        self$nodes[map_lgl(self$nodes, function(x) x$isLeaf())]
       }
     },
 
@@ -246,13 +245,13 @@ ContextTree <- R6Class(
     growActive = function(path){
       node <- self$nodes[[path]]
       siblings <- self$getSiblingNodes(path)
-      if(node$isActive() & !node$isLeaf){
+      if(node$isActive() & !node$isLeaf()){
         node$deactivate()
         private$growableNodes <- setdiff(private$growableNodes, node$getPath())
         private$prunableNodes <- setdiff(private$prunableNodes, siblings)
         for(child in self$nodes[node$getChildrenPaths()]){
           child$activate()
-          if(!child$isLeaf){
+          if(!child$isLeaf()){
             private$growableNodes <- c(private$growableNodes, child$getPath())
           }
           private$prunableNodes <- c(private$prunableNodes, child$getPath())
@@ -322,7 +321,7 @@ ContextTree <- R6Class(
 
     igraph = function(activeOnly = TRUE){
       df_tree <- map(self$nodes, function(x) {
-        if(!x$isLeaf){
+        if(!x$isLeaf()){
           data.frame(from = x$getPath(), to = x$getChildrenPaths())
         } else {
           NULL
@@ -387,10 +386,7 @@ ContextTree <- R6Class(
     },
 
     addNode = function(path) {
-      symbols <- str_split_1(path, "\\.")[-1]
-      children_paths <- paste0(path, ".", private$Alphabet$symbols)
       node <- TreeNode$new(path)
-      node$setChildrenPaths(children_paths)
       private$nodesEnv[[path]] <- node
       return(node)
     },
@@ -398,12 +394,12 @@ ContextTree <- R6Class(
     addChildren = function(path) {
       if (!is.null(private$nodesEnv[[path]])) {
         children_paths <- paste0(path, ".", private$Alphabet$symbols)
-        if (private$nodesEnv[[path]]$isLeaf)
+        if (private$nodesEnv[[path]]$isLeaf())
           for (child_path in children_paths) {
             private$addNode(child_path)
             private$nodesEnv[[child_path]]$counts <- rep(0, private$m)
           }
-        private$nodesEnv[[path]]$isLeaf <- FALSE
+        private$nodesEnv[[path]]$setChildrenPaths(children_paths)
       } else {
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
@@ -425,7 +421,7 @@ ContextTree <- R6Class(
 
     getLeavesEnv = function() {
       paths <- names(private$nodesEnv)
-      leaves <- map_lgl(paths, function(path) private$nodesEnv[[path]]$isLeaf)
+      leaves <- map_lgl(paths, function(path) private$nodesEnv[[path]]$isLeaf())
       paths[leaves]
     },
 
