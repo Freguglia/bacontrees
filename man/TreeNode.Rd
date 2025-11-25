@@ -13,8 +13,6 @@ for managing its state and validating its path.
 \describe{
 \item{\code{counts}}{Numeric vector to hold counts.}
 
-\item{\code{isLeaf}}{Logical value indicating if the node is a leaf.}
-
 \item{\code{extra}}{List to hold extra information.
 Initialize a TreeNode
 
@@ -32,6 +30,7 @@ and sets the parent path if applicable.}
 \item \href{#method-TreeNode-deactivate}{\code{TreeNode$deactivate()}}
 \item \href{#method-TreeNode-isActive}{\code{TreeNode$isActive()}}
 \item \href{#method-TreeNode-getDepth}{\code{TreeNode$getDepth()}}
+\item \href{#method-TreeNode-isLeaf}{\code{TreeNode$isLeaf()}}
 \item \href{#method-TreeNode-getPath}{\code{TreeNode$getPath()}}
 \item \href{#method-TreeNode-getParentPath}{\code{TreeNode$getParentPath()}}
 \item \href{#method-TreeNode-getChildrenPaths}{\code{TreeNode$getChildrenPaths()}}
@@ -143,6 +142,15 @@ Get the path of the node
 
 This method returns the path of the node.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeNode-isLeaf"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeNode-isLeaf}{}}}
+\subsection{Method \code{isLeaf()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeNode$isLeaf()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-getPath"></a>}}

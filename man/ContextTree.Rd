@@ -32,6 +32,7 @@ print(tree)
 \item \href{#method-ContextTree-root}{\code{ContextTree$root()}}
 \item \href{#method-ContextTree-validate}{\code{ContextTree$validate()}}
 \item \href{#method-ContextTree-getAlphabet}{\code{ContextTree$getAlphabet()}}
+\item \href{#method-ContextTree-getMaximalDepth}{\code{ContextTree$getMaximalDepth()}}
 \item \href{#method-ContextTree-getActiveNodes}{\code{ContextTree$getActiveNodes()}}
 \item \href{#method-ContextTree-activeTreeCode}{\code{ContextTree$activeTreeCode()}}
 \item \href{#method-ContextTree-activateRoot}{\code{ContextTree$activateRoot()}}
@@ -115,6 +116,15 @@ valid.
 \subsection{Returns}{
 Returns the alphabet related to the Context Tree.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-getMaximalDepth"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-getMaximalDepth}{}}}
+\subsection{Method \code{getMaximalDepth()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$getMaximalDepth()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getActiveNodes"></a>}}
