@@ -11,11 +11,16 @@
 #' @param idx A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.
 #' @param code The tree code for the tree to be activated.
 #' @param dataset A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
+#' @param activeOnly logical value. If TRUE, only the nodes in the
+#' active tree are plotted (including internal nodes).
+#' @param maximalDepth Depth of the maximal tree considered.
+#' @param active Either "root" or "maximal" to indicate which nodes
+#' should be initialized as active.
+#' @param code The tree code for the tree to be activated.
 #'
 #' @examples
-#' tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
+#' tree <- ContextTree$new(abc_list, maximalDepth = 3)
 #' tree$activateMaximal()
-#' tree$setData(list(rep("a", 10), rep("b", 10)))
 #' print(tree)
 #'
 #' @importFrom purrr map_chr map_lgl map map_int
@@ -27,9 +32,9 @@ ContextTree <- R6Class(
     #' @field nodes List of nodes from a context tree (both active and non-active).
     nodes = list(),
 
-    #' @param maximalDepth Depth of the maximal tree considered.
-    #' @param active Either "root" or "maximal" to indicate which nodes
-    #' should be initialized as active.
+#' @description
+#' Initializes a \code{ContextTree} object with a given maximal depth.
+#' If \code{dataset} is provided, the alphabet is inferred from data.
     initialize = function(dataset = NULL, maximalDepth = 3, active = "root", alphabet = NULL) {
       if(is.null(dataset) & is.null(alphabet)){
         stop("Either 'data' or 'alphabet' must be provided.")
@@ -81,13 +86,13 @@ ContextTree <- R6Class(
       }
     },
 
-    #' @return Returns the Context Tree root node.
+#' @return Returns the Context Tree root node.
     root = function(){
       self$nodes[["*"]]
     },
 
-    #' @return Returns a logical value incating whether the Context Tree is
-    #' valid.
+#' @return Returns a logical value incating whether the Context Tree is
+#' valid.
     validate = function() {
       for (path in names(self$nodes)) {
         node <- self$nodes[[path]]
@@ -104,16 +109,18 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
+#' @return Returns the dataset as a `Sequence` object.
     getDataset = function() private$dataset,
 
-    #' @return Returns the alphabet related to the Context Tree.
+#' @return Returns the alphabet related to the Context Tree.
     getAlphabet = function() private$Alphabet,
 
+#' @return Returns the maximal depth of the tree.
     getMaximalDepth = function(){
       private$maximalDepth
     },
 
-    #' @return Returns a list of active nodes (leaf nodes of the active tree).
+#' @return Returns a list of active nodes (leaf nodes of the active tree).
     getActiveNodes = function(idx = TRUE) {
       vec <- check_active(self$nodes)
       if(idx){
@@ -123,13 +130,13 @@ ContextTree <- R6Class(
       }
     },
 
-    #' @return Returns a character value representing the active tree.
+#' @return Returns a character value representing the active tree.
     activeTreeCode = function(){
       compress_logical(check_active(self$nodes))
     },
 
-    #' @description
-    #' Sets the active tree to be the one containing only the root node.
+#' @description
+#' Sets the active tree to be the one containing only the root node.
     activateRoot = function() {
       for(node in self$nodes) {
         if(node$getPath() == "*") {
@@ -142,8 +149,8 @@ ContextTree <- R6Class(
       private$prunableNodes <- character(0)
     },
 
-    #' @description
-    #' Activates the leaf nodes of the maximal Context Tree.
+#' @description
+#' Activates the leaf nodes of the maximal Context Tree.
     activateMaximal = function() {
       for(node in self$nodes) {
         if(node$isLeaf()) {
@@ -156,11 +163,9 @@ ContextTree <- R6Class(
       private$growableNodes <- character(0)
     },
 
-    #' @description
-    #' Sets the active tree to be the one corresponding to a tree code obtained
-    #' from the `activeTreeCode` method.
-    #'
-    #' @param code The tree code for the tree to be activated.
+#' @description
+#' Sets the active tree to be the one corresponding to a tree code obtained
+#' from the `activeTreeCode` method.
     activateByCode = function(code) {
       n_nodes <- length(self$nodes)
       active_nodes <- decompress_logical(code, n_nodes)
@@ -295,12 +300,9 @@ ContextTree <- R6Class(
       private$prunableNodes
     },
 
-    #' @description
-    #' Sets data for the Context Tree by setting the counts of occurrences
-    #' of each symbol of the alphabet within each context (node) of the tree.
-    #' @param data A `Sequence` object, a character vector with a single
-    #' observed chain or a list of vectors of observed chains
-    #' to be set as data for the context tree.
+#' @description
+#' Sets data for the Context Tree by setting the counts of occurrences
+#' of each symbol of the alphabet within each context (node) of the tree.
     setData = function(dataset) {
       if(private$hasData){
         stop("This Context Tree already has data. Cannot overwrite it.")
@@ -327,12 +329,16 @@ ContextTree <- R6Class(
       }
     },
 
+#' @details Converts the ContextTree to an \code{igraph} object. All attributes
+#' in the \code{extra} field of nodes are included in the attributes of each node
+#' for the \code{igraph}.
+#' @return Returns an igraph object.
     igraph = function(activeOnly = TRUE){
       .ct_to_igraph(self, activeOnly)
     },
 
-    #' @description
-    #' Prints the current active Context Tree and the counts for each context.
+#' @description
+#' Prints the current active Context Tree and the counts for each context.
     print = function() {
       cat("Active Context Tree:\n")
       to_print <- list(self$root())
@@ -431,6 +437,8 @@ ContextTree <- R6Class(
 #' @title Plot method for ContextTree class
 #' @param activeOnly logical value. If TRUE, only the nodes in the
 #' active tree are plotted (including internal nodes).
+#' @param x A \code{ContextTree} object.
+#' @param ... Not used.
 #'
 #' @details The edges of the tree have their width corresponding to the number
 #' of occurrences of contexts matching the child node.

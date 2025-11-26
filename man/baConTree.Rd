@@ -77,6 +77,9 @@ chain <- bt$getChain()
 
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
+\item{\code{alpha}}{Hyperparameter considered for the Dirichlet prior distribution
+of probabilities.}
+
 \item{\code{active}}{Either "root" or "maximal" to indicate which nodes
 should be initialized as active.}
 }
@@ -87,6 +90,7 @@ should be initialized as active.}
 \if{html}{\out{<a id="method-baConTree-setAlpha"></a>}}
 \if{latex}{\out{\hypertarget{method-baConTree-setAlpha}{}}}
 \subsection{Method \code{setAlpha()}}{
+Sets the value of the Dirichlet priors if not initialized.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{baConTree$setAlpha(alpha)}\if{html}{\out{</div>}}
 }

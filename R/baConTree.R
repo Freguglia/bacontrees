@@ -4,6 +4,8 @@
 #' @description
 #' The `baConTree` class extends `ContextTree` to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
 #'
+#' @param alpha Hyperparameter considered for the Dirichlet prior distribution
+#' of probabilities.
 #' @details
 #' This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
 #'
@@ -21,10 +23,10 @@ baConTree <- R6Class(
   inherit = ContextTree,
   public = list(
 
-    #' @param data Either a vector with discrete data or a lista of vectors.
-    #' @param maximalDepth Depth of the maximal tree considered.
-    #' @param active Either "root" or "maximal" to indicate which nodes
-    #' should be initialized as active.
+#' @param data Either a vector with discrete data or a lista of vectors.
+#' @param maximalDepth Depth of the maximal tree considered.
+#' @param active Either "root" or "maximal" to indicate which nodes
+#' should be initialized as active.
     initialize = function(data, maximalDepth = 5, alpha = NULL, active = "root") {
       super$initialize(data, maximalDepth, active)
       if(!self$validate()) {
@@ -35,8 +37,8 @@ baConTree <- R6Class(
       }
     },
 
-    #' @param alpha Hyperparameter considered for the Dirichlet prior distribution
-    #' of probabilities.
+#' @description
+#' Sets the value of the Dirichlet priors if not initialized.
     setAlpha = function(alpha){
       if(private$hasAlpha){
         stop(paste0("alpha is already specified as ", private$alpha))
@@ -49,8 +51,8 @@ baConTree <- R6Class(
       private$hasAlpha <- TRUE
     },
 
-    #' @param fn A function to be evaluated at each node that returns
-    #' its weight in the prior distribution.
+#' @param fn A function to be evaluated at each node that returns
+#' its weight in the prior distribution.
     setContextPriorWeights = function(fn){
       for(node in self$nodes) {
         node$extra$priorWeight <- fn(node)
@@ -62,15 +64,15 @@ baConTree <- R6Class(
       }
     },
 
-    #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
-    #' @details
-    #' This method supports progress monitoring via the **progressr** package.
-    #' Users can wrap the function call in `with_progress()` to display a progress
-    #' bar while the function executes. If no progress handler is registered, the
-    #' function will run without showing progress.
-    #'
-    #' To enable progress, register a handler and wrap the function call in
-    #' `with_progress()`.
+#' @param steps Number of steps to run the Metropolis Hastings algorithm for.
+#' @details
+#' This method supports progress monitoring via the **progressr** package.
+#' Users can wrap the function call in `with_progress()` to display a progress
+#' bar while the function executes. If no progress handler is registered, the
+#' function will run without showing progress.
+#'
+#' To enable progress, register a handler and wrap the function call in
+#' `with_progress()`.
     runMetropolisHastings = function(steps){
       if(!(private$hasAlpha & private$hasContextPrior)){
         stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
@@ -121,8 +123,8 @@ baConTree <- R6Class(
       }
     },
 
-    #' @description Chain generated via Metropolis Hastings algorithm.
-    #' @returns Gets the sampled chain stored.
+#' @description Chain generated via Metropolis Hastings algorithm.
+#' @returns Gets the sampled chain stored.
     getChain = function(){
       private$chain
     }

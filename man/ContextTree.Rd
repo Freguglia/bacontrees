@@ -10,9 +10,8 @@ The \code{ContextTree} class represents a variable-length Markov context tree, s
 This class is the core data structure for context tree modeling, supporting both root and maximal initialization, and efficient management of tree structure and data.
 }
 \examples{
-tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
+tree <- ContextTree$new(abc_list, maximalDepth = 3)
 tree$activateMaximal()
-tree$setData(list(rep("a", 10), rep("b", 10)))
 print(tree)
 
 }
@@ -57,6 +56,8 @@ print(tree)
 \if{html}{\out{<a id="method-ContextTree-new"></a>}}
 \if{latex}{\out{\hypertarget{method-ContextTree-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes a \code{ContextTree} object with a given maximal depth.
+If \code{dataset} is provided, the alphabet is inferred from data.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$new(
   dataset = NULL,
@@ -114,6 +115,9 @@ valid.
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$getDataset()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Returns the dataset as a \code{Sequence} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getAlphabet"></a>}}
@@ -135,6 +139,9 @@ Returns the alphabet related to the Context Tree.
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$getMaximalDepth()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Returns the maximal depth of the tree.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-getActiveNodes"></a>}}
@@ -200,6 +207,8 @@ from the \code{activeTreeCode} method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{code}}{The tree code for the tree to be activated.}
+
 \item{\code{code}}{The tree code for the tree to be activated.}
 }
 \if{html}{\out{</div>}}
@@ -403,10 +412,6 @@ of each symbol of the alphabet within each context (node) of the tree.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{dataset}}{A \code{Sequence} object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.}
-
-\item{\code{data}}{A \code{Sequence} object, a character vector with a single
-observed chain or a list of vectors of observed chains
-to be set as data for the context tree.}
 }
 \if{html}{\out{</div>}}
 }
@@ -419,6 +424,23 @@ to be set as data for the context tree.}
 \if{html}{\out{<div class="r">}}\preformatted{ContextTree$igraph(activeOnly = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{activeOnly}}{logical value. If TRUE, only the nodes in the
+active tree are plotted (including internal nodes).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+Converts the ContextTree to an \code{igraph} object. All attributes
+in the \code{extra} field of nodes are included in the attributes of each node
+for the \code{igraph}.
+}
+
+\subsection{Returns}{
+Returns an igraph object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTree-print"></a>}}
