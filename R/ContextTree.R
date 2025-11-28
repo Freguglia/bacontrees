@@ -444,11 +444,21 @@ ContextTree <- R6Class(
 #' of occurrences of contexts matching the child node.
 #'
 #' The plot is done using ggraph and can be further modified.
-#' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label
-#' @importFrom ggplot2 aes
+#' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label scale_edge_width
+#' @importFrom ggplot2 aes scale_fill_manual
 #' @export
 plot.ContextTree = function(x, ..., activeOnly = TRUE){
-  ggraph(x$igraph(activeOnly), layout = "tree") +
-    geom_edge_diagonal0(aes(width = n)) +
-    geom_node_label(aes(label = nodeLabel))
+  pl <- ggraph(x$igraph(activeOnly), layout = "tree")
+
+  if(sum(x$root()$counts) > 0){
+    pl <- pl + geom_edge_diagonal0(aes(width = n)) +
+      scale_edge_width(range = c(0.01, 3))
+  } else {
+    pl <- pl + geom_edge_diagonal0()
+  }
+  pl +
+    geom_node_label(aes(label = nodeLabel, fill = state)) +
+    scale_fill_manual(values = c("inner" = "lightblue",
+                                 "active" = "green",
+                                 "inactive" = "gray"))
 }
