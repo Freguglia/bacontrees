@@ -181,11 +181,10 @@ baConTree <- R6Class(
 )
 
 #' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom igraph V edge_attr ends
+#' @importFrom igraph V edge_attr<- ends E
 #' @export
-plot.baConTree = function(x, ..., activeOnly = TRUE){
-  ig <- x$igraph(activeOnly)
-  if(length(V(ig)) == 1)
+plot.baConTree = function(x, ...){
+  ig <- x$igraph(activeOnly = FALSE)
   ends_mat <- ends(ig, E(ig))
   values <- V(ig)[ends_mat[, 2]]$prunePosteriorRatio
   edge_attr(ig, "prunePosteriorRatio") <- values
