@@ -63,7 +63,9 @@ metropolis_vlmc <- function(data, n_steps, max_depth = 6,
   distribution <- distribution %>%
     select(tree_contexts, prob, n, tree_code)
 
-  out <- list(df = distribution, codes = codes, chain = chain)
+  bt$activateByCode(distribution$tree_code[1])
+  out <- list(df = distribution, codes = codes, chain = chain,
+              baConTree = bt)
   class(out) <- "metropolis_vlmc"
 
   return(out)
