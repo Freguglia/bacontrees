@@ -25,12 +25,18 @@
   node_state[node_paths %in% ct$getActiveNodes()] <- "active"
   node_state[node_paths %in% ct$getInnerNodes()] <- "inner"
 
+  edge_paths <- df_tree$to
+  edge_state <- rep("inactive", length(edge_paths))
+  edge_state[edge_paths %in% ct$getActiveNodes()] <- "active"
+  edge_state[edge_paths %in% ct$getInnerNodes()] <- "active"
+
   gr <- igraph::graph_from_data_frame(df_tree, vertices = df_nodes)
   attr_names <- names(ct$nodes[[1]]$extra)
   nodes_order <- names(igraph::V(gr))
   all_counts <- map(ct$nodes[nodes_order], function(x) x$counts)
   igraph::vertex_attr(gr, "counts") <- all_counts
   igraph::vertex_attr(gr, "state") <- node_state
+  igraph::edge_attr(gr, "state") <- edge_state
   for(attr in attr_names){
     attr_values <- map(ct$nodes[nodes_order], function(x) x$extra[[attr]])
     igraph::vertex_attr(gr, attr) <- flatten_if_scalar(attr_values)
