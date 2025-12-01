@@ -27,13 +27,18 @@ baConTree <- R6Class(
 #' @param maximalDepth Depth of the maximal tree considered.
 #' @param active Either "root" or "maximal" to indicate which nodes
 #' should be initialized as active.
-    initialize = function(data, maximalDepth = 5, alpha = NULL, active = "root") {
+#' @param priorWeights A function to be evaluated at each node that returns
+#' its weight in the prior distribution.
+    initialize = function(data, maximalDepth = 5, alpha = NULL, priorWeights = function(x) 0, active = "root") {
       super$initialize(data, maximalDepth, active)
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
       }
       if(!is.null(alpha)){
         self$setAlpha(alpha)
+      }
+      if(!is.null(alpha)){
+        self$setContextPriorWeights(priorWeights)
       }
     },
 

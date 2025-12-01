@@ -67,7 +67,13 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha = NULL, active = "root")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(
+  data,
+  maximalDepth = 5,
+  alpha = NULL,
+  priorWeights = function(x) 0,
+  active = "root"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -79,6 +85,9 @@ chain <- bt$getChain()
 
 \item{\code{alpha}}{Hyperparameter considered for the Dirichlet prior distribution
 of probabilities.}
+
+\item{\code{priorWeights}}{A function to be evaluated at each node that returns
+its weight in the prior distribution.}
 
 \item{\code{active}}{Either "root" or "maximal" to indicate which nodes
 should be initialized as active.}
