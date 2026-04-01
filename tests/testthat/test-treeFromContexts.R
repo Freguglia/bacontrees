@@ -49,7 +49,7 @@ test_that("treeFromContexts returns identical output for equivalent inputs", {
   t1 <- treeFromContexts(x1)
   t2 <- treeFromContexts(x2)
 
-  expect_equal(t1$alphabet, t2$alphabet)
+  expect_equal(t1$getAlphabet()$symbols, t2$getAlphabet()$symbols)
   expect_equal(t1$getMaximalDepth(), t2$getMaximalDepth())
   expect_setequal(t1$getActiveNodes(idx = TRUE), t2$getActiveNodes(idx = TRUE))
 })

@@ -126,3 +126,34 @@ test_that("Inner nodes are correctly obtained", {
   expect_length(tree$getInnerNodes(), 2)
   expect_setequal(tree$getInnerNodes(), c("*", "*.A"))
 })
+
+test_that("activateMaximal sets exactly the maximal leaves as active", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 2)
+  tree$activateMaximal()
+  expect_setequal(tree$getActiveNodes(), tree$getLeaves())
+})
+
+test_that("Initialization from data infers alphabet and fills counts", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  expect_setequal(tree$getAlphabet()$symbols, c("a", "b", "c"))
+  expect_equal(tree$getMaximalDepth(), 2)
+  # counts at root must sum to length(abc_vec) - 1 (first symbol has no predecessor)
+  expect_equal(sum(tree$root()$counts), length(abc_vec) - 1)
+})
+
+test_that("getDataset returns the attached Sequence object", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  ds <- tree$getDataset()
+  expect_true(inherits(ds, "Sequence"))
+})
+
+test_that("setData errors if called a second time", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  expect_error(tree$setData(abc_vec), regexp = "already has data")
+})
+
+test_that("Initialization errors when alphabet is incompatible with data", {
+  bad_alphabet <- Alphabet$new(c("x", "y", "z"))
+  expect_error(ContextTree$new(abc_vec, maximalDepth = 2, alphabet = bad_alphabet))
+})
+

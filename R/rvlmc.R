@@ -66,6 +66,10 @@ rvlmc <- function(n, alphabet, context_list, context_probs){
 }
 
 rvlmc_single <- function(n, alphabet, context_list, context_probs){
+  derived_alphabet <- setdiff(unique(unlist(strsplit(context_list, "\\."))), "*")
+  if(!setequal(sort(derived_alphabet), sort(alphabet))){
+    stop("'context_list' is incompatible with a full tree for the provided 'alphabet'.")
+  }
   if(!validate_tree_string(context_list)){
     stop("'context_list' is incompatible with a full tree.")
   }
