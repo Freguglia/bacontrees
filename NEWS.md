@@ -13,6 +13,32 @@ To start from the root, call `$activateRoot()` after construction.
 * The `initial_root` argument has been removed from `metropolis_vlmc()`. The
 chain always starts from the maximal tree.
 
+## Internal / encapsulation improvements
+
+* `ContextTree$nodes` is now a read-only active binding. External code can still
+read nodes and mutate their attributes (e.g. `$extra`) via R6 reference semantics,
+but structural changes to the node list (adding or removing nodes) are rejected
+with an error.
+
+* `TreeNode$counts` is now a private field exposed through a validated active
+binding. The public interface is unchanged, but non-numeric assignments now throw
+an error.
+
+* `TreeNode$setChildrenPaths()` has been removed from the public API. Children
+paths are now set internally by `ContextTree` via direct private-environment
+access, as this operation is only meaningful during tree construction.
+
+## Bug fixes
+
+* Fixed `TreeNode` computing the wrong `parentPath` for alphabet symbols longer
+than one character. The path was truncated by a fixed two-character offset
+(`str_sub(..., end = -3)`) instead of splitting on `.` and dropping the last
+segment.
+
+* `ContextTree$activateByCode()` now correctly recomputes `growableNodes` and
+`prunableNodes` after restoring a tree from a code, so subsequent `$growActive()`
+and `$pruneActive()` calls behave correctly.
+
 # bacontrees 0.0.2
 
 ## API changes

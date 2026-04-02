@@ -27,8 +27,6 @@
 ContextTree <- R6Class(
   "ContextTree",
   public = list(
-    #' @field nodes List of nodes from a context tree (both active and non-active).
-    nodes = list(),
 
     #' @description
     #' Initializes a \code{ContextTree} object with a given maximal depth.
@@ -69,7 +67,7 @@ ContextTree <- R6Class(
       private$m <- length(private$Alphabet$symbols)
       root$counts <- rep(0, private$m)
       private$buildByDepth(maximalDepth)
-      self$nodes <- as.list(private$nodesEnv)
+      private$nodes_ <- as.list(private$nodesEnv)
 
       self$activateMaximal()
 
@@ -170,8 +168,14 @@ ContextTree <- R6Class(
           self$nodes[[i]]$deactivate()
         }
       }
-      # This still needs some checking to make sure the active tree is
-      # a valid one.
+      private$growableNodes <- names(private$nodes_[map_lgl(private$nodes_,
+        function(node) node$isActive() & !node$isLeaf())])
+      private$prunableNodes <- names(private$nodes_[map_lgl(private$nodes_,
+        function(node) {
+          if(!node$isActive() || node$getPath() == "*") return(FALSE)
+          siblings <- private$nodes_[private$nodes_[[node$getParentPath()]]$getChildrenPaths()]
+          all(map_lgl(siblings, ~.x$isActive()))
+        })])
     },
 
     #' @return Returns the leaf nodes of the maximal Context Tree (regardless of
@@ -367,6 +371,19 @@ ContextTree <- R6Class(
       }
     }
   ),
+  active = list(
+    #' @field nodes List of nodes from a context tree (both active and non-active). Read-only.
+    nodes = function(value) {
+      if(missing(value)) return(private$nodes_)
+      # R's replacement semantics (e.g. tree$nodes[["*"]]$extra <- 3) write back the
+      # full list after mutating an element. Since TreeNode is R6 (reference semantics),
+      # the mutation already happened in-place. We silently accept write-backs that
+      # preserve the existing node set, and reject genuine structural changes.
+      if(!setequal(names(value), names(private$nodes_))) {
+        stop("The 'nodes' field is read-only. Use ContextTree methods to modify the tree structure.")
+      }
+    }
+  ),
   private = list(
     m = 0,
     Alphabet = NULL,
@@ -392,12 +409,17 @@ ContextTree <- R6Class(
     addChildren = function(path) {
       if (!is.null(private$nodesEnv[[path]])) {
         children_paths <- paste0(path, ".", private$Alphabet$symbols)
-        if (private$nodesEnv[[path]]$isLeaf())
+        node <- private$nodesEnv[[path]]
+        if (node$isLeaf())
           for (child_path in children_paths) {
             private$addNode(child_path)
             private$nodesEnv[[child_path]]$counts <- rep(0, private$m)
           }
-        private$nodesEnv[[path]]$setChildrenPaths(children_paths)
+        node_priv <- node$.__enclos_env__$private
+        if (length(node_priv$childrenPaths) > 0)
+          stop("Attempting to set children node paths multiple times.")
+        node_priv$childrenPaths <- children_paths
+        node_priv$isLeaf_ <- FALSE
       } else {
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
@@ -413,7 +435,6 @@ ContextTree <- R6Class(
           dt <- dt + 1
         }
       }
-      nodes <- as.list(private$nodesEnv)
     },
 
     getLeavesEnv = function() {
@@ -424,7 +445,8 @@ ContextTree <- R6Class(
 
     growableNodes = character(0),
     prunableNodes = character(0),
-    nodesEnv = NULL
+    nodesEnv = NULL,
+    nodes_ = list()
   )
 )
 

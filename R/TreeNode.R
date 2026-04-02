@@ -9,13 +9,12 @@
 #' @param childrenPaths vector of paths for the children of the node.
 #' @param ... Additional arguments passed to the `cat` function.
 #'
-#' @field counts Numeric vector to hold counts.
+#' @field counts Numeric vector to hold counts (active binding; validated on write).
 #' @field extra List to hold extra information.
 #' @importFrom stringr str_length str_sub str_split_1
 TreeNode <- R6Class(
   "TreeNode",
   public = list(
-    counts = integer(0),
     extra = list(),
 
 #' @description
@@ -24,7 +23,8 @@ TreeNode <- R6Class(
       private$path <- path
       private$depth <- length(str_split_1(path, "\\.")) - 1
       if(private$depth > 0){
-        private$parentPath <- str_sub(private$path, end = -3)
+        parts <- str_split_1(private$path, "\\.")
+        private$parentPath <- paste(parts[-length(parts)], collapse = ".")
       }
     },
 
@@ -65,17 +65,6 @@ TreeNode <- R6Class(
 #' of a node.
     getChildrenPaths = function() {private$childrenPaths},
 
-#' @description
-#' Sets the paths for children of a node.
-    setChildrenPaths = function(childrenPaths) {
-      if(length(private$childrenPaths) == 0){
-        private$childrenPaths <- childrenPaths
-        private$isLeaf_ <- FALSE
-      } else {
-        stop("Attempting to set children node paths multiple times.")
-      }
-    },
-
 #' @description Validate the node path against an alphabet
 #'
 #' This method validates the node's path by checking if all elements of the path
@@ -87,11 +76,21 @@ TreeNode <- R6Class(
       return(all(s %in% Alphabet$symbols))
     }
   ),
+  active = list(
+    counts = function(value) {
+      if(missing(value)) private$counts_
+      else {
+        if(!is.numeric(value)) stop("counts must be a numeric vector.")
+        private$counts_ <- value
+      }
+    }
+  ),
   private = list(
     path = character(0),
     parentPath = NA_character_,
     active = FALSE,
     depth = numeric(0),
     childrenPaths = character(0),
-    isLeaf_ = TRUE
+    isLeaf_ = TRUE,
+    counts_ = integer(0)
   ))

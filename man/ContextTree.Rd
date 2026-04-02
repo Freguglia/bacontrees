@@ -15,10 +15,10 @@ tree$activateMaximal()
 print(tree)
 
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{nodes}}{List of nodes from a context tree (both active and non-active).}
+\item{\code{nodes}}{List of nodes from a context tree (both active and non-active). Read-only.}
 }
 \if{html}{\out{</div>}}
 }

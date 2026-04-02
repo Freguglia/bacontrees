@@ -11,9 +11,14 @@ for managing its state and validating its path.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{counts}}{Numeric vector to hold counts.}
-
 \item{\code{extra}}{List to hold extra information.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{counts}}{Numeric vector to hold counts (active binding; validated on write).}
 }
 \if{html}{\out{</div>}}
 }
@@ -30,7 +35,6 @@ for managing its state and validating its path.
 \item \href{#method-TreeNode-getPath}{\code{TreeNode$getPath()}}
 \item \href{#method-TreeNode-getParentPath}{\code{TreeNode$getParentPath()}}
 \item \href{#method-TreeNode-getChildrenPaths}{\code{TreeNode$getChildrenPaths()}}
-\item \href{#method-TreeNode-setChildrenPaths}{\code{TreeNode$setChildrenPaths()}}
 \item \href{#method-TreeNode-validatePath}{\code{TreeNode$validatePath()}}
 \item \href{#method-TreeNode-clone}{\code{TreeNode$clone()}}
 }
@@ -165,23 +169,6 @@ Character string representing the parent path of the node.
 \subsection{Returns}{
 Character string representing the paths for the children
 of a node.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TreeNode-setChildrenPaths"></a>}}
-\if{latex}{\out{\hypertarget{method-TreeNode-setChildrenPaths}{}}}
-\subsection{Method \code{setChildrenPaths()}}{
-Sets the paths for children of a node.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeNode$setChildrenPaths(childrenPaths)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{childrenPaths}}{vector of paths for the children of the node.}
-}
-\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

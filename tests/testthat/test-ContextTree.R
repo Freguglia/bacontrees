@@ -24,9 +24,8 @@ test_that("Validation function works correctly", {
 
   expect_true(tree$validate())
 
-  # Manually add an invalid node
-  tree$nodes[["*.D"]] <- TreeNode$new("*.D")
-  expect_false(tree$validate())
+  # nodes is read-only; structural mutation must be rejected
+  expect_error(tree$nodes[["*.D"]] <- TreeNode$new("*.D"))
 })
 
 test_that("Active nodes are correctly identified when growing or pruning", {
