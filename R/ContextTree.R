@@ -432,10 +432,9 @@ ContextTree <- R6Class(
         node$counts[current_symbol] <- node$counts[current_symbol] + 1
         childrenPaths <- node$getChildrenPaths()
         dt <- 1
-        while(!node$isLeaf){
+        while(!node$isLeaf()){
           node <- self$nodes[[childrenPaths[sequence_vector[t-dt]]]]
           node$counts[current_symbol] <- node$counts[current_symbol] + 1
-          node <- private$nodesEnv[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
           dt <- dt + 1
           childrenPaths <- node$getChildrenPaths()
         }
