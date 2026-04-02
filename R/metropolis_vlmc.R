@@ -10,9 +10,10 @@
 #' @param context_weights Function. Returns the log prior weight for a given node.
 #' @param burnin Integer. Number of initial iterations to discard from posterior summaries.
 #' @param thin Integer. Thinning interval for posterior summaries.
-#' @param initial_root Logical. If TRUE, start with root-only tree; if FALSE, start with maximal tree.
 #'
 #' @details
+#' The Markov chain is initialized from the maximal tree (all leaves active).
+#'
 #' This function supports progress monitoring via the **progressr** package. Wrap the call in `with_progress()` to display a progress bar.
 #'
 #' @return An object of class `metropolis_vlmc` with elements:
@@ -31,16 +32,9 @@ metropolis_vlmc <- function(data, n_steps, max_depth = 6,
                             alpha = 0.001,
                             context_weights = function(node) 0,
                             burnin = 100,
-                            thin = 1,
-                            initial_root = TRUE){
-  if(initial_root){
-    init <- "root"
-  } else {
-    init <- "maximal"
-  }
-  bt <- baConTree$new(data, maximalDepth = max_depth, active = init)
-  bt$setAllDirichletPars(alpha)
-  bt$setContextPriorWeights(context_weights)
+                            thin = 1){
+  bt <- baConTree$new(data, maximalDepth = max_depth, alpha = alpha,
+                      priorWeights = context_weights)
 
   bt$runMetropolisHastings(n_steps)
 
@@ -64,7 +58,9 @@ metropolis_vlmc <- function(data, n_steps, max_depth = 6,
   distribution <- distribution %>%
     select(tree_contexts, prob, n, tree_code)
 
-  out <- list(df = distribution, codes = codes, chain = chain)
+  bt$activateByCode(distribution$tree_code[1])
+  out <- list(df = distribution, codes = codes, chain = chain,
+              baConTree = bt)
   class(out) <- "metropolis_vlmc"
 
   return(out)

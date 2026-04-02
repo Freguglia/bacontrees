@@ -11,7 +11,7 @@
 #' @details
 #' The VLMC used to generate the data was based on an alphabet of three symbols (`a`, `b`, and `c`) with a context tree constructed to a maximal depth of 3. The active contexts and their corresponding transition probabilities are as follows:
 #'
-#' - `*.a` (global context): `c(0.10, 0.20, 0.70)`
+#' - `*.a`: `c(0.10, 0.20, 0.70)`
 #' - `*.b`: `c(0.33, 0.33, 0.34)`
 #' - `*.c.a`: `c(0.20, 0.10, 0.70)`
 #' - `*.c.b`: `c(0.01, 0.98, 0.01)`

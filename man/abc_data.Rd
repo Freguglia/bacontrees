@@ -28,7 +28,7 @@ The data objects \code{abc_vec} and \code{abc_list} contain sequences generated 
 \details{
 The VLMC used to generate the data was based on an alphabet of three symbols (\code{a}, \code{b}, and \code{c}) with a context tree constructed to a maximal depth of 3. The active contexts and their corresponding transition probabilities are as follows:
 \itemize{
-\item \verb{*.a} (global context): \code{c(0.10, 0.20, 0.70)}
+\item \verb{*.a}: \code{c(0.10, 0.20, 0.70)}
 \item \verb{*.b}: \code{c(0.33, 0.33, 0.34)}
 \item \verb{*.c.a}: \code{c(0.20, 0.10, 0.70)}
 \item \verb{*.c.b}: \code{c(0.01, 0.98, 0.01)}

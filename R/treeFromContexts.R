@@ -15,15 +15,22 @@
 #' @export
 treeFromContexts <- function(contexts){
   if(length(contexts) == 1){
-    contexts <- str_replace_all(contexts, "\\{|\\}| ", "")
-    contexts <- str_split(string = contexts, pattern = ",")[[1]]
+    raw <- str_replace_all(contexts, "\\{|\\}", "")
+    parts <- str_split(string = raw, pattern = ",")[[1]]
+    contexts <- trimws(parts)
+    contexts <- contexts[ nzchar(contexts) ]
+  }
+
+  if(!validate_tree_string(contexts)){
+    stop("Contexts do no correspond to a full tree.")
   }
 
   max_depth <- max(str_count(contexts, "\\."))
   alphabet <- unique(unlist(str_split(contexts, "\\.")))
   alphabet <- setdiff(alphabet, "*")
 
-  ct <- ContextTree$new(alphabet = alphabet, maximalDepth = max_depth, active = "root")
+  ct <- ContextTree$new(alphabet = alphabet, maximalDepth = max_depth)
+  ct$activateRoot()
 
   current_depth <- 0
   while(length(setdiff(ct$getActiveNodes(idx = TRUE), contexts)) > 0){

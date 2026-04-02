@@ -1,11 +1,19 @@
 Package: bacontrees
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Bayesian Context Trees for Discrete Sequence Data
+Version: 0.0.3.999
 Authors@R: 
     person("Victor", "Freguglia", email = "victorfreguglia@gmail.com",
              role = c("aut", "cre"),
              comment = c(ORCID = "0000-0002-6189-4453"))
-Description: What the package does (one paragraph).
+Description: Models discrete sequential data using Bayesian Context Trees
+    (BaConTrees). Context trees, also known as Variable Length Markov
+    Chains (VLMCs), are parsimonious Markov models where the order of
+    dependence can vary with the observed past. Provides a frequentist
+    estimator via the context algorithm with likelihood-ratio pruning
+    (fit_vlmc()), a Bayesian Metropolis-Hastings sampler for the posterior
+    distribution over context trees (metropolis_vlmc()), simulation
+    utilities, and R6 classes exposing the full tree structure for
+    building custom algorithms.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -22,7 +30,10 @@ Imports:
     purrr,
     dplyr,
     progressr,
-    Rcpp
+    Rcpp,
+    igraph,
+    ggraph,
+    ggplot2
 Depends: 
     R (>= 2.10)
 LazyData: true

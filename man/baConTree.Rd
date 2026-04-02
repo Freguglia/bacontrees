@@ -10,12 +10,11 @@ Gets the sampled chain stored.
 The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
 }
 \details{
-This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+This class provides methods for running MCMC and extracting posterior samples for Bayesian context tree models.
 }
 \examples{
-bt <- baConTree$new(abc_list, maximalDepth = 3)
-bt$setAllDirichletPars(0.01)
-bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+                    priorWeights = function(node) -1/3*node$getDepth())
 bt$runMetropolisHastings(300)
 chain <- bt$getChain()
 
@@ -27,8 +26,6 @@ chain <- bt$getChain()
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
-\item \href{#method-baConTree-setAllDirichletPars}{\code{baConTree$setAllDirichletPars()}}
-\item \href{#method-baConTree-setContextPriorWeights}{\code{baConTree$setContextPriorWeights()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
@@ -44,13 +41,16 @@ chain <- bt$getChain()
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getActiveNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getActiveNodes'><code>bacontrees::ContextTree$getActiveNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getAlphabet"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getAlphabet'><code>bacontrees::ContextTree$getAlphabet()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getChildrenNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getChildrenNodes'><code>bacontrees::ContextTree$getChildrenNodes()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getDataset"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getDataset'><code>bacontrees::ContextTree$getDataset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getGrowableNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getGrowableNodes'><code>bacontrees::ContextTree$getGrowableNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getInnerNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getInnerNodes'><code>bacontrees::ContextTree$getInnerNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getLeaves"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getLeaves'><code>bacontrees::ContextTree$getLeaves()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getMaximalDepth"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getMaximalDepth'><code>bacontrees::ContextTree$getMaximalDepth()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getParentNode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getParentNode'><code>bacontrees::ContextTree$getParentNode()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getPrunableNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getPrunableNodes'><code>bacontrees::ContextTree$getPrunableNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="getSiblingNodes"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-getSiblingNodes'><code>bacontrees::ContextTree$getSiblingNodes()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="growActive"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-growActive'><code>bacontrees::ContextTree$growActive()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="igraph"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-igraph'><code>bacontrees::ContextTree$igraph()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="nodeExists"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-nodeExists'><code>bacontrees::ContextTree$nodeExists()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="print"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-print'><code>bacontrees::ContextTree$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="pruneActive"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-pruneActive'><code>bacontrees::ContextTree$pruneActive()</code></a></span></li>
@@ -65,51 +65,19 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, active = "root")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha, priorWeights)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{Either a vector with discrete data or a lista of vectors.}
+\item{\code{data}}{Either a vector with discrete data or a list of vectors.}
 
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
-\item{\code{active}}{Either "root" or "maximal" to indicate which nodes
-should be initialized as active.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-setAllDirichletPars"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-setAllDirichletPars}{}}}
-\subsection{Method \code{setAllDirichletPars()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$setAllDirichletPars(alpha)}\if{html}{\out{</div>}}
-}
+\item{\code{alpha}}{Hyperparameter for the Dirichlet prior distribution of probabilities.}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{alpha}}{Hyperparameter considered for the Dirichlet prior distribution
-of probabilities.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-setContextPriorWeights"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-setContextPriorWeights}{}}}
-\subsection{Method \code{setContextPriorWeights()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$setContextPriorWeights(fn)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fn}}{A function to be evaluated at each node that returns
+\item{\code{priorWeights}}{A function to be evaluated at each node that returns
 its weight in the prior distribution.}
 }
 \if{html}{\out{</div>}}

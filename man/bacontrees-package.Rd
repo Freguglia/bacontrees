@@ -4,9 +4,9 @@
 \name{bacontrees-package}
 \alias{bacontrees}
 \alias{bacontrees-package}
-\title{bacontrees: What the Package Does (One Line, Title Case)}
+\title{bacontrees: Bayesian Context Trees for Discrete Sequence Data}
 \description{
-What the package does (one paragraph).
+Models discrete sequential data using Bayesian Context Trees (BaConTrees). Context trees, also known as Variable Length Markov Chains (VLMCs), are parsimonious Markov models where the order of dependence can vary with the observed past. Provides a frequentist estimator via the context algorithm with likelihood-ratio pruning (fit_vlmc()), a Bayesian Metropolis-Hastings sampler for the posterior distribution over context trees (metropolis_vlmc()), simulation utilities, and R6 classes exposing the full tree structure for building custom algorithms.
 }
 \author{
 \strong{Maintainer}: Victor Freguglia \email{victorfreguglia@gmail.com} (\href{https://orcid.org/0000-0002-6189-4453}{ORCID})

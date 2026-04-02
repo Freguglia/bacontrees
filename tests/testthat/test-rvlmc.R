@@ -1,6 +1,7 @@
 test_that("vlmc generator works", {
   alph <- letters[1:3]
-  tree <- ContextTree$new(alph, maximalDepth = 3, "root")
+  tree <- ContextTree$new(alphabet = alph, maximalDepth = 3)
+  tree$activateRoot()
   tree$growActive("*")
   tree$growActive("*.c")
   context_list <- tree$getActiveNodes()
@@ -24,4 +25,37 @@ test_that("vlmc generator works", {
   expect_length(s_list, 3)
   expect_length(s_list[[1]], 1000)
   expect_length(s_list[[3]], 200)
+})
+
+test_that("rvlmc errors for invalid (incomplete) context_list", {
+  # "*.a" and "*.b" alone do not cover all pasts if alphabet has 3 symbols
+  expect_error(
+    rvlmc(100, c("a", "b", "c"), c("*.a", "*.b"), list(c(0.5, 0.3, 0.2), c(0.5, 0.3, 0.2))),
+    regexp = "incompatible with a full tree for the provided 'alphabet'"
+  )
+})
+
+test_that("rvlmc errors when context_probs length differs from context_list", {
+  alph <- c("a", "b")
+  ctx  <- c("*.a", "*.b")
+  expect_error(
+    rvlmc(100, alph, ctx, list(c(0.5, 0.5))),
+    regexp = "incompatible"
+  )
+})
+
+test_that("rvlmc errors when probability vectors length differs from alphabet", {
+  alph <- c("a", "b")
+  ctx  <- c("*.a", "*.b")
+  expect_error(
+    rvlmc(100, alph, ctx, list(c(0.5, 0.3, 0.2), c(0.5, 0.3, 0.2))),
+    regexp = "compatible"
+  )
+})
+
+test_that("rvlmc errors when n has length 0", {
+  alph <- c("a", "b")
+  ctx  <- c("*.a", "*.b")
+  probs <- list(c(0.5, 0.5), c(0.5, 0.5))
+  expect_error(rvlmc(integer(0), alph, ctx, probs))
 })

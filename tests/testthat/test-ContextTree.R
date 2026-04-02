@@ -24,9 +24,8 @@ test_that("Validation function works correctly", {
 
   expect_true(tree$validate())
 
-  # Manually add an invalid node
-  tree$nodes[["*.D"]] <- TreeNode$new("*.D")
-  expect_false(tree$validate())
+  # nodes is read-only; structural mutation must be rejected
+  expect_error(tree$nodes[["*.D"]] <- TreeNode$new("*.D"))
 })
 
 test_that("Active nodes are correctly identified when growing or pruning", {
@@ -58,7 +57,8 @@ test_that("Fill by depth works correctly", {
 })
 
 test_that("Growable Nodes are correctly identified", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2)
+  tree$activateRoot()
 
   expect_setequal(tree$getGrowableNodes(), "*")
   tree$growActive("*")
@@ -75,7 +75,8 @@ test_that("Growable Nodes are correctly identified", {
 })
 
 test_that("Prunable Nodes are correctly identified", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2)
+  tree$activateRoot()
 
   expect_length(tree$getPrunableNodes(), 0)
   tree$growActive("*")
@@ -96,7 +97,8 @@ test_that("Prunable Nodes are correctly identified", {
 })
 
 test_that("Tree Compression works as expected", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 4, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 4)
+  tree$activateRoot()
   code_root <- tree$activeTreeCode()
   tree$growActive("*")
   tree$growActive("*.A")
@@ -117,7 +119,8 @@ test_that("Tree Compression works as expected", {
 })
 
 test_that("Inner nodes are correctly obtained", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 4, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 4)
+  tree$activateRoot()
   expect_length(tree$getInnerNodes(), 0)
   tree$growActive("*")
   expect_length(tree$getInnerNodes(), 1)
@@ -126,3 +129,34 @@ test_that("Inner nodes are correctly obtained", {
   expect_length(tree$getInnerNodes(), 2)
   expect_setequal(tree$getInnerNodes(), c("*", "*.A"))
 })
+
+test_that("activateMaximal sets exactly the maximal leaves as active", {
+  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 2)
+  tree$activateMaximal()
+  expect_setequal(tree$getActiveNodes(), tree$getLeaves())
+})
+
+test_that("Initialization from data infers alphabet and fills counts", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  expect_setequal(tree$getAlphabet()$symbols, c("a", "b", "c"))
+  expect_equal(tree$getMaximalDepth(), 2)
+  # counts at root must sum to length(abc_vec) - 1 (first symbol has no predecessor)
+  expect_equal(sum(tree$root()$counts), length(abc_vec) - 1)
+})
+
+test_that("getDataset returns the attached Sequence object", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  ds <- tree$getDataset()
+  expect_true(inherits(ds, "Sequence"))
+})
+
+test_that("setData errors if called a second time", {
+  tree <- ContextTree$new(abc_vec, maximalDepth = 2)
+  expect_error(tree$setData(abc_vec), regexp = "already has data")
+})
+
+test_that("Initialization errors when alphabet is incompatible with data", {
+  bad_alphabet <- Alphabet$new(c("x", "y", "z"))
+  expect_error(ContextTree$new(abc_vec, maximalDepth = 2, alphabet = bad_alphabet))
+})
+

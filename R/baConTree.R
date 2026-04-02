@@ -4,13 +4,14 @@
 #' @description
 #' The `baConTree` class extends `ContextTree` to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
 #'
+#' @param alpha Hyperparameter considered for the Dirichlet prior distribution
+#' of probabilities.
 #' @details
-#' This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+#' This class provides methods for running MCMC and extracting posterior samples for Bayesian context tree models.
 #'
 #' @examples
-#' bt <- baConTree$new(abc_list, maximalDepth = 3)
-#' bt$setAllDirichletPars(0.01)
-#' bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+#' bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+#'                     priorWeights = function(node) -1/3*node$getDepth())
 #' bt$runMetropolisHastings(300)
 #' chain <- bt$getChain()
 #'
@@ -22,56 +23,39 @@ baConTree <- R6Class(
   inherit = ContextTree,
   public = list(
 
-    #' @param data Either a vector with discrete data or a lista of vectors.
-    #' @param maximalDepth Depth of the maximal tree considered.
-    #' @param active Either "root" or "maximal" to indicate which nodes
-    #' should be initialized as active.
-    initialize = function(data, maximalDepth = 5, active = "root") {
-      Alphabet <- Alphabet$new(sort(unique(unlist(data))))
-      super$initialize(Alphabet, maximalDepth, active)
-      self$setData(Sequence$new(data, Alphabet))
+#' @param data Either a vector with discrete data or a list of vectors.
+#' @param maximalDepth Depth of the maximal tree considered.
+#' @param alpha Hyperparameter for the Dirichlet prior distribution of probabilities.
+#' @param priorWeights A function to be evaluated at each node that returns
+#' its weight in the prior distribution.
+    initialize = function(data, maximalDepth = 5, alpha, priorWeights) {
+      super$initialize(data, maximalDepth)
+      self$activateRoot()
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
       }
-    },
-
-    #' @param alpha Hyperparameter considered for the Dirichlet prior distribution
-    #' of probabilities.
-    setAllDirichletPars = function(alpha){
+      private$alpha <- alpha
       for(node in self$nodes) {
-        node$extra$dirichletAlpha <- rep(alpha, private$m)
+        node$extra$alpha <- rep(alpha, private$m)
       }
       private$computeIntegratedDirichlet()
-      private$hasAlpha <- TRUE
-    },
-
-    #' @param fn A function to be evaluated at each node that returns
-    #' its weight in the prior distribution.
-    setContextPriorWeights = function(fn){
       for(node in self$nodes) {
-        node$extra$priorWeight <- fn(node)
+        node$extra$priorWeight <- priorWeights(node)
       }
-
-      private$hasContextPrior <- TRUE
-      if(private$hasAlpha){
-        private$preComputeRatios()
-      }
+      private$preComputeRatios()
     },
 
-    #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
-    #' @details
-    #' This method supports progress monitoring via the **progressr** package.
-    #' Users can wrap the function call in `with_progress()` to display a progress
-    #' bar while the function executes. If no progress handler is registered, the
-    #' function will run without showing progress.
-    #'
-    #' To enable progress, register a handler and wrap the function call in
-    #' `with_progress()`.
-    runMetropolisHastings = function(steps){
-      if(!(private$hasAlpha & private$hasContextPrior)){
-        stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
-      }
 
+#' @param steps Number of steps to run the Metropolis Hastings algorithm for.
+#' @details
+#' This method supports progress monitoring via the **progressr** package.
+#' Users can wrap the function call in `with_progress()` to display a progress
+#' bar while the function executes. If no progress handler is registered, the
+#' function will run without showing progress.
+#'
+#' To enable progress, register a handler and wrap the function call in
+#' `with_progress()`.
+    runMetropolisHastings = function(steps){
       pb <- progressor(steps/10)
       if(is.null(private$chain)){
         private$chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
@@ -87,7 +71,7 @@ baConTree <- R6Class(
         if(prune){
           if(length(private$prunableNodes) > 1){
             node_to_prune <- sample(private$prunableNodes, 1)
-            pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf
+            pruning_leaf <- self$nodes[[node_to_prune]]$isLeaf()
             n_prunable <- length(private$prunableNodes)
             n_growable_after <- length(private$growableNodes) + 1 -(m*(!pruning_leaf))
             log_accept_ratio <-
@@ -117,40 +101,35 @@ baConTree <- R6Class(
       }
     },
 
-    #' @description Chain generated via Metropolis Hastings algorithm.
-    #' @returns Gets the sampled chain stored.
+#' @description Chain generated via Metropolis Hastings algorithm.
+#' @returns Gets the sampled chain stored.
     getChain = function(){
       private$chain
     }
   ),
   private = list(
-    hasAlpha = FALSE,
-    hasContextPrior = FALSE,
+    alpha = numeric(0),
     hasPrecomputedRatios = FALSE,
     iterations = 0,
     chain = NULL,
     computeIntegratedDirichlet = function(){
       for(node in self$nodes) {
-        result <- lgamma(sum(node$extra$dirichletAlpha)) -
-          sum(lgamma(node$extra$dirichletAlpha)) +
-          sum(lgamma(node$extra$dirichletAlpha + node$counts)) -
-          lgamma(sum(node$extra$dirichletAlpha + node$counts))
-        node$extra$integratedDirichletLog <- result
-      }
-
-      if(private$hasContextPrior){
-        private$preComputeRatios()
+        result <- lgamma(sum(node$extra$alpha)) -
+          sum(lgamma(node$extra$alpha)) +
+          sum(lgamma(node$extra$alpha + node$counts)) -
+          lgamma(sum(node$extra$alpha + node$counts))
+        node$extra$marginalNodeLL <- result
       }
     },
 
     preComputeRatios = function(){
       for(node in self$nodes) {
         node$extra$posteriorWeight <- node$extra$priorWeight +
-          node$extra$integratedDirichletLog
+          node$extra$marginalNodeLL
       }
 
       for(node in self$nodes){
-        if(!node$isLeaf){
+        if(!node$isLeaf()){
           childrenPosteriorSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
                                               ~.x$extra$posteriorWeight))
           node$extra$childrenPosteriorWeight <- childrenPosteriorSum
@@ -169,7 +148,20 @@ baConTree <- R6Class(
           node$extra$prunePosteriorRatio <- NA
         }
       }
-
     }
   )
 )
+
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom igraph V edge_attr<- ends E
+#' @export
+plot.baConTree = function(x, ...){
+  ig <- x$igraph(activeOnly = FALSE)
+  ends_mat <- ends(ig, E(ig))
+  values <- V(ig)[ends_mat[, 2]]$prunePosteriorRatio
+  edge_attr(ig, "prunePosteriorRatio") <- values
+  ggraph(ig, layout = "tree") +
+    geom_edge_diagonal0() +
+    geom_node_label(aes(label = nodeLabel, fill = prunePosteriorRatio)) +
+    scale_fill_gradient2(low = "red", high = "blue", midpoint = 0)
+}

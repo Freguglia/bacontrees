@@ -10,52 +10,72 @@
 #' @param path A string representing the path of a node.
 #' @param idx A logical value. If TRUE, the function will return the index (path) of the node as a string. If FALSE, returns a list of nodes.
 #' @param code The tree code for the tree to be activated.
-#' @param data A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
+#' @param dataset A `Sequence` object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.
+#' @param activeOnly logical value. If TRUE, only the nodes in the
+#' active tree are plotted (including internal nodes).
+#' @param maximalDepth Depth of the maximal tree considered.
+#' @param code The tree code for the tree to be activated.
 #'
 #' @examples
-#' tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 3)
+#' tree <- ContextTree$new(abc_list, maximalDepth = 3)
 #' tree$activateMaximal()
-#' tree$setData(list(rep("a", 10), rep("b", 10)))
 #' print(tree)
 #'
-#' @importFrom purrr map_chr map_lgl
+#' @importFrom purrr map_chr map_lgl map map_int
 #' @importFrom glue glue
 #' @export
 ContextTree <- R6Class(
   "ContextTree",
   public = list(
-    #' @field nodes List of nodes from a context tree (both active and non-active).
-    nodes = list(),
 
-    #' @field data A list of observed sequences of data.
-    data = NULL,
-
-    #' @param maximalDepth Depth of the maximal tree considered.
-    #' @param active Either "root" or "maximal" to indicate which nodes
-    #' should be initialized as active.
-    initialize = function(alphabet = NULL, maximalDepth = 3, active = "root") {
-      if("Alphabet" %in% class(alphabet)){
-        private$Alphabet <- alphabet
-      } else if("character" %in% class(alphabet)){
-        private$Alphabet <- Alphabet$new(alphabet)
-      } else {
-        stop("alphabet must be either a character vector or an Alphabet object.")
+    #' @description
+    #' Initializes a \code{ContextTree} object with a given maximal depth.
+    #' If \code{dataset} is provided, the alphabet is inferred from data.
+    initialize = function(dataset = NULL, maximalDepth = 3, alphabet = NULL) {
+      if(is.null(dataset) & is.null(alphabet)){
+        stop("Either 'data' or 'alphabet' must be provided.")
       }
+
+      if(!is.null(dataset)){
+        alphabet_data <- infer_alphabet(dataset)
+        private$Alphabet <- alphabet_data
+      }
+
+      if(!is.null(alphabet)){
+        if("character" %in% class(alphabet)){
+          alphabet <- Alphabet$new(alphabet)
+        } else if(is.numeric(alphabet)) {
+          if(length(alphabet) > 8){
+            warning("Alphabet was specified by a numeric variable and has too many values. Memory problems may arise.")
+          }
+          alphabet <- Alphabet$new(as.character(alphabet))
+        } else if(!is(alphabet, "Alphabet")) {
+          stop("alphabet must be either a character vector or an Alphabet object.")
+        }
+        private$Alphabet <- alphabet
+      }
+
+      if(!is.null(dataset) & !is.null(alphabet)) {
+        if(!alphabet_equal(alphabet, alphabet_data)) {
+          stop("The 'alphabet' passed is incompatible with the data provided.")
+        }
+      }
+
       root <- TreeNode$new(path = "*")
-      self$nodes[["*"]] <- root
-      root$setChildrenPaths(glue("*.{private$Alphabet$symbols}"))
+      private$nodesEnv <- new.env(hash = TRUE, parent = emptyenv())
+      private$nodesEnv[["*"]] <- root
       private$m <- length(private$Alphabet$symbols)
       root$counts <- rep(0, private$m)
       private$buildByDepth(maximalDepth)
+      private$nodes_ <- as.list(private$nodesEnv)
 
-      if(active == "root"){
-        self$activateRoot()
-      } else {
-        self$activateMaximal()
-      }
+      self$activateMaximal()
 
       private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
-                                                        function(node) node$isActive() & !node$isLeaf)])
+                                                        function(node) node$isActive() & !node$isLeaf())])
+      if(!is.null(dataset)){
+        self$setData(dataset)
+      }
     },
 
     #' @return Returns the Context Tree root node.
@@ -68,7 +88,7 @@ ContextTree <- R6Class(
     validate = function() {
       for (path in names(self$nodes)) {
         node <- self$nodes[[path]]
-        if (!node$isLeaf) {
+        if (!node$isLeaf()) {
           children_paths <- names(self$nodes)[startsWith(names(self$nodes), paste0(path, "."))]
           children_depths <- sapply(children_paths, function(p) length(str_split_1(p, "\\.")))
           expected_depth <- length(str_split_1(path, "\\.")) + 1
@@ -81,9 +101,15 @@ ContextTree <- R6Class(
       return(TRUE)
     },
 
+    #' @return Returns the dataset as a `Sequence` object.
+    getDataset = function() private$dataset,
+
     #' @return Returns the alphabet related to the Context Tree.
-    getAlphabet = function(){
-      private$Alphabet
+    getAlphabet = function() private$Alphabet,
+
+    #' @return Returns the maximal depth of the tree.
+    getMaximalDepth = function(){
+      private$maximalDepth
     },
 
     #' @return Returns a list of active nodes (leaf nodes of the active tree).
@@ -111,26 +137,27 @@ ContextTree <- R6Class(
           node$deactivate()
         }
       }
+      private$growableNodes <- "*"
+      private$prunableNodes <- character(0)
     },
 
     #' @description
     #' Activates the leaf nodes of the maximal Context Tree.
     activateMaximal = function() {
       for(node in self$nodes) {
-        if(node$isLeaf) {
+        if(node$isLeaf()) {
           node$activate()
         } else {
           node$deactivate()
         }
       }
       private$prunableNodes <- self$getActiveNodes()
+      private$growableNodes <- character(0)
     },
 
     #' @description
     #' Sets the active tree to be the one corresponding to a tree code obtained
     #' from the `activeTreeCode` method.
-    #'
-    #' @param code The tree code for the tree to be activated.
     activateByCode = function(code) {
       n_nodes <- length(self$nodes)
       active_nodes <- decompress_logical(code, n_nodes)
@@ -141,17 +168,23 @@ ContextTree <- R6Class(
           self$nodes[[i]]$deactivate()
         }
       }
-      # This still needs some checking to make sure the active tree is
-      # a valid one.
+      private$growableNodes <- names(private$nodes_[map_lgl(private$nodes_,
+        function(node) node$isActive() & !node$isLeaf())])
+      private$prunableNodes <- names(private$nodes_[map_lgl(private$nodes_,
+        function(node) {
+          if(!node$isActive() || node$getPath() == "*") return(FALSE)
+          siblings <- private$nodes_[private$nodes_[[node$getParentPath()]]$getChildrenPaths()]
+          all(map_lgl(siblings, ~.x$isActive()))
+        })])
     },
 
     #' @return Returns the leaf nodes of the maximal Context Tree (regardless of
     #' the current active tree).
     getLeaves = function(idx = TRUE) {
       if(idx){
-        names(self$nodes)[map_lgl(self$nodes, function(x) x$isLeaf)]
+        names(self$nodes)[map_lgl(self$nodes, function(x) x$isLeaf())]
       } else {
-        self$nodes[map_lgl(self$nodes, function(x) x$isLeaf)]
+        self$nodes[map_lgl(self$nodes, function(x) x$isLeaf())]
       }
     },
 
@@ -212,13 +245,13 @@ ContextTree <- R6Class(
     growActive = function(path){
       node <- self$nodes[[path]]
       siblings <- self$getSiblingNodes(path)
-      if(node$isActive() & !node$isLeaf){
+      if(node$isActive() & !node$isLeaf()){
         node$deactivate()
         private$growableNodes <- setdiff(private$growableNodes, node$getPath())
         private$prunableNodes <- setdiff(private$prunableNodes, siblings)
         for(child in self$nodes[node$getChildrenPaths()]){
           child$activate()
-          if(!child$isLeaf){
+          if(!child$isLeaf()){
             private$growableNodes <- c(private$growableNodes, child$getPath())
           }
           private$prunableNodes <- c(private$prunableNodes, child$getPath())
@@ -268,22 +301,38 @@ ContextTree <- R6Class(
     #' @description
     #' Sets data for the Context Tree by setting the counts of occurrences
     #' of each symbol of the alphabet within each context (node) of the tree.
-    #' @param data A `Sequence` object, a character vector with a single
-    #' observed chain or a list of vectors of observed chains
-    #' to be set as data for the context tree.
-    setData = function(data) {
+    setData = function(dataset) {
       if(private$hasData){
-        warning("This Context Tree already had data. Overwriting previous data with the new one.")
+        stop("This Context Tree already has data. Cannot overwrite it.")
       }
-      if("Sequence" %in% class(data)){
-        self$data <- data
+      if("Sequence" %in% class(dataset)){
+        private$dataset <- dataset
       } else {
-        self$data <- Sequence$new(data, alphabet = private$Alphabet)
+        private$dataset <- Sequence$new(dataset, alphabet = private$Alphabet)
       }
-      for(sequence_vec in self$data$data){
+      for(sequence_vec in private$dataset$data){
         private$fillData(sequence_vec)
       }
       private$hasData <- TRUE
+
+      for(node in self$nodes){
+        node$extra$n <- sum(node$counts)
+        node$extra$p <- node$counts/node$extra$n
+        nodeLL <- node$counts*log(node$extra$p)
+        if(node$extra$n == 0){
+          node$extra$nodeLL <- -Inf
+        } else {
+          node$extra$nodeLL <- sum(nodeLL[is.finite(nodeLL)])
+        }
+      }
+    },
+
+    #' @details Converts the ContextTree to an \code{igraph} object. All attributes
+    #' in the \code{extra} field of nodes are included in the attributes of each node
+    #' for the \code{igraph}.
+    #' @return Returns an igraph object.
+    igraph = function(activeOnly = TRUE){
+      .ct_to_igraph(self, activeOnly)
     },
 
     #' @description
@@ -300,11 +349,11 @@ ContextTree <- R6Class(
         output_string <- nodePath
         if(length(nodePath) > 1){
           output_string[length(nodePath) - 1] <- ifelse(nodePath[length(nodePath) ] == last_symbol,
-                                                     "`-", "|-")
-         if(length(nodePath) > 2){
-           output_string[1:(length(nodePath) - 2)] <- ifelse(nodePath[2:(length(nodePath) - 1)] == last_symbol,
-                                                         "  ", "| ")
-         }
+                                                        "`-", "|-")
+          if(length(nodePath) > 2){
+            output_string[1:(length(nodePath) - 2)] <- ifelse(nodePath[2:(length(nodePath) - 1)] == last_symbol,
+                                                              "  ", "| ")
+          }
           output_string <- paste0(output_string, collapse = "")
         } else {
           output_string <- "*"
@@ -322,48 +371,61 @@ ContextTree <- R6Class(
       }
     }
   ),
+  active = list(
+    #' @field nodes List of nodes from a context tree (both active and non-active). Read-only.
+    nodes = function(value) {
+      if(missing(value)) return(private$nodes_)
+      # R's replacement semantics (e.g. tree$nodes[["*"]]$extra <- 3) write back the
+      # full list after mutating an element. Since TreeNode is R6 (reference semantics),
+      # the mutation already happened in-place. We silently accept write-backs that
+      # preserve the existing node set, and reject genuine structural changes.
+      if(!setequal(names(value), names(private$nodes_))) {
+        stop("The 'nodes' field is read-only. Use ContextTree methods to modify the tree structure.")
+      }
+    }
+  ),
   private = list(
     m = 0,
     Alphabet = NULL,
-    maximalDepth_ = 0,
+    maximalDepth = integer(0),
+    dataset = NULL,
+    hasData = FALSE,
     buildByDepth = function(depth) {
       for (i in seq_len(depth)) {
-        leaves <- self$getLeaves(TRUE)
+        leaves <- private$getLeavesEnv()
         for(leaf in leaves){
           private$addChildren(leaf)
         }
       }
-      private$maximalDepth_ <- depth
+      private$maximalDepth <- depth
     },
 
     addNode = function(path) {
-      symbols <- str_split_1(path, "\\.")[-1]
-      children_paths <- glue("{path}.{private$Alphabet$symbols}")
-      if (!self$nodeExists(path)) {
-        node <- TreeNode$new(path)
-        node$setChildrenPaths(children_paths)
-        self$nodes[[path]] <- node
-        return(node)
-      }
-      return(NULL)
+      node <- TreeNode$new(path)
+      private$nodesEnv[[path]] <- node
+      return(node)
     },
 
     addChildren = function(path) {
-      if (self$nodeExists(path)) {
-        children_paths <- glue("{path}.{private$Alphabet$symbols}")
-        if (self$nodes[[path]]$isLeaf)
+      if (!is.null(private$nodesEnv[[path]])) {
+        children_paths <- paste0(path, ".", private$Alphabet$symbols)
+        node <- private$nodesEnv[[path]]
+        if (node$isLeaf())
           for (child_path in children_paths) {
             private$addNode(child_path)
-            self$nodes[[child_path]]$counts <- rep(0, private$m)
+            private$nodesEnv[[child_path]]$counts <- rep(0, private$m)
           }
-        self$nodes[[path]]$isLeaf <- FALSE
+        node_priv <- node$.__enclos_env__$private
+        if (length(node_priv$childrenPaths) > 0)
+          stop("Attempting to set children node paths multiple times.")
+        node_priv$childrenPaths <- children_paths
+        node_priv$isLeaf_ <- FALSE
       } else {
         stop(glue("Cannot add children to {path} because it is not a node."))
       }
     },
-    hasData = FALSE,
     fillData = function(sequence_vector) {
-      for(t in seq_along(sequence_vector)[-seq_len(private$maximalDepth_)]){
+      for(t in seq_along(sequence_vector)[-seq_len(private$maximalDepth)]){
         current_symbol <- sequence_vector[t]
         node <- self$root()
         dt <- 0
@@ -373,13 +435,54 @@ ContextTree <- R6Class(
         while(!node$isLeaf){
           node <- self$nodes[[childrenPaths[sequence_vector[t-dt]]]]
           node$counts[current_symbol] <- node$counts[current_symbol] + 1
+          node <- private$nodesEnv[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
           dt <- dt + 1
           childrenPaths <- node$getChildrenPaths()
         }
       }
     },
 
+    getLeavesEnv = function() {
+      paths <- names(private$nodesEnv)
+      leaves <- map_lgl(paths, function(path) private$nodesEnv[[path]]$isLeaf())
+      paths[leaves]
+    },
+
     growableNodes = character(0),
-    prunableNodes = character(0)
+    prunableNodes = character(0),
+    nodesEnv = NULL,
+    nodes_ = list()
   )
 )
+
+#' @title Plot method for ContextTree class
+#' @param activeOnly logical value. If TRUE, only the nodes in the
+#' active tree are plotted (including internal nodes).
+#' @param x A \code{ContextTree} object.
+#' @param ... Not used.
+#'
+#' @details The edges of the tree have their width corresponding to the number
+#' of occurrences of contexts matching the child node.
+#'
+#' The plot is done using ggraph and can be further modified.
+#' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label scale_edge_width scale_edge_linetype_manual
+#' @importFrom ggplot2 aes scale_fill_manual
+#' @export
+plot.ContextTree = function(x, ..., activeOnly = TRUE){
+  pl <- ggraph(x$igraph(activeOnly), layout = "tree")
+
+  if(sum(x$root()$counts) > 0){
+    pl <- pl + geom_edge_diagonal0(aes(width = n, linetype = state)) +
+      scale_edge_width(range = c(0.01, 3))
+  } else {
+    pl <- pl + geom_edge_diagonal0(aes(linetype = state))
+  }
+  pl +
+    geom_node_label(aes(label = nodeLabel, fill = state)) +
+    scale_fill_manual(values = c("inner" = "lightblue",
+                                 "active" = "green",
+                                 "inactive" = "gray")) +
+    scale_edge_linetype_manual(values = c("active" = "solid",
+                                          "inactive" = "dotted"
+    ))
+}

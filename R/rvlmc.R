@@ -4,13 +4,32 @@
 #'
 #' @param n An integer specifying the length of the sequence to generate, or a vector of lengths for multiple sequences.
 #' @param alphabet A character vector representing the set of symbols used in the sequence.
-#' @param context_list A character vector specifying the list of contexts in the VLMC. Each context should be a string where symbols are separated by dots (e.g., `"*.a"`, `"*.b"`, `"*.c.a"`).
-#' @param context_probs A list of probability vectors corresponding to each context in `context_list`. Each vector specifies the probabilities of sampling each symbol in `alphabet` given the context.
+#' @param context_list A character vector specifying the contexts of the VLMC.
+#'   Each context is a dot-separated string starting with `"*"` (the root
+#'   sentinel), where subsequent symbols represent the observed past in
+#'   **reverse chronological order** (most recent first). For example,
+#'   `"*.c.b"` denotes the context where the last observed symbol was `"c"`
+#'   and the one before it was `"b"`. The set of contexts must form a
+#'   **complete partition** of all possible pasts (i.e., a valid full context
+#'   tree); the function will error if this is not satisfied.
+#' @param context_probs A list of numeric probability vectors, one per element
+#'   of `context_list`, in the same order. Each vector must have the same
+#'   length as `alphabet`, with elements giving the probability of sampling
+#'   the corresponding symbol in `alphabet`.
 #'
-#' @return If `n` is a single integer, returns a character vector of length `n` representing the generated sequence. If `n` is a vector of length > 1, returns a list of character vectors, each of the specified length.
+#' @return If `n` is a single integer, returns a character vector of length `n`
+#'   representing the generated sequence. If `n` is a vector of length > 1,
+#'   returns a list of character vectors, each of the specified length.
 #'
 #' @details
-#' The function generates sequences by traversing the context tree defined by `context_list` and `context_probs`. For each position in the sequence, the most specific matching context is used to sample the next symbol according to the corresponding probability vector.
+#' The function generates sequences by traversing the context tree defined by
+#' `context_list` and `context_probs`. For each position in the sequence, the
+#' most specific matching context in `context_list` is used to sample the next
+#' symbol according to the corresponding probability vector.
+#'
+#' The first `H` symbols (where `H` is the depth of the deepest context) are
+#' sampled uniformly from `alphabet` as an initialisation step and are not
+#' drawn from the VLMC model.
 #'
 #' @examples
 #' # Define parameters for the VLMC
@@ -47,6 +66,20 @@ rvlmc <- function(n, alphabet, context_list, context_probs){
 }
 
 rvlmc_single <- function(n, alphabet, context_list, context_probs){
+  derived_alphabet <- setdiff(unique(unlist(strsplit(context_list, "\\."))), "*")
+  if(!setequal(sort(derived_alphabet), sort(alphabet))){
+    stop("'context_list' is incompatible with a full tree for the provided 'alphabet'.")
+  }
+  if(!validate_tree_string(context_list)){
+    stop("'context_list' is incompatible with a full tree.")
+  }
+  if(length(context_list) != length(context_probs)){
+    stop("List of probability vectors incompatible with the 'context_tree' specified.")
+
+  }
+  if(any(map_int(context_probs, length) != length(alphabet))){
+    stop("Probabilities vectors must have length compatible with the alphabet.")
+  }
   H <- max(str_count(context_list, "\\."))
   out <- sample(alphabet, size = n, replace = T)
   t <- H + 1

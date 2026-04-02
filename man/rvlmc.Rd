@@ -11,18 +11,37 @@ rvlmc(n, alphabet, context_list, context_probs)
 
 \item{alphabet}{A character vector representing the set of symbols used in the sequence.}
 
-\item{context_list}{A character vector specifying the list of contexts in the VLMC. Each context should be a string where symbols are separated by dots (e.g., \code{"*.a"}, \code{"*.b"}, \code{"*.c.a"}).}
+\item{context_list}{A character vector specifying the contexts of the VLMC.
+Each context is a dot-separated string starting with \code{"*"} (the root
+sentinel), where subsequent symbols represent the observed past in
+\strong{reverse chronological order} (most recent first). For example,
+\code{"*.c.b"} denotes the context where the last observed symbol was \code{"c"}
+and the one before it was \code{"b"}. The set of contexts must form a
+\strong{complete partition} of all possible pasts (i.e., a valid full context
+tree); the function will error if this is not satisfied.}
 
-\item{context_probs}{A list of probability vectors corresponding to each context in \code{context_list}. Each vector specifies the probabilities of sampling each symbol in \code{alphabet} given the context.}
+\item{context_probs}{A list of numeric probability vectors, one per element
+of \code{context_list}, in the same order. Each vector must have the same
+length as \code{alphabet}, with elements giving the probability of sampling
+the corresponding symbol in \code{alphabet}.}
 }
 \value{
-If \code{n} is a single integer, returns a character vector of length \code{n} representing the generated sequence. If \code{n} is a vector of length > 1, returns a list of character vectors, each of the specified length.
+If \code{n} is a single integer, returns a character vector of length \code{n}
+representing the generated sequence. If \code{n} is a vector of length > 1,
+returns a list of character vectors, each of the specified length.
 }
 \description{
 This function simulates one or more sequences using a Variable Length Markov Chain (VLMC) model, where the memory (context) length can vary depending on the context tree provided.
 }
 \details{
-The function generates sequences by traversing the context tree defined by \code{context_list} and \code{context_probs}. For each position in the sequence, the most specific matching context is used to sample the next symbol according to the corresponding probability vector.
+The function generates sequences by traversing the context tree defined by
+\code{context_list} and \code{context_probs}. For each position in the sequence, the
+most specific matching context in \code{context_list} is used to sample the next
+symbol according to the corresponding probability vector.
+
+The first \code{H} symbols (where \code{H} is the depth of the deepest context) are
+sampled uniformly from \code{alphabet} as an initialisation step and are not
+drawn from the VLMC model.
 }
 \examples{
 # Define parameters for the VLMC

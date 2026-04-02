@@ -11,15 +11,14 @@ for managing its state and validating its path.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{counts}}{Numeric vector to hold counts.}
-
-\item{\code{isLeaf}}{Logical value indicating if the node is a leaf.}
-
-\item{\code{extra}}{List to hold extra information.
-Initialize a TreeNode
-
-This method initializes a tree node with a given path, calculates its depth,
-and sets the parent path if applicable.}
+\item{\code{extra}}{List to hold extra information.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{counts}}{Numeric vector to hold counts (active binding; validated on write).}
 }
 \if{html}{\out{</div>}}
 }
@@ -32,10 +31,10 @@ and sets the parent path if applicable.}
 \item \href{#method-TreeNode-deactivate}{\code{TreeNode$deactivate()}}
 \item \href{#method-TreeNode-isActive}{\code{TreeNode$isActive()}}
 \item \href{#method-TreeNode-getDepth}{\code{TreeNode$getDepth()}}
+\item \href{#method-TreeNode-isLeaf}{\code{TreeNode$isLeaf()}}
 \item \href{#method-TreeNode-getPath}{\code{TreeNode$getPath()}}
 \item \href{#method-TreeNode-getParentPath}{\code{TreeNode$getParentPath()}}
 \item \href{#method-TreeNode-getChildrenPaths}{\code{TreeNode$getChildrenPaths()}}
-\item \href{#method-TreeNode-setChildrenPaths}{\code{TreeNode$setChildrenPaths()}}
 \item \href{#method-TreeNode-validatePath}{\code{TreeNode$validatePath()}}
 \item \href{#method-TreeNode-clone}{\code{TreeNode$clone()}}
 }
@@ -44,6 +43,7 @@ and sets the parent path if applicable.}
 \if{html}{\out{<a id="method-TreeNode-new"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeNode-new}{}}}
 \subsection{Method \code{new()}}{
+Initializaes the \code{TreeNode}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeNode$new(path)}\if{html}{\out{</div>}}
 }
@@ -55,17 +55,12 @@ and sets the parent path if applicable.}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Returns}{
-A new instance of the TreeNode class.
-Print the path of the node
-
-This method prints the path of the node to the console.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-print"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeNode-print}{}}}
 \subsection{Method \code{print()}}{
+Print the path of the node
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeNode$print(...)}\if{html}{\out{</div>}}
 }
@@ -77,42 +72,30 @@ This method prints the path of the node to the console.
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Returns}{
-None. Prints the path to the console.
-Activate the node
-
-This method sets the node's active status to TRUE.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-activate"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeNode-activate}{}}}
 \subsection{Method \code{activate()}}{
+Activate the node.
+
+This method sets the node's active status to TRUE.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeNode$activate()}\if{html}{\out{</div>}}
 }
 
-\subsection{Returns}{
-None.
-Deactivate the node
-
-This method sets the node's active status to FALSE.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-deactivate"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeNode-deactivate}{}}}
 \subsection{Method \code{deactivate()}}{
+Deactivate the node.
+
+This method sets the node's active status to FALSE.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeNode$deactivate()}\if{html}{\out{</div>}}
 }
 
-\subsection{Returns}{
-None.
-Check if the node is active
-
-This method returns the active status of the node.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-isActive"></a>}}
@@ -124,9 +107,6 @@ This method returns the active status of the node.
 
 \subsection{Returns}{
 Logical value indicating if the node is active.
-Get the depth of the node
-
-This method returns the depth of the node.
 }
 }
 \if{html}{\out{<hr>}}
@@ -138,10 +118,20 @@ This method returns the depth of the node.
 }
 
 \subsection{Returns}{
-Numeric value representing the depth of the node.
-Get the path of the node
+Integer value representing the depth of the node.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TreeNode-isLeaf"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeNode-isLeaf}{}}}
+\subsection{Method \code{isLeaf()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeNode$isLeaf()}\if{html}{\out{</div>}}
+}
 
-This method returns the path of the node.
+\subsection{Returns}{
+Returns a logical value indicating whether the node is a leaf
+(of the maximal tree, not the active tree).
 }
 }
 \if{html}{\out{<hr>}}
@@ -154,9 +144,6 @@ This method returns the path of the node.
 
 \subsection{Returns}{
 Character string representing the path of the node.
-Get the parent path of the node
-
-This method returns the parent path of the node.
 }
 }
 \if{html}{\out{<hr>}}
@@ -185,30 +172,13 @@ of a node.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TreeNode-setChildrenPaths"></a>}}
-\if{latex}{\out{\hypertarget{method-TreeNode-setChildrenPaths}{}}}
-\subsection{Method \code{setChildrenPaths()}}{
-Sets the paths for children of a node.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TreeNode$setChildrenPaths(childrenPaths)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{childrenPaths}}{vector of paths for the children of the node.
-Validate the node path against an alphabet
-
-This method validates the node's path by checking if all elements of the path
-(excluding the first element) are in the provided alphabet.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TreeNode-validatePath"></a>}}
 \if{latex}{\out{\hypertarget{method-TreeNode-validatePath}{}}}
 \subsection{Method \code{validatePath()}}{
+Validate the node path against an alphabet
+
+This method validates the node's path by checking if all elements of the path
+(excluding the first element) are in the provided alphabet.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TreeNode$validatePath(Alphabet)}\if{html}{\out{</div>}}
 }
@@ -216,7 +186,7 @@ This method validates the node's path by checking if all elements of the path
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{Alphabet}}{An object containing a \code{symbols} vector to validate against.}
+\item{\code{Alphabet}}{An \code{Alphabet} object containing a \code{symbols} vector to validate against.}
 }
 \if{html}{\out{</div>}}
 }
