@@ -173,8 +173,8 @@ The returned object contains:
 For more control, use the `baConTree` R6 class directly.
 
 ```{r baConTree}
-bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01)
-bt$setContextPriorWeights(function(node) -node$getDepth() / 3)
+bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+                    priorWeights = function(node) -node$getDepth() / 3)
 
 with_progress(bt$runMetropolisHastings(2000))
 
@@ -213,8 +213,7 @@ Extends `ContextTree` with Bayesian machinery.
 
 | Method | Description |
 |--------|-------------|
-| `$setAlpha(alpha)` | Set Dirichlet prior parameter |
-| `$setContextPriorWeights(fn)` | Assign per-node prior log-weights |
+| `$new(data, maximalDepth, alpha, priorWeights, active)` | Construct a Bayesian context tree |
 | `$runMetropolisHastings(steps)` | Run the MCMC sampler |
 | `$getChain()` | Retrieve the sampled chain as a data frame |
 

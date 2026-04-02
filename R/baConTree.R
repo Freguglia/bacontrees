@@ -7,11 +7,11 @@
 #' @param alpha Hyperparameter considered for the Dirichlet prior distribution
 #' of probabilities.
 #' @details
-#' This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+#' This class provides methods for running MCMC and extracting posterior samples for Bayesian context tree models.
 #'
 #' @examples
-#' bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01)
-#' bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+#' bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+#'                     priorWeights = function(node) -1/3*node$getDepth())
 #' bt$runMetropolisHastings(300)
 #' chain <- bt$getChain()
 #'
@@ -23,51 +23,29 @@ baConTree <- R6Class(
   inherit = ContextTree,
   public = list(
 
-#' @param data Either a vector with discrete data or a lista of vectors.
+#' @param data Either a vector with discrete data or a list of vectors.
 #' @param maximalDepth Depth of the maximal tree considered.
-#' @param active Either "root" or "maximal" to indicate which nodes
-#' should be initialized as active.
+#' @param alpha Hyperparameter for the Dirichlet prior distribution of probabilities.
 #' @param priorWeights A function to be evaluated at each node that returns
 #' its weight in the prior distribution.
-    initialize = function(data, maximalDepth = 5, alpha = NULL, priorWeights = function(x) 0, active = "root") {
+#' @param active Either "root" or "maximal" to indicate which nodes
+#' should be initialized as active.
+    initialize = function(data, maximalDepth = 5, alpha, priorWeights, active = "root") {
       super$initialize(data, maximalDepth, active)
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
-      }
-      if(!is.null(alpha)){
-        self$setAlpha(alpha)
-      }
-      if(!is.null(alpha)){
-        self$setContextPriorWeights(priorWeights)
-      }
-    },
-
-#' @description
-#' Sets the value of the Dirichlet priors if not initialized.
-    setAlpha = function(alpha){
-      if(private$hasAlpha){
-        stop(paste0("alpha is already specified as ", private$alpha))
       }
       private$alpha <- alpha
       for(node in self$nodes) {
         node$extra$alpha <- rep(alpha, private$m)
       }
       private$computeIntegratedDirichlet()
-      private$hasAlpha <- TRUE
-    },
-
-#' @param fn A function to be evaluated at each node that returns
-#' its weight in the prior distribution.
-    setContextPriorWeights = function(fn){
       for(node in self$nodes) {
-        node$extra$priorWeight <- fn(node)
+        node$extra$priorWeight <- priorWeights(node)
       }
-
-      private$hasContextPrior <- TRUE
-      if(private$hasAlpha){
-        private$preComputeRatios()
-      }
+      private$preComputeRatios()
     },
+
 
 #' @param steps Number of steps to run the Metropolis Hastings algorithm for.
 #' @details
@@ -79,10 +57,6 @@ baConTree <- R6Class(
 #' To enable progress, register a handler and wrap the function call in
 #' `with_progress()`.
     runMetropolisHastings = function(steps){
-      if(!(private$hasAlpha & private$hasContextPrior)){
-        stop("Dirichlet alpha and context priors must be set prior to running the Metropolis Hastings algorithm.")
-      }
-
       pb <- progressor(steps/10)
       if(is.null(private$chain)){
         private$chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
@@ -135,9 +109,7 @@ baConTree <- R6Class(
     }
   ),
   private = list(
-    hasAlpha = FALSE,
     alpha = numeric(0),
-    hasContextPrior = FALSE,
     hasPrecomputedRatios = FALSE,
     iterations = 0,
     chain = NULL,
@@ -148,10 +120,6 @@ baConTree <- R6Class(
           sum(lgamma(node$extra$alpha + node$counts)) -
           lgamma(sum(node$extra$alpha + node$counts))
         node$extra$marginalNodeLL <- result
-      }
-
-      if(private$hasContextPrior){
-        private$preComputeRatios()
       }
     },
 

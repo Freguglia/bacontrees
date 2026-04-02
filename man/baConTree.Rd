@@ -10,11 +10,11 @@ Gets the sampled chain stored.
 The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
 }
 \details{
-This class provides methods for setting priors, running MCMC, and extracting posterior samples for Bayesian context tree models.
+This class provides methods for running MCMC and extracting posterior samples for Bayesian context tree models.
 }
 \examples{
-bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01)
-bt$setContextPriorWeights(function(node) -1/3*node$getDepth())
+bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+                    priorWeights = function(node) -1/3*node$getDepth())
 bt$runMetropolisHastings(300)
 chain <- bt$getChain()
 
@@ -26,8 +26,6 @@ chain <- bt$getChain()
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
-\item \href{#method-baConTree-setAlpha}{\code{baConTree$setAlpha()}}
-\item \href{#method-baConTree-setContextPriorWeights}{\code{baConTree$setContextPriorWeights()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
@@ -67,65 +65,23 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(
-  data,
-  maximalDepth = 5,
-  alpha = NULL,
-  priorWeights = function(x) 0,
-  active = "root"
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha, priorWeights, active = "root")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{Either a vector with discrete data or a lista of vectors.}
+\item{\code{data}}{Either a vector with discrete data or a list of vectors.}
 
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
 
-\item{\code{alpha}}{Hyperparameter considered for the Dirichlet prior distribution
-of probabilities.}
+\item{\code{alpha}}{Hyperparameter for the Dirichlet prior distribution of probabilities.}
 
 \item{\code{priorWeights}}{A function to be evaluated at each node that returns
 its weight in the prior distribution.}
 
 \item{\code{active}}{Either "root" or "maximal" to indicate which nodes
 should be initialized as active.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-setAlpha"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-setAlpha}{}}}
-\subsection{Method \code{setAlpha()}}{
-Sets the value of the Dirichlet priors if not initialized.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$setAlpha(alpha)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{alpha}}{Hyperparameter considered for the Dirichlet prior distribution
-of probabilities.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-setContextPriorWeights"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-setContextPriorWeights}{}}}
-\subsection{Method \code{setContextPriorWeights()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$setContextPriorWeights(fn)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fn}}{A function to be evaluated at each node that returns
-its weight in the prior distribution.}
 }
 \if{html}{\out{</div>}}
 }
