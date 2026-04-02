@@ -1,3 +1,18 @@
+# bacontrees 0.0.3
+
+## API changes
+
+* In the `baConTree` class, `alpha` and `priorWeights` are now required arguments
+in `$new()` and must be passed at initialization. The `$setAlpha()` and
+`$setContextPriorWeights()` methods have been removed.
+
+* The `active` argument has been removed from `ContextTree$new()` (and therefore
+`baConTree$new()`). The tree is always initialized with the maximal active tree.
+To start from the root, call `$activateRoot()` after construction.
+
+* The `initial_root` argument has been removed from `metropolis_vlmc()`. The
+chain always starts from the maximal tree.
+
 # bacontrees 0.0.2
 
 ## API changes
