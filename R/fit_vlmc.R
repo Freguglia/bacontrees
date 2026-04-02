@@ -19,7 +19,7 @@
 #'
 #' @export
 fit_vlmc <- function(data, cutoff = 10, max_length = 6){
-  ct <- ContextTree$new(data = data, maximalDepth = max_length, active = "maximal")
+  ct <- ContextTree$new(data = data, maximalDepth = max_length)
 
   # Compute the sum of log-likelihood for the children of each node and
   # test statistics for the prunning of the children nodes.

@@ -28,10 +28,9 @@ baConTree <- R6Class(
 #' @param alpha Hyperparameter for the Dirichlet prior distribution of probabilities.
 #' @param priorWeights A function to be evaluated at each node that returns
 #' its weight in the prior distribution.
-#' @param active Either "root" or "maximal" to indicate which nodes
-#' should be initialized as active.
-    initialize = function(data, maximalDepth = 5, alpha, priorWeights, active = "root") {
-      super$initialize(data, maximalDepth, active)
+    initialize = function(data, maximalDepth = 5, alpha, priorWeights) {
+      super$initialize(data, maximalDepth)
+      self$activateRoot()
       if(!self$validate()) {
         stop("Maximal Context Tree is invalid.")
       }

@@ -58,7 +58,8 @@ test_that("Fill by depth works correctly", {
 })
 
 test_that("Growable Nodes are correctly identified", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2)
+  tree$activateRoot()
 
   expect_setequal(tree$getGrowableNodes(), "*")
   tree$growActive("*")
@@ -75,7 +76,8 @@ test_that("Growable Nodes are correctly identified", {
 })
 
 test_that("Prunable Nodes are correctly identified", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 2)
+  tree$activateRoot()
 
   expect_length(tree$getPrunableNodes(), 0)
   tree$growActive("*")
@@ -96,7 +98,8 @@ test_that("Prunable Nodes are correctly identified", {
 })
 
 test_that("Tree Compression works as expected", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 4, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:3], maximalDepth = 4)
+  tree$activateRoot()
   code_root <- tree$activeTreeCode()
   tree$growActive("*")
   tree$growActive("*.A")
@@ -117,7 +120,8 @@ test_that("Tree Compression works as expected", {
 })
 
 test_that("Inner nodes are correctly obtained", {
-  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 4, active = "root")
+  tree <- ContextTree$new(alphabet = LETTERS[1:2], maximalDepth = 4)
+  tree$activateRoot()
   expect_length(tree$getInnerNodes(), 0)
   tree$growActive("*")
   expect_length(tree$getInnerNodes(), 1)

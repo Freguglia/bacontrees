@@ -5,7 +5,7 @@ test_that("metropolis_vlmc wrapper works as expected", {
   expect_setequal(names(result), c("df", "codes", "chain", "baConTree"))
   expect_equal(length(result$chain), 151)
 
-  result2 <- metropolis_vlmc(abc_vec, n, max_depth = 4, initial_root = FALSE)
+  result2 <- metropolis_vlmc(abc_vec, n, max_depth = 4)
   expect_setequal(names(result2), c("df", "codes", "chain", "baConTree"))
   expect_equal(length(result2$chain), 151)
 })

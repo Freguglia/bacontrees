@@ -29,7 +29,8 @@ treeFromContexts <- function(contexts){
   alphabet <- unique(unlist(str_split(contexts, "\\.")))
   alphabet <- setdiff(alphabet, "*")
 
-  ct <- ContextTree$new(alphabet = alphabet, maximalDepth = max_depth, active = "root")
+  ct <- ContextTree$new(alphabet = alphabet, maximalDepth = max_depth)
+  ct$activateRoot()
 
   current_depth <- 0
   while(length(setdiff(ct$getActiveNodes(idx = TRUE), contexts)) > 0){

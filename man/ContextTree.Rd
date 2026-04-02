@@ -59,12 +59,7 @@ print(tree)
 Initializes a \code{ContextTree} object with a given maximal depth.
 If \code{dataset} is provided, the alphabet is inferred from data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTree$new(
-  dataset = NULL,
-  maximalDepth = 3,
-  active = "root",
-  alphabet = NULL
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$new(dataset = NULL, maximalDepth = 3, alphabet = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -73,9 +68,6 @@ If \code{dataset} is provided, the alphabet is inferred from data.
 \item{\code{dataset}}{A \code{Sequence} object, a character vector with a single observed chain or a list of vectors of observed chains to be set as data for the context tree.}
 
 \item{\code{maximalDepth}}{Depth of the maximal tree considered.}
-
-\item{\code{active}}{Either "root" or "maximal" to indicate which nodes
-should be initialized as active.}
 
 \item{\code{alphabet}}{Either an object of class Alphabet or a character vector with the symbols for the alphabet considered in the context tree.}
 }

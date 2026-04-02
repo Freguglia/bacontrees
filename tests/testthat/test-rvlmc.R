@@ -1,6 +1,7 @@
 test_that("vlmc generator works", {
   alph <- letters[1:3]
-  tree <- ContextTree$new(alphabet = alph, maximalDepth = 3, active = "root")
+  tree <- ContextTree$new(alphabet = alph, maximalDepth = 3)
+  tree$activateRoot()
   tree$growActive("*")
   tree$growActive("*.c")
   context_list <- tree$getActiveNodes()

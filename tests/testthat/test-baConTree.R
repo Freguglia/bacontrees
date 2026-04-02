@@ -1,8 +1,7 @@
 test_that("Metropolis Hastings method for baConTree works", {
   set.seed(1)
   bt <- baConTree$new(abc_vec, maximalDepth = 4, alpha = 0.001,
-                      priorWeights = function(node) -1/3*node$getDepth(),
-                      active = "root")
+                      priorWeights = function(node) -1/3*node$getDepth())
 
   bt$runMetropolisHastings(100)
   bt$runMetropolisHastings(100)
@@ -11,7 +10,7 @@ test_that("Metropolis Hastings method for baConTree works", {
 
 test_that("baConTree initialization with priors works", {
   set.seed(1)
-  bt <- baConTree$new(abc_vec, maximalDepth = 4, alpha = 0.1, priorWeights = function(x) -1/3*x$getDepth(), active = "root")
+  bt <- baConTree$new(abc_vec, maximalDepth = 4, alpha = 0.1, priorWeights = function(x) -1/3*x$getDepth())
 
   bt$runMetropolisHastings(100)
   bt$runMetropolisHastings(100)
@@ -21,7 +20,7 @@ test_that("baConTree initialization with priors works", {
 test_that("chain grows across multiple runMetropolisHastings calls", {
   set.seed(1)
   bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.001,
-                      priorWeights = function(x) 0, active = "root")
+                      priorWeights = function(x) 0)
   bt$runMetropolisHastings(50)
   n_first <- nrow(bt$getChain())
   bt$runMetropolisHastings(50)

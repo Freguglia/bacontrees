@@ -14,8 +14,6 @@
 #' @param activeOnly logical value. If TRUE, only the nodes in the
 #' active tree are plotted (including internal nodes).
 #' @param maximalDepth Depth of the maximal tree considered.
-#' @param active Either "root" or "maximal" to indicate which nodes
-#' should be initialized as active.
 #' @param code The tree code for the tree to be activated.
 #'
 #' @examples
@@ -35,7 +33,7 @@ ContextTree <- R6Class(
     #' @description
     #' Initializes a \code{ContextTree} object with a given maximal depth.
     #' If \code{dataset} is provided, the alphabet is inferred from data.
-    initialize = function(dataset = NULL, maximalDepth = 3, active = "root", alphabet = NULL) {
+    initialize = function(dataset = NULL, maximalDepth = 3, alphabet = NULL) {
       if(is.null(dataset) & is.null(alphabet)){
         stop("Either 'data' or 'alphabet' must be provided.")
       }
@@ -73,11 +71,7 @@ ContextTree <- R6Class(
       private$buildByDepth(maximalDepth)
       self$nodes <- as.list(private$nodesEnv)
 
-      if(active == "root"){
-        self$activateRoot()
-      } else {
-        self$activateMaximal()
-      }
+      self$activateMaximal()
 
       private$growableNodes <- names(self$nodes[map_lgl(self$nodes,
                                                         function(node) node$isActive() & !node$isLeaf())])

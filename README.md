@@ -212,7 +212,7 @@ attachment.
 
 | Method | Description |
 |----|----|
-| `$new(dataset, maximalDepth, active, alphabet)` | Construct a context tree |
+| `$new(dataset, maximalDepth, alphabet)` | Construct a context tree |
 | `$getActiveNodes()` | Return paths of active (leaf) nodes |
 | `$getLeaves()` | Return paths of maximal-tree leaves |
 | `$getInnerNodes()` | Return inner nodes of the active tree |
@@ -234,6 +234,6 @@ Extends `ContextTree` with Bayesian machinery.
 
 | Method | Description |
 |----|----|
-| `$new(data, maximalDepth, alpha, priorWeights, active)` | Construct a Bayesian context tree |
+| `$new(data, maximalDepth, alpha, priorWeights)` | Construct a Bayesian context tree |
 | `$runMetropolisHastings(steps)` | Run the MCMC sampler |
 | `$getChain()` | Retrieve the sampled chain as a data frame |

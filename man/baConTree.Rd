@@ -65,7 +65,7 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha, priorWeights, active = "root")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha, priorWeights)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -79,9 +79,6 @@ chain <- bt$getChain()
 
 \item{\code{priorWeights}}{A function to be evaluated at each node that returns
 its weight in the prior distribution.}
-
-\item{\code{active}}{Either "root" or "maximal" to indicate which nodes
-should be initialized as active.}
 }
 \if{html}{\out{</div>}}
 }

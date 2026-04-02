@@ -11,8 +11,7 @@ metropolis_vlmc(
   alpha = 0.001,
   context_weights = function(node) 0,
   burnin = 100,
-  thin = 1,
-  initial_root = TRUE
+  thin = 1
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ metropolis_vlmc(
 \item{burnin}{Integer. Number of initial iterations to discard from posterior summaries.}
 
 \item{thin}{Integer. Thinning interval for posterior summaries.}
-
-\item{initial_root}{Logical. If TRUE, start with root-only tree; if FALSE, start with maximal tree.}
 }
 \value{
 An object of class \code{metropolis_vlmc} with elements:
@@ -44,6 +41,8 @@ An object of class \code{metropolis_vlmc} with elements:
 Runs the Metropolis-Hastings algorithm to sample from the posterior distribution of context trees given sequence data, Dirichlet priors, and context prior weights.
 }
 \details{
+The Markov chain is initialized from the maximal tree (all leaves active).
+
 This function supports progress monitoring via the \strong{progressr} package. Wrap the call in \code{with_progress()} to display a progress bar.
 }
 \examples{
