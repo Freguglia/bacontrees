@@ -425,14 +425,18 @@ ContextTree <- R6Class(
       }
     },
     fillData = function(sequence_vector) {
-      for(t in seq_along(sequence_vector)){
+      for(t in seq_along(sequence_vector)[-seq_len(private$maximalDepth)]){
         current_symbol <- sequence_vector[t]
         node <- self$root()
+        dt <- 0
+        node$counts[current_symbol] <- node$counts[current_symbol] + 1
+        childrenPaths <- node$getChildrenPaths()
         dt <- 1
-        while(!is.null(node) & (t-dt) > 0){
+        while(!node$isLeaf()){
+          node <- self$nodes[[childrenPaths[sequence_vector[t-dt]]]]
           node$counts[current_symbol] <- node$counts[current_symbol] + 1
-          node <- private$nodesEnv[[node$getChildrenPaths()[sequence_vector[t-dt]]]]
           dt <- dt + 1
+          childrenPaths <- node$getChildrenPaths()
         }
       }
     },

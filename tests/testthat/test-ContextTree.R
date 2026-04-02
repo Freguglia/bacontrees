@@ -140,8 +140,7 @@ test_that("Initialization from data infers alphabet and fills counts", {
   tree <- ContextTree$new(abc_vec, maximalDepth = 2)
   expect_setequal(tree$getAlphabet()$symbols, c("a", "b", "c"))
   expect_equal(tree$getMaximalDepth(), 2)
-  # counts at root must sum to length(abc_vec) - 1 (first symbol has no predecessor)
-  expect_equal(sum(tree$root()$counts), length(abc_vec) - 1)
+  expect_equal(sum(tree$root()$counts), length(abc_vec) - 2)
 })
 
 test_that("getDataset returns the attached Sequence object", {
