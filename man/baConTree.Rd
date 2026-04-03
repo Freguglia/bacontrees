@@ -14,7 +14,7 @@ This class provides methods for running MCMC and extracting posterior samples fo
 }
 \examples{
 bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
-                    priorWeights = function(node) -1/3*node$getDepth())
+                    priorWeights = function(node) exp(-1/3*node$getDepth()))
 bt$runMetropolisHastings(300)
 chain <- bt$getChain()
 

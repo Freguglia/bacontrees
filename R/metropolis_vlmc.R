@@ -7,7 +7,7 @@
 #' @param n_steps Integer. Number of MCMC steps to run.
 #' @param max_depth Integer. Maximum depth for the context tree.
 #' @param alpha Numeric. Dirichlet prior parameter for transition probabilities.
-#' @param context_weights Function. Returns the log prior weight for a given node.
+#' @param context_weights Function. Returns the prior weight for a given node.
 #' @param burnin Integer. Number of initial iterations to discard from posterior summaries.
 #' @param thin Integer. Thinning interval for posterior summaries.
 #'
@@ -30,7 +30,7 @@
 #' @export
 metropolis_vlmc <- function(data, n_steps, max_depth = 6,
                             alpha = 0.001,
-                            context_weights = function(node) 0,
+                            context_weights = function(node) 1,
                             burnin = 100,
                             thin = 1){
   bt <- baConTree$new(data, maximalDepth = max_depth, alpha = alpha,

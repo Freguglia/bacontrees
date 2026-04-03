@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
-#'                     priorWeights = function(node) -1/3*node$getDepth())
+#'                     priorWeights = function(node) exp(-1/3*node$getDepth()))
 #' bt$runMetropolisHastings(300)
 #' chain <- bt$getChain()
 #'
@@ -41,6 +41,7 @@ baConTree <- R6Class(
       private$computeIntegratedDirichlet()
       for(node in self$nodes) {
         node$extra$priorWeight <- priorWeights(node)
+        node$extra$logPriorWeight <- log(priorWeights(node))
       }
       private$preComputeRatios()
     },
@@ -124,7 +125,7 @@ baConTree <- R6Class(
 
     preComputeRatios = function(){
       for(node in self$nodes) {
-        node$extra$posteriorWeight <- node$extra$priorWeight +
+        node$extra$posteriorWeight <- node$extra$logPriorWeight +
           node$extra$marginalNodeLL
       }
 

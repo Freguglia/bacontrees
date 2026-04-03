@@ -2,6 +2,16 @@
 
 ## API changes
 
+* The `priorWeights` argument in `baConTree$new()` and the `context_weights`
+argument in `metropolis_vlmc()` now expect a function that returns weights on
+the **natural scale** (i.e. non-log). The `log()` transformation is applied
+internally. The default for `context_weights` has changed from `function(node) 0`
+to `function(node) 1` to preserve the same uniform-prior behaviour.
+
+* Each node's `extra` list now stores both `priorWeight` (natural scale, as
+returned by the user-supplied function) and `logPriorWeight` (log scale, used
+internally for posterior computations).
+
 * In the `baConTree` class, `alpha` and `priorWeights` are now required arguments
 in `$new()` and must be passed at initialization. The `$setAlpha()` and
 `$setContextPriorWeights()` methods have been removed.
