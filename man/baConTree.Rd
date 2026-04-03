@@ -5,6 +5,8 @@
 \title{Bayesian Context Tree R6 Class}
 \value{
 Gets the sampled chain stored.
+
+A \code{numeric} (when \code{log = TRUE}) or a \code{brob} (when \code{log = FALSE}).
 }
 \description{
 The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
@@ -28,6 +30,7 @@ chain <- bt$getChain()
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
+\item \href{#method-baConTree-getMarginalLikelihood}{\code{baConTree$getMarginalLikelihood()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
 }
@@ -116,6 +119,31 @@ To enable progress, register a handler and wrap the function call in
 Chain generated via Metropolis Hastings algorithm.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{baConTree$getChain()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-getMarginalLikelihood"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-getMarginalLikelihood}{}}}
+\subsection{Method \code{getMarginalLikelihood()}}{
+Marginal likelihood of the data under the Bayesian context tree model.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$getMarginalLikelihood(log = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{log}}{Logical. If \code{TRUE} (default), returns the log marginal likelihood
+as a plain R \code{numeric}. If \code{FALSE}, returns the marginal likelihood as a
+\code{brob} object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This is computed from \code{sigmaPosterior/sigmaPrior} at the root node,
+which equals the sum over all trees of \code{prior(T) * p(data | T)},
+normalised by the prior partition function.
 }
 
 }

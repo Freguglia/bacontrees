@@ -1,6 +1,6 @@
 Package: bacontrees
 Title: Bayesian Context Trees for Discrete Sequence Data
-Version: 0.0.3.999
+Version: 0.0.4.999
 Authors@R: 
     person("Victor", "Freguglia", email = "victorfreguglia@gmail.com",
              role = c("aut", "cre"),
@@ -33,7 +33,8 @@ Imports:
     Rcpp,
     igraph,
     ggraph,
-    ggplot2
+    ggplot2,
+    Brobdingnag
 Depends: 
     R (>= 2.10)
 LazyData: true
