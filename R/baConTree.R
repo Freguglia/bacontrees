@@ -110,7 +110,6 @@ baConTree <- R6Class(
   ),
   private = list(
     alpha = numeric(0),
-    hasPrecomputedRatios = FALSE,
     iterations = 0,
     chain = NULL,
     computeIntegratedDirichlet = function(){
