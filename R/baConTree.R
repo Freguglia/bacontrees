@@ -184,7 +184,7 @@ baConTree <- R6Class(
           children_priorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPrior))
           children_posteriorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPosterior))
           node$extra$sigmaPrior <- node$extra$priorWeight + prod(children_priorSigmas)
-          node$extra$sigmaPosterior <- node$extra$priorWeight + prod(children_posteriorSigmas)
+          node$extra$sigmaPosterior <- node$extra$PosteriorWeight + prod(children_posteriorSigmas)
         }
         L <- L - 1
       }
