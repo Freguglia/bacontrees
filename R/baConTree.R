@@ -110,6 +110,51 @@ baConTree <- R6Class(
       private$chain
     },
 
+    #' @description Samples a context tree exactly from the prior or posterior
+    #' distribution using the per-node branching probabilities.
+    #' @param type Either `"prior"` or `"posterior"`. Determines which branching
+    #' probabilities are used for sampling. `"prior"` uses
+    #' `priorBranchingProbability` and `"posterior"` uses
+    #' `posteriorBranchingProbability`.
+    #' @details
+    #' The algorithm starts from the root-only tree and at each non-leaf node
+    #' the tree is grown (via `growActive`) with probability equal to the node's
+    #' branching probability; otherwise the node remains a leaf of the sampled
+    #' tree and its subtree is never visited.
+    #' This yields an exact sample from the prior or posterior
+    #' distribution over context trees.
+    #'
+    #' The branching probability at a node is
+    #' `prod(children sigmaPrior) / sigmaPrior` for the prior, and the
+    #' analogous quantity for the posterior, so that it equals one minus the
+    #' probability that the process stops at that node.
+    #' @return Invisibly returns the active tree code of the sampled tree (a
+    #' character string as produced by `activeTreeCode()`). As a side-effect,
+    #' the object's active tree is set to the sampled tree.
+    sampleTree = function(type = c("prior", "posterior")) {
+      type <- match.arg(type)
+      prob_field <- if (type == "prior") "priorBranchingProbability" else "posteriorBranchingProbability"
+
+      self$activateRoot()
+      queue <- "*"
+
+      while (length(queue) > 0) {
+        path <- queue[[1]]
+        queue <- queue[-1]
+        node <- self$nodes[[path]]
+
+        if (node$isLeaf()) next
+
+        branch_prob <- node$extra[[prob_field]]
+        if (runif(1) < branch_prob) {
+          self$growActive(path)
+          queue <- c(queue, node$getChildrenPaths())
+        }
+      }
+
+      invisible(self$activeTreeCode())
+    },
+
     #' @description Marginal likelihood of the data under the Bayesian context tree model.
     #' @param log Logical. If `TRUE` (default), returns the log marginal likelihood
     #' as a plain R `numeric`. If `FALSE`, returns the marginal likelihood as a
@@ -175,6 +220,8 @@ baConTree <- R6Class(
       for(node in nodes){
         node$extra$sigmaPrior <- as.brob(node$extra$priorWeight)
         node$extra$sigmaPosterior <- node$extra$PosteriorWeight
+        node$extra$priorBranchingProbability <- 0
+        node$extra$posteriorBranchingProbability <- 0
       }
       L <- L - 1
       while(L >= 0){
@@ -185,6 +232,8 @@ baConTree <- R6Class(
           children_posteriorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPosterior))
           node$extra$sigmaPrior <- node$extra$priorWeight + prod(children_priorSigmas)
           node$extra$sigmaPosterior <- node$extra$PosteriorWeight + prod(children_posteriorSigmas)
+          node$extra$priorBranchingProbability <- as.numeric(prod(children_priorSigmas) / node$extra$sigmaPrior)
+          node$extra$posteriorBranchingProbability <- as.numeric(prod(children_posteriorSigmas) / node$extra$sigmaPosterior)
         }
         L <- L - 1
       }

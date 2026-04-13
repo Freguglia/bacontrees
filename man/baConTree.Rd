@@ -30,6 +30,7 @@ chain <- bt$getChain()
 \item \href{#method-baConTree-new}{\code{baConTree$new()}}
 \item \href{#method-baConTree-runMetropolisHastings}{\code{baConTree$runMetropolisHastings()}}
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
+\item \href{#method-baConTree-sampleTree}{\code{baConTree$sampleTree()}}
 \item \href{#method-baConTree-getMarginalLikelihood}{\code{baConTree$getMarginalLikelihood()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
@@ -121,6 +122,46 @@ Chain generated via Metropolis Hastings algorithm.
 \if{html}{\out{<div class="r">}}\preformatted{baConTree$getChain()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-sampleTree"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-sampleTree}{}}}
+\subsection{Method \code{sampleTree()}}{
+Samples a context tree exactly from the prior or posterior
+distribution using the per-node branching probabilities.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$sampleTree(type = c("prior", "posterior"))}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{Either \code{"prior"} or \code{"posterior"}. Determines which branching
+probabilities are used for sampling. \code{"prior"} uses
+\code{priorBranchingProbability} and \code{"posterior"} uses
+\code{posteriorBranchingProbability}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The algorithm starts from the root-only tree and processes nodes in
+breadth-first order. At each non-leaf node the tree is grown (via
+\code{growActive}) with probability equal to the node's branching probability;
+otherwise the node remains a leaf of the sampled tree and its subtree is
+never visited. This yields an exact sample from the prior or posterior
+distribution over context trees.
+
+The branching probability at a node is
+\verb{prod(children sigmaPrior) / sigmaPrior} for the prior, and the
+analogous quantity for the posterior, so that it equals one minus the
+probability that the process stops at that node.
+}
+
+\subsection{Returns}{
+Invisibly returns the active tree code of the sampled tree (a
+character string as produced by \code{activeTreeCode()}). As a side-effect,
+the object's active tree is set to the sampled tree.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-baConTree-getMarginalLikelihood"></a>}}

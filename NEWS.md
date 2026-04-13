@@ -2,6 +2,17 @@
 
 ## New features
 
+* `baConTree` nodes now store `priorBranchingProbability` and
+  `posteriorBranchingProbability` in their `extra` list. These are computed
+  during initialisation as `prod(children sigmaPrior) / sigmaPrior` (and the
+  posterior analogue), representing the probability that the tree branches at
+  that node rather than stopping.
+
+* `baConTree` now exposes a `$sampleTree(type)` method for exact sampling from
+  the prior (`type = "prior"`) or posterior (`type = "posterior"`) distribution
+  over context trees. The method sets the active tree to the sampled tree and
+  invisibly returns its tree code.
+
 * `baConTree` now exposes a `$getMarginalLikelihood(log = TRUE)` method that
 returns the marginal likelihood of the data under the Bayesian context tree
 model (i.e. `sigmaPosterior / sigmaPrior` at the root, summed over all trees).

@@ -79,3 +79,103 @@ test_that("getMarginalLikelihood is finite and negative for non-trivial data", {
   expect_true(is.finite(log_ml))
   expect_lt(log_ml, 0)
 })
+
+# --- Branching probability tests ---
+
+test_that("priorBranchingProbability is 0 for maximal-depth leaf nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 2, alpha = 0.1,
+                      priorWeights = function(node) 1)
+  L <- bt$getMaximalDepth()
+  leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() == L)]
+  probs <- sapply(leaf_nodes, function(n) n$extra$priorBranchingProbability)
+  expect_true(all(probs == 0))
+})
+
+test_that("posteriorBranchingProbability is 0 for maximal-depth leaf nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 2, alpha = 0.1,
+                      priorWeights = function(node) 1)
+  L <- bt$getMaximalDepth()
+  leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() == L)]
+  probs <- sapply(leaf_nodes, function(n) n$extra$posteriorBranchingProbability)
+  expect_true(all(probs == 0))
+})
+
+test_that("priorBranchingProbability is in [0, 1] for all nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  probs <- sapply(bt$nodes, function(n) n$extra$priorBranchingProbability)
+  expect_true(all(probs >= 0 & probs <= 1))
+})
+
+test_that("posteriorBranchingProbability is in [0, 1] for all nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  probs <- sapply(bt$nodes, function(n) n$extra$posteriorBranchingProbability)
+  expect_true(all(probs >= 0 & probs <= 1))
+})
+
+test_that("priorBranchingProbability at root equals correct value under constant prior", {
+  # With priorWeights = 1, m = 3, L = 1: sigmaPrior(root) = 1 + 1^3 = 2
+  # branchingProb(root) = 1/2
+  bt <- baConTree$new(abc_vec, maximalDepth = 1, alpha = 0.1,
+                      priorWeights = function(node) 1)
+  expect_equal(bt$nodes[["*"]]$extra$priorBranchingProbability, 0.5)
+})
+
+test_that("priorBranching + stopping probability = 1 for all non-maximal nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  L <- bt$getMaximalDepth()
+  non_leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() < L)]
+  for (node in non_leaf_nodes) {
+    stopping_prob <- as.numeric(node$extra$priorWeight / node$extra$sigmaPrior)
+    branching_prob <- node$extra$priorBranchingProbability
+    expect_equal(stopping_prob + branching_prob, 1, tolerance = 1e-10)
+  }
+})
+
+test_that("posteriorBranching + stopping probability = 1 for all non-maximal nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  L <- bt$getMaximalDepth()
+  non_leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() < L)]
+  for (node in non_leaf_nodes) {
+    stopping_prob <- as.numeric(node$extra$PosteriorWeight / node$extra$sigmaPosterior)
+    branching_prob <- node$extra$posteriorBranchingProbability
+    expect_equal(stopping_prob + branching_prob, 1, tolerance = 1e-10)
+  }
+})
+
+# --- sampleTree tests ---
+
+test_that("sampleTree returns a character tree code", {
+  set.seed(42)
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  code <- bt$sampleTree("prior")
+  expect_type(code, "character")
+})
+
+test_that("sampleTree is reproducible with set.seed", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) 1)
+  set.seed(7)
+  code1 <- bt$sampleTree("prior")
+  set.seed(7)
+  code2 <- bt$sampleTree("prior")
+  expect_equal(code1, code2)
+})
+
+test_that("sampleTree returns root-only tree when root branchingProbability is effectively 0", {
+  # With priorWeight(root) >> prod(children_sigmaPrior), branchingProb -> 0
+  # L=1, m=3: prod(children_sigmaPrior) = 1^3 = 1; root priorWeight = 1e300
+  # branchingProb(root) = 1 / (1e300 + 1) ~ 1e-300 (converts to 0 as numeric)
+  bt <- baConTree$new(abc_vec, maximalDepth = 1, alpha = 0.1,
+                      priorWeights = function(node) if (node$getDepth() == 0) 1e300 else 1)
+  bt$activateRoot()
+  root_only_code <- bt$activeTreeCode()
+  for (i in 1:10) {
+    code <- bt$sampleTree("prior")
+    expect_equal(code, root_only_code)
+  }
+})
