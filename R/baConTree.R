@@ -46,7 +46,6 @@ baConTree <- R6Class(
       private$computeLogQ()
       private$preComputeRatios()
       private$buildRecursiveFunctions()
-      self$activateMap()
     },
 
 
@@ -187,7 +186,9 @@ baConTree <- R6Class(
     #' node is pruned). Otherwise, the node is deactivated, its children are activated, and the
     #' procedure continues recursively.
     #' @returns
-    #' The object with its active tree corresponding to the MAP tree.
+    #' Invisibly returns the contexts of the MAP tree and makes the MAP tree the
+    #' active tree of the object.
+
     activateMap = function(){
       self$activateRoot()
       repeat {
@@ -205,7 +206,7 @@ baConTree <- R6Class(
         }
         if (!changed) break
       }
-     self},
+      invisible(self$getActiveNodes())},
 
     #' @description
     #' Computes the prior and posterior probabilities of the active tree under the
