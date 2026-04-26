@@ -29,7 +29,11 @@ baConTree <- R6Class(
     #' @param alpha Hyperparameter for the Dirichlet prior distribution of probabilities.
     #' @param priorWeights A function to be evaluated at each node that returns
     #' its weight in the prior distribution.
-    initialize = function(data, maximalDepth = 5, alpha, priorWeights) {
+    #' @param initialTree Either `"map"` (default) or `"root"`. Controls the
+    #' initial active tree: `"map"` activates the MAP tree immediately after
+    #' initialization, while `"root"` starts from the root-only tree.
+    initialize = function(data, maximalDepth = 5, alpha, priorWeights, initialTree = c("map", "root")) {
+      initialTree <- match.arg(initialTree)
       super$initialize(data, maximalDepth)
       self$activateRoot()
       if(!self$validate()) {
@@ -45,7 +49,8 @@ baConTree <- R6Class(
       }
       private$computeLogQ()
       private$preComputeRatios()
-      private$buildRecursiveSigma()
+      private$buildRecursiveFunctions()
+      if (initialTree == "map") self$activateMap()
     },
 
 
@@ -59,6 +64,7 @@ baConTree <- R6Class(
     #' To enable progress, register a handler and wrap the function call in
     #' `with_progress()`.
     runMetropolisHastings = function(steps){
+      self$activateRoot()
       pb <- progressor(steps/10)
       if(is.null(private$chain)){
         private$chain <- data.frame(t = seq(0, steps, 1), tree = character(steps + 1))
@@ -128,7 +134,7 @@ baConTree <- R6Class(
     #' `prod(children sigmaPrior) / sigmaPrior` for the prior, and the
     #' analogous quantity for the posterior, so that it equals one minus the
     #' probability that the process stops at that node.
-    #' @return Invisibly returns the active tree code of the sampled tree (a
+    #' @return Returns the active tree code of the sampled tree (a
     #' character string as produced by `activeTreeCode()`). As a side-effect,
     #' the object's active tree is set to the sampled tree.
     sampleTree = function(type = c("prior", "posterior")) {
@@ -152,7 +158,7 @@ baConTree <- R6Class(
         }
       }
 
-      invisible(self$activeTreeCode())
+      self$activeTreeCode()
     },
 
     #' @description Marginal likelihood of the data under the Bayesian context tree model.
@@ -171,8 +177,78 @@ baConTree <- R6Class(
       } else {
         root$extra$sigmaPosterior / root$extra$sigmaPrior
       }
-    }
-  ),
+    },
+
+    #' @description
+    #' Activates the smallest Maximum a Posteriori (MAP) tree under the Bayesian
+    #' context tree model.
+    #' @details
+    #' Starting from the root node (initially active) and proceeding recursively
+    #' through its descendants. The method compares the posterior weight at the node
+    #' with the maximum posterior value attainable over all sub-tree configurations below it.
+    #' If stopping at the node achieves the maximum posterior (`node$extra$isMapLeaf = TRUE`) the
+    #' node remains active and the recursion stops along that branch (i.e., the sub-tree below
+    #' the node is pruned). Otherwise, the node is deactivated, its children are activated, and
+    #' the procedure continues recursively.
+    #' @returns
+    #' Invisibly returns the object itself. As a side-effect,
+    #' the MAP tree is set as the active tree.
+
+    activateMap = function(){
+      self$activateRoot()
+      repeat {
+        activenodes <- self$getActiveNodes(FALSE)
+        changed <- FALSE
+        for (node in activenodes) {
+          if (node$extra$isMapLeaf == FALSE) {
+            childs <- node$getChildrenPaths()
+            for (path in childs) {
+              self$nodes[[path]]$activate()
+            }
+            node$deactivate()
+            changed <- TRUE
+          }
+        }
+        if (!changed) break
+      }
+      invisible(self)
+      },
+
+    #' @description
+    #' Computes the prior and posterior probabilities of the active tree under the
+    #' Bayesian context tree model.
+    #' @details
+    #' The probabilities are obtained by taking the product of the weights associated
+    #' with all active nodes in the tree. These quantities are then normalized by the
+    #' corresponding normalizing constants, namely the value of `sigmaPrior` at the
+    #' root node for the prior and the value of `sigmaPosterior` at the root for the posterior.
+    #'
+    #' For numerical stability, all computations are performed on the logarithmic scale,
+    #' which avoids underflow when dealing with small values.
+    #' @param log Logical. If `FALSE` (default), returns the prior and posterior
+    #' probabilities of the active tree. If `TRUE`, returns their logarithms.
+    #' @returns
+    #' A list of length two, containing the prior and posterior probabilities
+    #' (or their logarithms, if `log = TRUE`), in this order.
+    infoActiveTree = function(log = FALSE){
+      root <- self$nodes[["*"]]
+      log_prior <- 0
+      log_posterior <- 0
+      for (node in self$getActiveNodes(FALSE)) {
+        log_prior <- log_prior + node$extra$logPriorWeight
+        log_posterior <- log_posterior + node$extra$logPosteriorWeight
+      }
+      log_sigmaPrior <- log(root$extra$sigmaPrior)
+      log_sigmaPosterior <- log(root$extra$sigmaPosterior)
+
+      if(log){
+        list(log_prior = as.numeric(log_prior - log_sigmaPrior),
+             log_posterior = as.numeric(log_posterior - log_sigmaPosterior))
+      } else {
+        list(prior =  exp(log_prior - log_sigmaPrior),
+             posterior = exp(log_posterior - log_sigmaPosterior))
+      }}),
+
   private = list(
     alpha = numeric(0),
     iterations = 0,
@@ -214,12 +290,14 @@ baConTree <- R6Class(
       }
     },
 
-    buildRecursiveSigma = function(){
+    buildRecursiveFunctions = function(){
       L <- self$getMaximalDepth()
       nodes <- self$nodes[sapply(self$nodes, function(node) node$getDepth()) == L]
       for(node in nodes){
         node$extra$sigmaPrior <- as.brob(node$extra$priorWeight)
         node$extra$sigmaPosterior <- node$extra$PosteriorWeight
+        node$extra$bestPosterior <- node$extra$PosteriorWeight
+        node$extra$isMapLeaf <- TRUE
         node$extra$priorBranchingProbability <- 0
         node$extra$posteriorBranchingProbability <- 0
       }
@@ -230,8 +308,15 @@ baConTree <- R6Class(
           node_children <- self$nodes[node$getChildrenPaths()]
           children_priorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPrior))
           children_posteriorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPosterior))
+          children_bestPosteriors <- cbrobl(sapply(node_children, function(node) node$extra$bestPosterior))
           node$extra$sigmaPrior <- node$extra$priorWeight + prod(children_priorSigmas)
           node$extra$sigmaPosterior <- node$extra$PosteriorWeight + prod(children_posteriorSigmas)
+          if (node$extra$PosteriorWeight >= prod(children_bestPosteriors)) {
+            node$extra$bestPosterior <- node$extra$PosteriorWeight
+            node$extra$isMapLeaf <- TRUE
+          } else {
+            node$extra$bestPosterior <- prod(children_bestPosteriors)
+            node$extra$isMapLeaf <- FALSE}
           node$extra$priorBranchingProbability <- as.numeric(prod(children_priorSigmas) / node$extra$sigmaPrior)
           node$extra$posteriorBranchingProbability <- as.numeric(prod(children_posteriorSigmas) / node$extra$sigmaPosterior)
         }

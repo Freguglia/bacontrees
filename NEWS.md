@@ -13,11 +13,17 @@
   over context trees. The method sets the active tree to the sampled tree and
   invisibly returns its tree code.
 
+* `baConTree` now exposes a `$activateMap()` method that sets the active tree
+  to the Maximum a Posteriori (MAP) tree — the context tree with the highest
+  posterior probability. `baConTree$new()` also gains an `initialTree` argument
+  (`"map"` or `"root"`, defaulting to `"map"`) to control which tree is active
+  right after construction.
+
 * `baConTree` now exposes a `$getMarginalLikelihood(log = TRUE)` method that
-returns the marginal likelihood of the data under the Bayesian context tree
-model (i.e. `sigmaPosterior / sigmaPrior` at the root, summed over all trees).
-Pass `log = TRUE` (default) for a plain R `numeric` on the log scale, or
-`log = FALSE` for the exact value as a `brob` object.
+  returns the marginal likelihood of the data under the Bayesian context tree
+  model (i.e. `sigmaPosterior / sigmaPrior` at the root, summed over all trees).
+  Pass `log = TRUE` (default) for a plain R `numeric` on the log scale, or
+  `log = FALSE` for the exact value as a `brob` object.
 
 # bacontrees 0.0.3
 
