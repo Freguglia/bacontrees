@@ -7,6 +7,12 @@
 Gets the sampled chain stored.
 
 A \code{numeric} (when \code{log = TRUE}) or a \code{brob} (when \code{log = FALSE}).
+
+Invisibly returns the object itself. As a side-effect,
+the MAP tree is set as the active tree.
+
+A list of length two, containing the prior and posterior probabilities
+(or their logarithms, if \code{log = TRUE}), in this order.
 }
 \description{
 The \code{baConTree} class extends \code{ContextTree} to support Bayesian inference, including Dirichlet priors, context prior weights, and Metropolis-Hastings sampling for posterior inference on context trees.
@@ -32,6 +38,8 @@ chain <- bt$getChain()
 \item \href{#method-baConTree-getChain}{\code{baConTree$getChain()}}
 \item \href{#method-baConTree-sampleTree}{\code{baConTree$sampleTree()}}
 \item \href{#method-baConTree-getMarginalLikelihood}{\code{baConTree$getMarginalLikelihood()}}
+\item \href{#method-baConTree-activateMap}{\code{baConTree$activateMap()}}
+\item \href{#method-baConTree-infoActiveTree}{\code{baConTree$infoActiveTree()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
 }
@@ -69,7 +77,13 @@ chain <- bt$getChain()
 \if{latex}{\out{\hypertarget{method-baConTree-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(data, maximalDepth = 5, alpha, priorWeights)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$new(
+  data,
+  maximalDepth = 5,
+  alpha,
+  priorWeights,
+  initialTree = c("map", "root")
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -83,6 +97,10 @@ chain <- bt$getChain()
 
 \item{\code{priorWeights}}{A function to be evaluated at each node that returns
 its weight in the prior distribution.}
+
+\item{\code{initialTree}}{Either \code{"map"} (default) or \code{"root"}. Controls the
+initial active tree: \code{"map"} activates the MAP tree immediately after
+initialization, while \code{"root"} starts from the root-only tree.}
 }
 \if{html}{\out{</div>}}
 }
@@ -144,11 +162,11 @@ probabilities are used for sampling. \code{"prior"} uses
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
-The algorithm starts from the root-only tree and processes nodes in
-breadth-first order. At each non-leaf node the tree is grown (via
-\code{growActive}) with probability equal to the node's branching probability;
-otherwise the node remains a leaf of the sampled tree and its subtree is
-never visited. This yields an exact sample from the prior or posterior
+The algorithm starts from the root-only tree and at each non-leaf node
+the tree is grown (via \code{growActive}) with probability equal to the node's
+branching probability; otherwise the node remains a leaf of the sampled
+tree and its subtree is never visited.
+This yields an exact sample from the prior or posterior
 distribution over context trees.
 
 The branching probability at a node is
@@ -158,7 +176,7 @@ probability that the process stops at that node.
 }
 
 \subsection{Returns}{
-Invisibly returns the active tree code of the sampled tree (a
+Returns the active tree code of the sampled tree (a
 character string as produced by \code{activeTreeCode()}). As a side-effect,
 the object's active tree is set to the sampled tree.
 }
@@ -185,6 +203,56 @@ as a plain R \code{numeric}. If \code{FALSE}, returns the marginal likelihood as
 This is computed from \code{sigmaPosterior/sigmaPrior} at the root node,
 which equals the sum over all trees of \code{prior(T) * p(data | T)},
 normalised by the prior partition function.
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-activateMap"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-activateMap}{}}}
+\subsection{Method \code{activateMap()}}{
+Activates the smallest Maximum a Posteriori (MAP) tree under the Bayesian
+context tree model.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$activateMap()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Starting from the root node (initially active) and proceeding recursively
+through its descendants. The method compares the posterior weight at the node
+with the maximum posterior value attainable over all sub-tree configurations below it.
+If stopping at the node achieves the maximum posterior (\code{node$extra$isMapLeaf = TRUE}) the
+node remains active and the recursion stops along that branch (i.e., the sub-tree below
+the node is pruned). Otherwise, the node is deactivated, its children are activated, and
+the procedure continues recursively.
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-baConTree-infoActiveTree"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-infoActiveTree}{}}}
+\subsection{Method \code{infoActiveTree()}}{
+Computes the prior and posterior probabilities of the active tree under the
+Bayesian context tree model.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$infoActiveTree(log = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{log}}{Logical. If \code{FALSE} (default), returns the prior and posterior
+probabilities of the active tree. If \code{TRUE}, returns their logarithms.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The probabilities are obtained by taking the product of the weights associated
+with all active nodes in the tree. These quantities are then normalized by the
+corresponding normalizing constants, namely the value of \code{sigmaPrior} at the
+root node for the prior and the value of \code{sigmaPosterior} at the root for the posterior.
+
+For numerical stability, all computations are performed on the logarithmic scale,
+which avoids underflow when dealing with small values.
 }
 
 }

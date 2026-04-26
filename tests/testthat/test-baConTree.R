@@ -175,7 +175,98 @@ test_that("sampleTree returns root-only tree when root branchingProbability is e
   bt$activateRoot()
   root_only_code <- bt$activeTreeCode()
   for (i in 1:10) {
-    code <- bt$sampleTree("prior")
-    expect_equal(code, root_only_code)
+    bt$sampleTree("prior")
+    expect_equal(bt$activeTreeCode(), root_only_code)
   }
+})
+
+# --- activateMap tests ---
+
+test_that("activateMap returns the baConTree object invisibly", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  result <- bt$activateMap()
+  expect_identical(result, bt)
+})
+
+test_that("activateMap sets only isMapLeaf nodes active", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  bt$activateMap()
+  for (node in bt$getActiveNodes(FALSE)) {
+    expect_true(node$extra$isMapLeaf)
+  }
+
+  expect_setequal(bt$getActiveNodes(TRUE),
+                  c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
+})
+
+test_that("activateMap posterior >= root-only tree posterior", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  bt$activateMap()
+  map_log_post <- bt$infoActiveTree(log = TRUE)$log_posterior
+
+  bt$activateRoot()
+  root_log_post <- bt$infoActiveTree(log = TRUE)$log_posterior
+  expect_gte(map_log_post, root_log_post)
+})
+
+test_that("activateMap is idempotent", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  bt$activateMap()
+  code1 <- bt$activeTreeCode()
+  bt$activateMap()
+  code2 <- bt$activeTreeCode()
+  expect_equal(code1, code2)
+})
+
+# --- initialTree argument tests ---
+
+test_that("initialTree = 'map' matches activateMap result", {
+  bt_root <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                           priorWeights = function(node) exp(-1/3 * node$getDepth()),
+                           initialTree = "root")
+  bt_root$activateMap()
+
+  bt_map <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                          priorWeights = function(node) exp(-1/3 * node$getDepth()),
+                          initialTree = "map")
+
+  expect_equal(bt_root$activeTreeCode(), bt_map$activeTreeCode())
+})
+
+test_that("initialTree = 'map' is the default and starts at map tree", {
+  bt_default <- baConTree$new(abc_vec, maximalDepth = 2, alpha = 0.1,
+                              priorWeights = function(node) 1)
+  bt_explicit <- baConTree$new(abc_vec, maximalDepth = 2, alpha = 0.1,
+                               priorWeights = function(node) 1, initialTree = "map")
+  expect_equal(bt_default$activeTreeCode(), bt_explicit$activeTreeCode())
+})
+
+test_that("isMapLeaf is TRUE for all maximal-depth nodes", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 2, alpha = 0.1,
+                      priorWeights = function(node) 1)
+  L <- bt$getMaximalDepth()
+  leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() == L)]
+  for (node in leaf_nodes) {
+    expect_true(node$extra$isMapLeaf)
+  }
+})
+
+test_that("bestPosterior at each node >= its own PosteriorWeight", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()))
+  for (node in bt$nodes) {
+    expect_gte(as.numeric(node$extra$bestPosterior), as.numeric(node$extra$PosteriorWeight) - 1e-10)
+  }
+})
+
+test_that("initialTree = 'root' starts at the root-only tree", {
+  bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
+                      priorWeights = function(node) exp(-1/3 * node$getDepth()),
+                      initialTree = "root")
+  expect_length(bt$getActiveNodes(FALSE), 1)
+  expect_equal(bt$getActiveNodes(TRUE), "*")
 })
