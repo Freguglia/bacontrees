@@ -47,6 +47,7 @@ chain <- bt$getChain()
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateByCode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateByCode'><code>bacontrees::ContextTree$activateByCode()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateFromContexts"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateFromContexts'><code>bacontrees::ContextTree$activateFromContexts()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateMaximal"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateMaximal'><code>bacontrees::ContextTree$activateMaximal()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activateRoot"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activateRoot'><code>bacontrees::ContextTree$activateRoot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="bacontrees" data-topic="ContextTree" data-id="activeTreeCode"><a href='../../bacontrees/html/ContextTree.html#method-ContextTree-activeTreeCode'><code>bacontrees::ContextTree$activeTreeCode()</code></a></span></li>

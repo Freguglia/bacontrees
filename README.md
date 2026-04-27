@@ -21,8 +21,7 @@ past. `bacontrees` provides:
 - A **Bayesian** method: `metropolis_vlmc()` (and the `baConTree` class)
   runs a Metropolis-Hastings MCMC sampler to obtain a full posterior
   distribution over context trees.
-- Simulation utilities (`rvlmc()`) and construction helpers
-  (`treeFromContexts()`).
+- Simulation utilities (`rvlmc()`).
 - R6 classes (`ContextTree`, `baConTree`) that expose the full tree
   structure for building custom algorithms.
 
@@ -98,16 +97,18 @@ head(seq1, 20)
 
 ### Building a context tree manually
 
-`treeFromContexts()` creates a `ContextTree` whose active nodes exactly
-match a supplied set of contexts.
+`ContextTree$activateFromContexts()` sets the active nodes of an
+existing tree to match a supplied set of contexts.
 
 ``` r
-ct <- treeFromContexts(c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
-ct$getActiveNodes()
+tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 2)
+tree$activateFromContexts(c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
+tree$getActiveNodes()
 #> [1] "*.c.b" "*.c.c" "*.a"   "*.b"   "*.c.a"
 ```
 
-You can also create a `ContextTree` directly and manipulate it:
+You can also use `$activateMaximal()` or `$activateRoot()` to switch
+between the deepest and shallowest trees:
 
 ``` r
 tree <- ContextTree$new(abc_list, maximalDepth = 3)
@@ -158,7 +159,7 @@ with_progress({
     n_steps       = 2000,
     max_depth     = 3,
     alpha         = 0.01,
-    context_weights = function(node) -node$getDepth() / 3,
+    context_weights = function(node) exp(-node$getDepth() / 3),
     burnin        = 200
   )
 })
@@ -187,7 +188,7 @@ For more control, use the `baConTree` R6 class directly.
 
 ``` r
 bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
-                    priorWeights = function(node) -node$getDepth() / 3)
+                    priorWeights = function(node) exp(-node$getDepth() / 3))
 
 with_progress(bt$runMetropolisHastings(2000))
 
@@ -219,6 +220,7 @@ attachment.
 | `$activateRoot()` | Set active tree to root-only |
 | `$activateMaximal()` | Set active tree to all maximal leaves |
 | `$activateByCode(code)` | Restore a previously stored tree code |
+| `$activateFromContexts(contexts)` | Set active tree to match a context vector or string |
 | `$growActive(path)` | Grow the active tree at a given node |
 | `$pruneActive(path)` | Prune the active tree at a given node |
 | `$setData(dataset)` | Attach sequence data and compute counts |
@@ -234,6 +236,9 @@ Extends `ContextTree` with Bayesian machinery.
 
 | Method | Description |
 |----|----|
-| `$new(data, maximalDepth, alpha, priorWeights)` | Construct a Bayesian context tree |
+| `$new(data, maximalDepth, alpha, priorWeights, initialTree)` | Construct a Bayesian context tree |
 | `$runMetropolisHastings(steps)` | Run the MCMC sampler |
 | `$getChain()` | Retrieve the sampled chain as a data frame |
+| `$activateMap()` | Set active tree to the MAP tree |
+| `$sampleTree(type)` | Sample a tree from the prior or posterior |
+| `$getMarginalLikelihood(log)` | Return the marginal likelihood of the data |

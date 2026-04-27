@@ -159,3 +159,62 @@ test_that("Initialization errors when alphabet is incompatible with data", {
   expect_error(ContextTree$new(abc_vec, maximalDepth = 2, alphabet = bad_alphabet))
 })
 
+# activateFromContexts ---------------------------------------------------------
+
+test_that("activateFromContexts activates the correct nodes from a vector", {
+  tree <- ContextTree$new(alphabet = c("0", "1"), maximalDepth = 2)
+  contexts <- c("*.0", "*.1.0", "*.1.1")
+  tree$activateFromContexts(contexts)
+  expect_setequal(tree$getActiveNodes(), contexts)
+})
+
+test_that("activateFromContexts parses a brace-enclosed comma-separated string", {
+  tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 2)
+  tree$activateFromContexts("{*.a, *.b, *.c.a, *.c.b, *.c.c}")
+  expect_setequal(tree$getActiveNodes(), c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
+})
+
+test_that("activateFromContexts handles extra whitespace in brace string", {
+  tree <- ContextTree$new(alphabet = c("x", "y", "z"), maximalDepth = 1)
+  tree$activateFromContexts("{  *.x ,*.y,  *.z  }")
+  expect_setequal(tree$getActiveNodes(), c("*.x", "*.y", "*.z"))
+})
+
+test_that("activateFromContexts errors on invalid (incomplete) tree", {
+  tree <- ContextTree$new(alphabet = c("0", "1", "2"), maximalDepth = 3)
+  expect_error(
+    tree$activateFromContexts(c("*.0", "*.1.0", "*.1.1", "*.2.0.1")),
+    regexp = "full tree"
+  )
+})
+
+test_that("activateFromContexts errors when contexts use unknown symbols", {
+  tree <- ContextTree$new(alphabet = c("a", "b"), maximalDepth = 2)
+  expect_error(
+    tree$activateFromContexts(c("*.x", "*.y")),
+    regexp = "alphabet"
+  )
+})
+
+test_that("activateFromContexts errors when contexts exceed maximal depth", {
+  tree <- ContextTree$new(alphabet = c("0", "1"), maximalDepth = 1)
+  expect_error(
+    tree$activateFromContexts(c("*.0.0", "*.0.1", "*.1.0", "*.1.1")),
+    regexp = "depth"
+  )
+})
+
+test_that("activateFromContexts can be called on a tree that already has data", {
+  tree <- ContextTree$new(abc_list, maximalDepth = 2)
+  contexts <- c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c")
+  tree$activateFromContexts(contexts)
+  expect_setequal(tree$getActiveNodes(), contexts)
+})
+
+test_that("activateFromContexts returns the tree invisibly for chaining", {
+  tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 2)
+  result <- tree$activateFromContexts(c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
+  expect_identical(result, tree)
+})
+
+

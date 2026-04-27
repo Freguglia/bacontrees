@@ -2,6 +2,12 @@
 
 ## New features
 
+* `treeFromContexts()` has been removed. Instead, `ContextTree` now exposes an
+  `$activateFromContexts(contexts)` method that activates a specific tree on an
+  existing `ContextTree` object. It accepts the same input format as the old
+  function (a character vector of context paths, or a single brace-enclosed
+  comma-separated string).
+
 * `baConTree` nodes now store `priorBranchingProbability` and
   `posteriorBranchingProbability` in their `extra` list. These are computed
   during initialisation as `prod(children sigmaPrior) / sigmaPrior` (and the
