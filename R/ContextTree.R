@@ -23,6 +23,7 @@
 #'
 #' @importFrom purrr map_chr map_lgl map map_int
 #' @importFrom glue glue
+#' @importFrom stringr str_split str_replace_all str_count
 #' @export
 ContextTree <- R6Class(
   "ContextTree",
@@ -176,6 +177,50 @@ ContextTree <- R6Class(
           siblings <- private$nodes_[private$nodes_[[node$getParentPath()]]$getChildrenPaths()]
           all(map_lgl(siblings, ~.x$isActive()))
         })])
+    },
+
+    #' @description
+    #' Sets the active tree to match a specified set of contexts, given as a
+    #' character vector or a brace-enclosed comma-separated string. The contexts
+    #' must be compatible with the tree's existing alphabet and maximal depth.
+    #' @param contexts Character vector or string. A vector of context paths
+    #'   (e.g., \code{c("*.a", "*.b.a", "*.b.b")}) or a single brace-enclosed
+    #'   string (e.g., \code{"\{*.a, *.b.a, *.b.b\}"}).
+    activateFromContexts = function(contexts) {
+      if (length(contexts) == 1) {
+        raw <- str_replace_all(contexts, "\\{|\\}", "")
+        parts <- str_split(string = raw, pattern = ",")[[1]]
+        contexts <- trimws(parts)
+        contexts <- contexts[nzchar(contexts)]
+      }
+
+      if (!validate_tree_string(contexts)) {
+        stop("Contexts do not correspond to a full tree.")
+      }
+
+      context_alphabet <- setdiff(unique(unlist(str_split(contexts, "\\."))), "*")
+      if (!all(context_alphabet %in% private$Alphabet$symbols)) {
+        stop("Contexts use symbols not in the tree's alphabet.")
+      }
+
+      max_depth <- max(str_count(contexts, "\\."))
+      if (max_depth > private$maximalDepth) {
+        stop("Contexts require a greater depth than the tree's maximal depth.")
+      }
+
+      self$activateRoot()
+      current_depth <- 0
+      while (length(setdiff(self$getActiveNodes(idx = TRUE), contexts)) > 0) {
+        subcontexts <- substr(contexts, start = 1, stop = current_depth * 2 + 1)
+        for (sc in unique(subcontexts)) {
+          if (!sc %in% contexts) {
+            self$growActive(sc)
+          }
+        }
+        current_depth <- current_depth + 1
+      }
+
+      invisible(self)
     },
 
     #' @return Returns the leaf nodes of the maximal Context Tree (regardless of

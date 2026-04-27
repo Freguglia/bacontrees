@@ -36,6 +36,7 @@ print(tree)
 \item \href{#method-ContextTree-activateRoot}{\code{ContextTree$activateRoot()}}
 \item \href{#method-ContextTree-activateMaximal}{\code{ContextTree$activateMaximal()}}
 \item \href{#method-ContextTree-activateByCode}{\code{ContextTree$activateByCode()}}
+\item \href{#method-ContextTree-activateFromContexts}{\code{ContextTree$activateFromContexts()}}
 \item \href{#method-ContextTree-getLeaves}{\code{ContextTree$getLeaves()}}
 \item \href{#method-ContextTree-getInnerNodes}{\code{ContextTree$getInnerNodes()}}
 \item \href{#method-ContextTree-nodeExists}{\code{ContextTree$nodeExists()}}
@@ -202,6 +203,27 @@ from the \code{activeTreeCode} method.
 \item{\code{code}}{The tree code for the tree to be activated.}
 
 \item{\code{code}}{The tree code for the tree to be activated.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTree-activateFromContexts"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTree-activateFromContexts}{}}}
+\subsection{Method \code{activateFromContexts()}}{
+Sets the active tree to match a specified set of contexts, given as a
+character vector or a brace-enclosed comma-separated string. The contexts
+must be compatible with the tree's existing alphabet and maximal depth.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTree$activateFromContexts(contexts)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{contexts}}{Character vector or string. A vector of context paths
+(e.g., \code{c("*.a", "*.b.a", "*.b.b")}) or a single brace-enclosed
+string (e.g., \code{"\{*.a, *.b.a, *.b.b\}"}).}
 }
 \if{html}{\out{</div>}}
 }
