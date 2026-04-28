@@ -59,9 +59,9 @@ exactly the contexts of the fitted model.
 
 ### Included data
 
-The package ships with two example datasets — `abc_vec` (a single
+The package ships with two example datasets: `abc_vec` (a single
 sequence of length 1000) and `abc_list` (a list of three sequences of
-length 1000 each) — generated from a three-symbol VLMC with alphabet
+length 1000 each), generated from a three-symbol VLMC with alphabet
 `{a, b, c}`.
 
 ``` r
@@ -93,31 +93,6 @@ seq1 <- rvlmc(1000, alphabet, context_list, context_probs)
 head(seq1, 20)
 #>  [1] "a" "a" "a" "a" "c" "c" "b" "a" "b" "a" "a" "c" "c" "a" "c" "c" "b" "c" "b"
 #> [20] "b"
-```
-
-### Building a context tree manually
-
-`ContextTree$activateFromContexts()` sets the active nodes of an
-existing tree to match a supplied set of contexts.
-
-``` r
-tree <- ContextTree$new(alphabet = c("a", "b", "c"), maximalDepth = 2)
-tree$activateFromContexts(c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
-tree$getActiveNodes()
-#> [1] "*.c.b" "*.c.c" "*.a"   "*.b"   "*.c.a"
-```
-
-You can also use `$activateMaximal()` or `$activateRoot()` to switch
-between the deepest and shallowest trees:
-
-``` r
-tree <- ContextTree$new(abc_list, maximalDepth = 3)
-tree$activateMaximal()   # start from the deepest level
-tree$getActiveNodes()
-#>  [1] "*.a.b.c" "*.b.c.a" "*.a.a.a" "*.b.c.b" "*.a.a.b" "*.b.c.c" "*.a.a.c"
-#>  [8] "*.b.b.a" "*.b.b.b" "*.b.b.c" "*.c.c.a" "*.b.a.a" "*.c.c.b" "*.b.a.b"
-#> [15] "*.c.b.a" "*.c.c.c" "*.b.a.c" "*.c.b.b" "*.c.b.c" "*.c.a.a" "*.c.a.b"
-#> [22] "*.c.a.c" "*.a.c.a" "*.a.c.b" "*.a.b.a" "*.a.c.c" "*.a.b.b"
 ```
 
 ### Frequentist fitting — `fit_vlmc()`
@@ -214,9 +189,18 @@ attachment.
 | Method | Description |
 |----|----|
 | `$new(dataset, maximalDepth, alphabet)` | Construct a context tree |
+| `$root()` | Return the root node |
+| `$validate()` | Check that the maximal tree structure is valid |
+| `$getMaximalDepth()` | Return the maximal depth of the tree |
 | `$getActiveNodes()` | Return paths of active (leaf) nodes |
 | `$getLeaves()` | Return paths of maximal-tree leaves |
 | `$getInnerNodes()` | Return inner nodes of the active tree |
+| `$getGrowableNodes()` | Return active nodes that can be grown |
+| `$getPrunableNodes()` | Return active nodes that can be pruned |
+| `$nodeExists(path)` | Check if a node with the given path exists |
+| `$getParentNode(path)` | Return the parent of a node |
+| `$getChildrenNodes(path)` | Return the children of a node |
+| `$getSiblingNodes(path)` | Return the siblings of a node |
 | `$activateRoot()` | Set active tree to root-only |
 | `$activateMaximal()` | Set active tree to all maximal leaves |
 | `$activateByCode(code)` | Restore a previously stored tree code |
@@ -240,5 +224,6 @@ Extends `ContextTree` with Bayesian machinery.
 | `$runMetropolisHastings(steps)` | Run the MCMC sampler |
 | `$getChain()` | Retrieve the sampled chain as a data frame |
 | `$activateMap()` | Set active tree to the MAP tree |
-| `$sampleTree(type)` | Sample a tree from the prior or posterior |
+| `$sampleTree(type)` | Sample a tree exactly from the prior or posterior |
 | `$getMarginalLikelihood(log)` | Return the marginal likelihood of the data |
+| `$activeTreeProbabilities(log)` | Return prior and posterior probabilities of the active tree |
