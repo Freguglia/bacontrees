@@ -39,7 +39,7 @@ chain <- bt$getChain()
 \item \href{#method-baConTree-sampleTree}{\code{baConTree$sampleTree()}}
 \item \href{#method-baConTree-getMarginalLikelihood}{\code{baConTree$getMarginalLikelihood()}}
 \item \href{#method-baConTree-activateMap}{\code{baConTree$activateMap()}}
-\item \href{#method-baConTree-infoActiveTree}{\code{baConTree$infoActiveTree()}}
+\item \href{#method-baConTree-activeTreeProbabilities}{\code{baConTree$activeTreeProbabilities()}}
 \item \href{#method-baConTree-clone}{\code{baConTree$clone()}}
 }
 }
@@ -229,13 +229,13 @@ the procedure continues recursively.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-baConTree-infoActiveTree"></a>}}
-\if{latex}{\out{\hypertarget{method-baConTree-infoActiveTree}{}}}
-\subsection{Method \code{infoActiveTree()}}{
+\if{html}{\out{<a id="method-baConTree-activeTreeProbabilities"></a>}}
+\if{latex}{\out{\hypertarget{method-baConTree-activeTreeProbabilities}{}}}
+\subsection{Method \code{activeTreeProbabilities()}}{
 Computes the prior and posterior probabilities of the active tree under the
 Bayesian context tree model.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{baConTree$infoActiveTree(log = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{baConTree$activeTreeProbabilities(log = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

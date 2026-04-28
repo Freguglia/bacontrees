@@ -140,7 +140,7 @@ test_that("posteriorBranching + stopping probability = 1 for all non-maximal nod
   L <- bt$getMaximalDepth()
   non_leaf_nodes <- bt$nodes[sapply(bt$nodes, function(n) n$getDepth() < L)]
   for (node in non_leaf_nodes) {
-    stopping_prob <- as.numeric(node$extra$PosteriorWeight / node$extra$sigmaPosterior)
+    stopping_prob <- as.numeric(node$extra$posteriorWeight / node$extra$sigmaPosterior)
     branching_prob <- node$extra$posteriorBranchingProbability
     expect_equal(stopping_prob + branching_prob, 1, tolerance = 1e-10)
   }
@@ -205,10 +205,10 @@ test_that("activateMap posterior >= root-only tree posterior", {
   bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
                       priorWeights = function(node) exp(-1/3 * node$getDepth()))
   bt$activateMap()
-  map_log_post <- bt$infoActiveTree(log = TRUE)$log_posterior
+  map_log_post <- bt$activeTreeProbabilities(log = TRUE)$log_posterior
 
   bt$activateRoot()
-  root_log_post <- bt$infoActiveTree(log = TRUE)$log_posterior
+  root_log_post <- bt$activeTreeProbabilities(log = TRUE)$log_posterior
   expect_gte(map_log_post, root_log_post)
 })
 
@@ -255,11 +255,11 @@ test_that("isMapLeaf is TRUE for all maximal-depth nodes", {
   }
 })
 
-test_that("bestPosterior at each node >= its own PosteriorWeight", {
+test_that("bestPosterior at each node >= its own posteriorWeight", {
   bt <- baConTree$new(abc_vec, maximalDepth = 3, alpha = 0.1,
                       priorWeights = function(node) exp(-1/3 * node$getDepth()))
   for (node in bt$nodes) {
-    expect_gte(as.numeric(node$extra$bestPosterior), as.numeric(node$extra$PosteriorWeight) - 1e-10)
+    expect_gte(as.numeric(node$extra$bestPosterior), as.numeric(node$extra$posteriorWeight) - 1e-10)
   }
 })
 

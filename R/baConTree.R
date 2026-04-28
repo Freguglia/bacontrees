@@ -196,23 +196,17 @@ baConTree <- R6Class(
 
     activateMap = function(){
       self$activateRoot()
-      repeat {
-        activenodes <- self$getActiveNodes(FALSE)
-        changed <- FALSE
-        for (node in activenodes) {
-          if (node$extra$isMapLeaf == FALSE) {
-            childs <- node$getChildrenPaths()
-            for (path in childs) {
-              self$nodes[[path]]$activate()
-            }
-            node$deactivate()
-            changed <- TRUE
-          }
+      queue <- list(self$root())
+      while (length(queue) > 0) {
+        node <- queue[[1]]
+        queue <- queue[-1]
+        if (!node$extra$isMapLeaf) {
+          self$growActive(node$getPath())
+          queue <- c(queue, self$nodes[node$getChildrenPaths()])
         }
-        if (!changed) break
       }
       invisible(self)
-      },
+    },
 
     #' @description
     #' Computes the prior and posterior probabilities of the active tree under the
@@ -230,7 +224,7 @@ baConTree <- R6Class(
     #' @returns
     #' A list of length two, containing the prior and posterior probabilities
     #' (or their logarithms, if `log = TRUE`), in this order.
-    infoActiveTree = function(log = FALSE){
+    activeTreeProbabilities = function(log = FALSE){
       root <- self$nodes[["*"]]
       log_prior <- 0
       log_posterior <- 0
@@ -262,7 +256,7 @@ baConTree <- R6Class(
         node$extra$nodeLogQ <- result
         node$extra$logPosteriorWeight <- node$extra$logPriorWeight +
           node$extra$nodeLogQ
-        node$extra$PosteriorWeight <- exp(as.brob(node$extra$logPosteriorWeight))
+        node$extra$posteriorWeight <- exp(as.brob(node$extra$logPosteriorWeight))
       }
     },
 
@@ -272,11 +266,11 @@ baConTree <- R6Class(
         if(!node$isLeaf()){
           childrenPosteriorSum <- sum(map_dbl(self$nodes[node$getChildrenPaths()],
                                               ~.x$extra$logPosteriorWeight))
-          node$extra$childrenPosteriorWeight <- childrenPosteriorSum
+          node$extra$childrenLogPosteriorWeight <- childrenPosteriorSum
         } else {
-          node$extra$childrenPosteriorWeight <- NA
+          node$extra$childrenLogPosteriorWeight <- NA
         }
-        node$extra$growPosteriorRatio <- node$extra$childrenPosteriorWeight -
+        node$extra$growPosteriorRatio <- node$extra$childrenLogPosteriorWeight -
           node$extra$logPosteriorWeight
       }
 
@@ -295,8 +289,8 @@ baConTree <- R6Class(
       nodes <- self$nodes[sapply(self$nodes, function(node) node$getDepth()) == L]
       for(node in nodes){
         node$extra$sigmaPrior <- as.brob(node$extra$priorWeight)
-        node$extra$sigmaPosterior <- node$extra$PosteriorWeight
-        node$extra$bestPosterior <- node$extra$PosteriorWeight
+        node$extra$sigmaPosterior <- node$extra$posteriorWeight
+        node$extra$bestPosterior <- node$extra$posteriorWeight
         node$extra$isMapLeaf <- TRUE
         node$extra$priorBranchingProbability <- 0
         node$extra$posteriorBranchingProbability <- 0
@@ -310,9 +304,9 @@ baConTree <- R6Class(
           children_posteriorSigmas <- cbrobl(sapply(node_children, function(node) node$extra$sigmaPosterior))
           children_bestPosteriors <- cbrobl(sapply(node_children, function(node) node$extra$bestPosterior))
           node$extra$sigmaPrior <- node$extra$priorWeight + prod(children_priorSigmas)
-          node$extra$sigmaPosterior <- node$extra$PosteriorWeight + prod(children_posteriorSigmas)
-          if (node$extra$PosteriorWeight >= prod(children_bestPosteriors)) {
-            node$extra$bestPosterior <- node$extra$PosteriorWeight
+          node$extra$sigmaPosterior <- node$extra$posteriorWeight + prod(children_posteriorSigmas)
+          if (node$extra$posteriorWeight >= prod(children_bestPosteriors)) {
+            node$extra$bestPosterior <- node$extra$posteriorWeight
             node$extra$isMapLeaf <- TRUE
           } else {
             node$extra$bestPosterior <- prod(children_bestPosteriors)
