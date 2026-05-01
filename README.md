@@ -16,14 +16,15 @@ also known as Variable Length Markov Chains (VLMCs), are parsimonious
 Markov models where the order of dependence can vary with the observed
 past. `bacontrees` provides:
 
-- A **frequentist** method: `fit_vlmc()` estimates the context tree via
-  the context algorithm with likelihood-ratio pruning.
-- A **Bayesian** method: `metropolis_vlmc()` (and the `baConTree` class)
-  runs a Metropolis-Hastings MCMC sampler to obtain a full posterior
-  distribution over context trees.
+- A **generic tree structure** (`ContextTree`) that exposes the full
+  context tree for building custom algorithms.
+- **Exact Bayesian inference** (`baConTree`): closed-form marginal
+  likelihood, exact MAP tree, exact prior/posterior probabilities for
+  any tree, and exact sampling from the posterior — all via an efficient
+  recursive algorithm.
+- A **frequentist** estimator: `fit_vlmc()` estimates the context tree
+  via the context algorithm with likelihood-ratio pruning.
 - Simulation utilities (`rvlmc()`).
-- R6 classes (`ContextTree`, `baConTree`) that expose the full tree
-  structure for building custom algorithms.
 
 ## Installation
 
@@ -53,7 +54,15 @@ fixed-order Markov chains.
 The set of contexts forms a complete subtree of the full (maximal)
 suffix tree over the alphabet. `bacontrees` represents this subtree
 explicitly as a `ContextTree` object, whose *active* leaf nodes are
-exactly the contexts of the fitted model.
+exactly the contexts of the model.
+
+Under the Bayesian formulation, a Dirichlet prior is placed on the
+transition probabilities at each context and a prior distribution over
+tree topologies is defined through per-node weights. The resulting
+posterior over trees can be computed **exactly**: a single bottom-up
+recursion over the maximal tree yields the marginal likelihood, the
+posterior probability of every candidate tree, the MAP tree, and an
+exact sampler — all without MCMC.
 
 ## Usage
 
@@ -119,11 +128,76 @@ plot(fit)
 
 <img src="man/figures/README-plot-1.png" alt="Context tree plot" width="100%" />
 
-### Bayesian inference — `metropolis_vlmc()`
+### Exact Bayesian inference — `baConTree`
 
-`metropolis_vlmc()` runs a Metropolis-Hastings MCMC sampler and returns
-the posterior distribution over context trees, summarised as a data
-frame ordered by posterior probability.
+`baConTree` extends `ContextTree` with Bayesian machinery. On
+construction it runs a bottom-up recursion that precomputes the
+normalising constants ($\sigma$-values) at every node of the maximal
+tree. These values make all key Bayesian quantities available as direct,
+closed-form computations.
+
+``` r
+bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
+                    priorWeights = function(node) exp(-node$getDepth() / 3))
+```
+
+#### Marginal likelihood
+
+The exact log marginal likelihood of the data (integrating over all tree
+topologies and all transition probability matrices) is available
+immediately after construction:
+
+``` r
+bt$getMarginalLikelihood(log = TRUE)
+#> [1] -2665.658
+```
+
+#### MAP tree
+
+The MAP tree is found exactly in a single top-down pass — no sampling
+required:
+
+``` r
+bt$activateMap()
+bt$getActiveNodes()
+#> [1] "*.a"   "*.c.a" "*.b"   "*.c.b" "*.c.c"
+```
+
+#### Exact posterior probabilities
+
+The prior and posterior probability of *any* candidate tree can be
+evaluated exactly by activating that tree and calling
+`activeTreeProbabilities()`:
+
+``` r
+bt$activateFromContexts(c("*.a", "*.b", "*.c.a", "*.c.b", "*.c.c"))
+bt$activeTreeProbabilities()
+#> $prior
+#> [1] 0.04045974
+#> 
+#> $posterior
+#> [1] 0.9998251
+```
+
+#### Exact sampling
+
+Draw independent samples directly from the prior or posterior without
+MCMC:
+
+``` r
+set.seed(1)
+bt$sampleTree("posterior")
+#> [1] "AAAAADNAAA"
+bt$getActiveNodes()
+#> [1] "*.a"   "*.c.a" "*.b"   "*.c.b" "*.c.c"
+```
+
+### Metropolis-Hastings sampling — `metropolis_vlmc()`
+
+For settings where exact enumeration is not the goal (e.g., diagnosing
+multimodality or studying the mixing behaviour of MCMC on tree spaces),
+`metropolis_vlmc()` provides a Metropolis-Hastings sampler over context
+trees.
 
 ``` r
 library(progressr)
@@ -157,34 +231,14 @@ The returned object contains:
 | `$chain`     | Full MCMC chain of tree codes (for convergence diagnostics) |
 | `$baConTree` | The `baConTree` object used internally                      |
 
-### Fine-grained Bayesian control — `baConTree`
-
-For more control, use the `baConTree` R6 class directly.
-
-``` r
-bt <- baConTree$new(abc_list, maximalDepth = 3, alpha = 0.01,
-                    priorWeights = function(node) exp(-node$getDepth() / 3))
-
-with_progress(bt$runMetropolisHastings(2000))
-
-chain <- bt$getChain()
-head(chain)
-#>   t       tree
-#> 1 0 AAAAAAAAAB
-#> 2 1 AAAAACKAAA
-#> 3 2 AAAAADNAAA
-#> 4 3 AAAAADNAAA
-#> 5 4 AAAAADNAAA
-#> 6 5 AAAAADNAAA
-```
-
 ## Class reference
 
 ### `ContextTree`
 
 The core data structure. Manages the maximal suffix tree, tracks which
 nodes are *active* (the current context set), and handles data
-attachment.
+attachment. Designed to be subclassed or used directly for building
+custom algorithms over context trees.
 
 | Method | Description |
 |----|----|
@@ -216,14 +270,17 @@ attachment.
 
 ### `baConTree`
 
-Extends `ContextTree` with Bayesian machinery.
+Extends `ContextTree` with exact Bayesian inference. The constructor
+runs a bottom-up recursion to precompute the normalising constants for
+the prior and posterior, enabling all quantities below to be evaluated
+without MCMC.
 
 | Method | Description |
 |----|----|
-| `$new(data, maximalDepth, alpha, priorWeights, initialTree)` | Construct a Bayesian context tree |
-| `$runMetropolisHastings(steps)` | Run the MCMC sampler |
-| `$getChain()` | Retrieve the sampled chain as a data frame |
-| `$activateMap()` | Set active tree to the MAP tree |
-| `$sampleTree(type)` | Sample a tree exactly from the prior or posterior |
-| `$getMarginalLikelihood(log)` | Return the marginal likelihood of the data |
-| `$activeTreeProbabilities(log)` | Return prior and posterior probabilities of the active tree |
+| `$new(data, maximalDepth, alpha, priorWeights, initialTree)` | Construct a Bayesian context tree and precompute recursive quantities |
+| `$getMarginalLikelihood(log)` | Exact marginal likelihood of the data |
+| `$activateMap()` | Set active tree to the exact MAP tree |
+| `$activeTreeProbabilities(log)` | Exact prior and posterior probabilities of the active tree |
+| `$sampleTree(type)` | Draw an exact independent sample from the prior or posterior |
+| `$runMetropolisHastings(steps)` | Run a Metropolis-Hastings MCMC sampler (optional) |
+| `$getChain()` | Retrieve the MCMC chain as a data frame |
