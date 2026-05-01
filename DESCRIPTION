@@ -1,10 +1,13 @@
 Package: bacontrees
 Title: Bayesian Context Trees for Discrete Sequence Data
 Version: 0.0.4.999
-Authors@R: 
+Authors@R: c(
     person("Victor", "Freguglia", email = "victorfreguglia@gmail.com",
              role = c("aut", "cre"),
-             comment = c(ORCID = "0000-0002-6189-4453"))
+             comment = c(ORCID = "0000-0002-6189-4453")),
+    person("Thiago", "Paulichen",
+             role = "ctb",
+             comment = c(ORCID = "0009-0002-5505-2409")))
 Description: Models discrete sequential data using Bayesian Context Trees
     (BaConTrees). Context trees, also known as Variable Length Markov
     Chains (VLMCs), are parsimonious Markov models where the order of

@@ -11,5 +11,10 @@ Models discrete sequential data using Bayesian Context Trees (BaConTrees). Conte
 \author{
 \strong{Maintainer}: Victor Freguglia \email{victorfreguglia@gmail.com} (\href{https://orcid.org/0000-0002-6189-4453}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Thiago Paulichen (\href{https://orcid.org/0009-0002-5505-2409}{ORCID}) [contributor]
+}
+
 }
 \keyword{internal}
