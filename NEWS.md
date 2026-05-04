@@ -1,5 +1,14 @@
 # bacontrees 0.0.4
 
+## Changes
+
+* `plot.baConTree()` has been redesigned to reflect the package's focus on
+  exact Bayesian inference. Node fill now encodes `posteriorBranchingProbability`
+  (the posterior probability that the node has children in the true context
+  tree). The previous version coloured nodes
+  by `prunePosteriorRatio`, a quantity specific to the Metropolis-Hastings
+  sampler with no direct probabilistic interpretation.
+
 ## New features
 
 * `treeFromContexts()` has been removed. Instead, `ContextTree` now exposes an

@@ -320,18 +320,34 @@ baConTree <- R6Class(
   )
 )
 
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom igraph V edge_attr<- ends E
+#' @title Plot method for baConTree class
+#' @param x A \code{baConTree} object.
+#' @param ... Not used.
+#'
+#' @details Plots the full maximal tree. Each node is labelled and filled
+#' according to its posterior branching probability,
+#' i.e. the probability that the node has children in the true context tree
+#' given the data. Values close to 1 (dark blue) indicate near-certain
+#' branching; values close to 0 (white) indicate the node is likely a leaf.
+#' Active edges are drawn solid and inactive edges dotted, matching the
+#' convention of \code{plot.ContextTree}.
+#'
+#' The plot is done using ggraph and can be further modified.
+#' @importFrom ggraph ggraph geom_edge_diagonal0 geom_node_label scale_edge_linetype_manual
+#' @importFrom ggplot2 aes scale_fill_gradient ggtitle
 #' @export
-plot.baConTree <- function(x, ...){
+plot.baConTree <- function(x, ...) {
   ig <- x$igraph(activeOnly = FALSE)
-  ends_mat <- ends(ig, E(ig))
-  values <- V(ig)[ends_mat[, 2]]$prunePosteriorRatio
-  edge_attr(ig, "prunePosteriorRatio") <- values
   ggraph(ig, layout = "tree") +
-    geom_edge_diagonal0() +
-    geom_node_label(aes(label = nodeLabel, fill = prunePosteriorRatio)) +
-    scale_fill_gradient2(low = "red", high = "blue", midpoint = 0)
+    geom_edge_diagonal0(aes(linetype = state)) +
+    geom_node_label(aes(label = nodeLabel,
+                        fill  = posteriorBranchingProbability)) +
+    scale_fill_gradient(low = "white", high = "steelblue",
+                        limits = c(0, 1),
+                        name = "Branch Probability") +
+    scale_edge_linetype_manual(values = c("active" = "solid",
+                                          "inactive" = "dotted")) +
+    ggtitle("Bayesian Context Tree: Posterior Branching Probabilities")
 }
 
 cbrobl <- function(x){
