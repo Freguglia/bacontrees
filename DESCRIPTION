@@ -1,6 +1,6 @@
 Package: bacontrees
 Title: Bayesian Context Trees for Discrete Sequence Data
-Version: 0.0.4.999
+Version: 1.0.0
 Authors@R: c(
     person("Victor", "Freguglia", email = "victorfreguglia@gmail.com",
              role = c("aut", "cre"),
