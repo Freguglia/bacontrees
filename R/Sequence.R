@@ -73,11 +73,6 @@ Sequence <- R6Class(
 #' @return
 #' An R6 object of class `Sequence`.
 #'
-#' @examples
-#' \dontrun{
-#' seq <- Sequence$new(c("a", "b", "a", "c"))
-#' seq$print()
-#' }
 #'
 #' @export
 Sequence

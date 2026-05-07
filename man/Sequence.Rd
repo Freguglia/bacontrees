@@ -42,10 +42,3 @@ Internally, all sequences are stored as integer vectors using
 }
 }
 
-\examples{
-\dontrun{
-seq <- Sequence$new(c("a", "b", "a", "c"))
-seq$print()
-}
-
-}
